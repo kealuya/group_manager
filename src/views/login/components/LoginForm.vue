@@ -1,34 +1,55 @@
 <template>
   <div class="login-title">
-    <img class="icon" src="@/assets/image/logo.png" alt="logo" />
-    <h2 class="title">Vue-Admin-Perfect</h2>
+    <h2 class="title">项目管理系统<span>.</span></h2>
+    <div class="title-explain">还没有账号？去<span>注册</span>....</div>
   </div>
   <el-form
       ref="ruleFormRef"
       :model="ruleForm"
       :rules="rules"
+      :size="size"
   >
-    <el-form-item label="" prop="username">
-      <el-input
-          placeholder="请输入用户名"
-          autoComplete="on"
-          style="position: relative"
-          v-model="ruleForm.username"
-          @keyup.enter.native="submitForm(ruleFormRef)"
-      >
-        <template #prefix>
-          <el-icon class="el-input__icon"><UserFilled /></el-icon>
-        </template>
-      </el-input>
-    </el-form-item>
+    <el-row :gutter="20">
+      <el-col :span="12">
+        <el-form-item label="" prop="username">
+          <el-input
+            placeholder="请输入用户名"
+            autoComplete="on"
+            style="position: relative"
+            v-model="ruleForm.username"
+            @keyup.enter.native="submitForm(ruleFormRef)"
+          >
+            <template #prefix>
+              <el-icon class="el-input__icon"><UserFilled /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
+      </el-col>
+      <el-col :span="12">
+        <el-form-item label="" prop="workNumber">
+          <el-input
+            placeholder="请输入用户名"
+            autoComplete="on"
+            style="position: relative"
+            v-model="ruleForm.workNumber"
+            @keyup.enter.native="submitForm(ruleFormRef)"
+          >
+            <template #prefix>
+              <el-icon class="el-input__icon"><UserFilled /></el-icon>
+            </template>
+          </el-input>
+        </el-form-item>
 
+      </el-col>
+
+    </el-row>
     <el-form-item label="" prop="password">
       <el-input
-          placeholder="请输入密码"
-          autoComplete="on"
-          @keyup.enter.native="submitForm(ruleFormRef)"
-          v-model="ruleForm.password"
-          :type="passwordType"
+        placeholder="请输入密码"
+        autoComplete="on"
+        @keyup.enter.native="submitForm(ruleFormRef)"
+        v-model="ruleForm.password"
+        :type="passwordType"
       >
         <template #prefix>
           <el-icon class="el-input__icon"><GoodsFilled /></el-icon>
@@ -40,6 +61,7 @@
         </template>
       </el-input>
     </el-form-item>
+
 
     <el-form-item style="width: 100%">
       <el-button
@@ -59,6 +81,8 @@ import { ElNotification } from "element-plus";
 import { useRouter } from 'vue-router'
 import {useUserStore} from "@/store/modules/user"
 import {getTimeStateStr} from '@/utils/index'
+const size = ref('large')
+
 
 const router = useRouter()
 const UserStore = useUserStore()
@@ -67,12 +91,14 @@ const passwordType = ref('password')
 const loading = ref(false)
 
 const rules = reactive({
-  password: [{ required: true, message: "请输入用户名", trigger: "blur" }],
-  username: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
+  username: [{ required: true, message: "请输入姓名", trigger: "blur" }],
+  workNumber:[{ required: true, message: "请输入工号", trigger: "blur" }],
 })
 
 // 表单数据
 const ruleForm = reactive({
+  workNumber:'1634',
   username: 'admin',
   password: '123456',
 })

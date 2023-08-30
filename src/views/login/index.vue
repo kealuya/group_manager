@@ -5,9 +5,11 @@
 <!--      <div class="login-left">-->
 <!--        <img src="@/assets/image/login/side-logo.png" >-->
 <!--      </div>-->
+      <img src="@/assets/image/login/qrcode-icon1.png" class="qrcode" @click="handleClick">
+
       <div class="login-form">
-        <div class="info-qrcode" >{{ accountLogin?'扫码登录':'账号登录' }}</div>
-        <img src="@/assets/image/login/qrcode-icon.png" class="qrcode" @click="handleClick">
+<!--        <div class="info-qrcode" >{{ accountLogin?'扫码登录':'账号登录' }}</div>-->
+
 
         <LoginForm v-if="accountLogin"/>
         <LoginQrcode v-else/>
