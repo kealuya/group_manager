@@ -1,4 +1,9 @@
 $dark_gray: #889aa4;
+// 样式修改
+::v-deep .v-messages{
+  color:#f56c6c !important;
+}
+
 .login-box {
   position: relative;
   width: 100%;

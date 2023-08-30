@@ -25,9 +25,21 @@ import "@/assets/iconfont/iconfont.js";
 const app = createApp(App)
 registerElIcons(app)
 
+// Vuetify
+import 'vuetify/styles'
+// import '@/styles/main.scss'
+import { createVuetify } from 'vuetify'
+import  * as components  from 'vuetify/components'
+import * as directives from 'vuetify/directives'
+const vuetify = createVuetify({
+    components,
+    directives
+})
+
+
 app.component('svg-icon',SvgIcon)
 app.component('PageWrapLayout',PageWrapLayout)
 
 app.use(pinia)
 app.use(router)
-app.use(ElementPlus).mount('#app')
+app.use(ElementPlus).use(vuetify).mount('#app')
