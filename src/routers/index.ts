@@ -16,10 +16,12 @@ import othersRouter from './modules/other'
 import externalLink from './modules/externalLink'
 import formRouter from './modules/form'
 import functionPageRouter from './modules/functionPage'
+import workStage from "@/routers/modules/workStage";
 
 
 // 异步组件
 export const asyncRoutes = [
+    ...workStage,
     ...dataScreenRouter,
     ...echartsRouter,
     ...tableRouter,
@@ -31,6 +33,7 @@ export const asyncRoutes = [
     ...excelRouter,
     ...externalLink,
     ...systemRouter,
+
 ]
 
 /**
