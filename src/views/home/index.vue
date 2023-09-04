@@ -3,26 +3,36 @@
     <el-row class="row-bg" :gutter="10">
       <el-col :xs="24" :sm="12" :lg="8">
         <el-card class="box-card" style="height: 100%">
-          <el-image
-              class="wechat"
-              :src="weLogo"
-              :preview-src-list="[weLogo]"
-              style="max-width: 200px"
-              :data-resid="Date.now()"
-          />
+          <!--          <el-image-->
+          <!--              class="wechat"-->
+          <!--              :src="weLogo"-->
+          <!--              :preview-src-list="[weLogo]"-->
+          <!--              style="max-width: 200px"-->
+          <!--              :data-resid="Date.now()"-->
+          <!--          />-->
           <div class="personal">
-            <div>
-              <el-avatar :size="50" :src="AvatarLogo" />
+            <div class="avatar">
+              <el-avatar :size="100" :src="AvatarLogo" />
             </div>
-            <div class="name"></div>
+            <div class="name">张琦</div>
             <div class="description"></div>
+            <el-row class="number-row">
+              <el-col :span="11">
+                <div class="number">6</div>
+                <div class="number-description">项目数量</div>
+              </el-col>
+              <el-col :span="2">|</el-col>
+              <el-col :span="11">
+                <div class="number">586</div>
+                <div class="number-description">未读信息</div>
+              </el-col>
+            </el-row>
             <div class="list">
-              <div>昵称：小狼</div>
+              <div>工号：1634</div>
               <div>职业：前端</div>
-              <div>公司：小公司</div>
-              <div>年龄：~~</div>
-              <div>性别：男</div>
-              <div>现住址：中国-浙江-杭州</div>
+              <div>公司：浩天教育</div>
+              <div>年龄：18</div>
+              <div>性别：女</div>
               <div>邮箱：1135957121@qq.com</div>
               <div>微信：19550102670(欢迎加微信入群)</div>
               <div>技术栈：JavaScript、HTML、CSS、Vue、Node、React</div>
@@ -52,20 +62,26 @@
             <el-card style="margin-bottom: 10px">
               <div class="grid-content">
                 <div class="left"
-                ><el-icon style="font-size: 24px; color: white"><user /></el-icon
-                ></div>
+                >
+                  <el-icon style="font-size: 24px; color: white">
+                    <user />
+                  </el-icon
+                  >
+                </div>
                 <div class="right">
                   <div
-                      class="h2"
-                      style="color: #2d8cf0"
-                  ><count-to
+                    class="h2"
+                    style="color: #2d8cf0"
+                  >
+                    <count-to
                       :start-val="0"
                       :end-val="5268"
                       :duration="2000"
                       :autoplay="true"
-                  ></count-to
-                  ></div>
-                  <div>用户访问量 </div>
+                    ></count-to
+                    >
+                  </div>
+                  <div>用户访问量</div>
                 </div>
               </div>
             </el-card>
@@ -74,20 +90,26 @@
             <el-card style="margin-bottom: 10px">
               <div class="grid-content">
                 <div class="left" style="background: #64d572"
-                ><el-icon style="font-size: 24px; color: white"><user /></el-icon
-                ></div>
+                >
+                  <el-icon style="font-size: 24px; color: white">
+                    <user />
+                  </el-icon
+                  >
+                </div>
                 <div class="right">
                   <div
-                      class="h2"
-                      style="color: #64d572"
-                  ><count-to
+                    class="h2"
+                    style="color: #64d572"
+                  >
+                    <count-to
                       :start-val="0"
                       :end-val="9599"
                       :duration="2000"
                       :autoplay="true"
-                  ></count-to
-                  ></div>
-                  <div>系统消息 </div>
+                    ></count-to
+                    >
+                  </div>
+                  <div>系统消息</div>
                 </div>
               </div>
             </el-card>
@@ -96,20 +118,26 @@
             <el-card style="margin-bottom: 10px">
               <div class="grid-content">
                 <div class="left" style="background: #f25e43"
-                ><el-icon style="font-size: 24px; color: white"><user /></el-icon
-                ></div>
+                >
+                  <el-icon style="font-size: 24px; color: white">
+                    <user />
+                  </el-icon
+                  >
+                </div>
                 <div class="right">
                   <div
-                      class="h2"
-                      style="color: #f25e43"
-                  ><count-to
+                    class="h2"
+                    style="color: #f25e43"
+                  >
+                    <count-to
                       :start-val="0"
                       :end-val="595453"
                       :duration="2000"
                       :autoplay="true"
-                  ></count-to
-                  ></div>
-                  <div>数量 </div>
+                    ></count-to
+                    >
+                  </div>
+                  <div>数量</div>
                 </div>
               </div>
             </el-card>
@@ -123,24 +151,26 @@
           </template>
           <div style="display: flex">
             <el-card
-                style="flex: 1; margin-right: 20px; cursor: pointer"
-                class="card-item"
-                @click="goTo('https://ext.dcloud.net.cn/plugin?id=7511')"
+              style="flex: 1; margin-right: 20px; cursor: pointer"
+              class="card-item"
+              @click="goTo('https://ext.dcloud.net.cn/plugin?id=7511')"
             >
               <div style="color: white; margin-bottom: 10px"><h3>zb-table</h3></div>
               <div style="font-size: 12px; color: white"
               >uniapp 表格组件
-                支持固定表头和首列、上拉加载更多、及固定多列，表格自适应内容，排序，多选checkbox、可点击删除，编辑、合计功能，兼容多端</div
+                支持固定表头和首列、上拉加载更多、及固定多列，表格自适应内容，排序，多选checkbox、可点击删除，编辑、合计功能，兼容多端
+              </div
               >
             </el-card>
             <el-card
-                style="flex: 1; cursor: pointer"
-                class="card-item"
-                @click="goTo('https://github.com/zouzhibin/vue-admin-perfect')"
+              style="flex: 1; cursor: pointer"
+              class="card-item"
+              @click="goTo('https://github.com/zouzhibin/vue-admin-perfect')"
             >
               <div style="color: white; margin-bottom: 10px"><h3>vue-admin-perfect</h3></div>
               <div style="font-size: 12px; color: white"
-              >系统基于vue3+vuex+ element-plus+ts后台管理系统</div
+              >系统基于vue3+vuex+ element-plus+ts后台管理系统
+              </div
               >
             </el-card>
           </div>
@@ -160,16 +190,16 @@
   </div>
 </template>
 <script setup lang="ts">
-  import { User } from '@element-plus/icons-vue'
-  import { ref } from 'vue'
-  import AvatarLogo from '@/assets/image/avatar.png'
-  import weLogo from '@/assets/image/we.png'
-  import CountTo from '@/components/CountTo/index.vue'
-  import BarCharts from '@/views/echarts/simple/components/bar.vue'
+import { User } from "@element-plus/icons-vue";
+import { ref } from "vue";
+import AvatarLogo from "@/assets/image/avatar.png";
+import weLogo from "@/assets/image/we.png";
+import CountTo from "@/components/CountTo/index.vue";
+import BarCharts from "@/views/echarts/simple/components/bar.vue";
 
-  const goTo = (url) => {
-    window.open(url, '_blank')
-  }
+const goTo = (url) => {
+  window.open(url, "_blank");
+};
 </script>
 
 <style scoped lang="scss">

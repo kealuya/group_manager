@@ -1,8 +1,8 @@
 $dark_gray: #889aa4;
 // 样式修改
-::v-deep .v-messages{
-  color:#f56c6c !important;
-}
+//::v-deep .v-messages{
+//  color:#f56c6c !important;
+//}
 
 .login-box {
   position: relative;
@@ -100,7 +100,7 @@ $dark_gray: #889aa4;
   }
   ::v-deep(.el-input__wrapper){
     background-color: #323644;
-    opacity: .8;
+    opacity: .9;
     box-shadow: none;
   }
   ::v-deep(.el-input__inner),::v-deep(.el-input__prefix){
