@@ -7,12 +7,23 @@
 <script lang="ts" setup>
   import {computed} from "vue";
   import {useSettingStore} from "@/store/modules/setting"
+
+  //配置vue-quill
+  import { createApp } from 'vue'
+  import { QuillEditor } from '@vueup/vue-quill'
+  import '@vueup/vue-quill/dist/vue-quill.snow.css';
+
   // 配置element中文
   import zhCn from 'element-plus/es/locale/lang/zh-cn'
 
   const SettingStore = useSettingStore()
   // 配置全局组件大小
   const globalComSize = computed(():string=>SettingStore.themeConfig.globalComSize)
+
+
+  //配置vue-quill
+  const app = createApp()
+  app.component('QuillEditor', QuillEditor)
 </script>
 
 <style lang="scss">

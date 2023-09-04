@@ -1,7 +1,7 @@
 <template>
   <div class="m-user-table">
     <div class="card-right-header">
-      <el-button type="primary" @click="addProgram">添加项目</el-button>
+      <el-button type="primary" @click="addProgram">+项目</el-button>
       <el-form :inline="true" :model="formInline" ref="ruleFormRef">
         <el-form-item label="用户名" prop="username">
           <el-input v-model="formInline.username" placeholder="请输入用户名" />
@@ -58,6 +58,7 @@
         />
       </div>
     </div>
+    <AddDialog ref="addDialog" />
   </div>
 </template>
 
@@ -65,6 +66,7 @@
 import { Search } from "@element-plus/icons-vue";
 import { onMounted, reactive, ref } from "vue";
 import { ElMessageBox, FormInstance } from "element-plus";
+import AddDialog from './addDialog.vue'
 
 const formInline = reactive({});
 const ruleFormRef = ref<FormInstance>();
@@ -101,8 +103,9 @@ const tableData = [
   }
 ];
 const tableLayout = ref('fixed')
+const addDialog = ref()
 const addProgram = () => {
-
+  addDialog.value.show()
 };
 const onSubmit = () => {
   console.log("submit!", formInline);
@@ -119,7 +122,7 @@ const reset = (formEl: FormInstance | undefined) => {
   }, 1000);
 };
 const editHandler = (row) => {
-  userDialog.value.show(row)
+  addDialog.value.show(row)
 }
 
 const del = (row) => {
