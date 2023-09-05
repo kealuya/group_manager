@@ -4,7 +4,7 @@ import { HelloService } from '@/module/foo';
 @HTTPController({
   path: '/bar',
 })
-export class UserController {
+export class User22Controller {
   @Inject()
   helloService: HelloService;
 
