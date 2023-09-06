@@ -18,6 +18,9 @@ function resolve (dir) {
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
+
+  const env = loadEnv(mode, process.cwd());
+
   return {
     plugins: [vue(),
       vueSetupExtend(),
@@ -70,7 +73,7 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       // 代理跨域（模拟示例）
       proxy: {
         "/api": {
-          target: "http://127.0.0.1:7001", // easymock
+          target: env.VITE_PROXY_DOMAIN_REAL, // easymock
           changeOrigin: true,
           rewrite: path => path.replace(/^\/api/, "")
         }

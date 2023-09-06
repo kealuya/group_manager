@@ -1,10 +1,12 @@
 import axios, { AxiosInstance, AxiosError, AxiosRequestConfig, AxiosResponse } from 'axios'
 import { ElMessage } from "element-plus";
 import {useUserStore} from "@/store/modules/user"
+
+
 // 创建axios实例 进行基本参数配置
 const service = axios.create({
     // 默认请求地址，根据环境的不同可在.env 文件中进行修改
-    baseURL: import.meta.env.VUE_APP_BASE_API,
+    baseURL: import.meta.env.VITE_PROXY_DOMAIN,
     // 设置接口访问超时时间
     timeout: 3000000, // request timeout，
     // 跨域时候允许携带凭证
