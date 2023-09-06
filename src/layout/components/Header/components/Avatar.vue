@@ -21,6 +21,9 @@
         <el-dropdown-item :command="4" divided @click="logOut" >
           <el-icon><SwitchButton /></el-icon>退出登录
         </el-dropdown-item>
+        <el-dropdown-item :command="5" divided @click="testBack" >
+          <el-icon><SwitchButton /></el-icon>测试后台方法
+        </el-dropdown-item>
       </el-dropdown-menu>
     </template>
   </el-dropdown>
@@ -86,6 +89,14 @@ const logOut = async () => {
     })
     .catch(() => {})
 }
+
+const testBack = async () => {
+
+      await UserStore.test()
+
+}
+
+
 const modifyPassword = ()=>{
   person.value.show()
 }

@@ -39,17 +39,17 @@
     <!--    </el-row>-->
 
 
-    <el-form-item label="" prop="username">
+    <el-form-item label="" prop="code">
       <el-input
         placeholder="请输入用户名"
         autoComplete="on"
         style="position: relative"
-        v-model="ruleForm.username"
+        v-model="ruleForm.code"
         @keyup.enter.native="submitForm(ruleFormRef)"
       >
         <template #prefix>
           <el-icon class="el-input__icon">
-            <UserFilled />
+            <UserFilled/>
           </el-icon>
         </template>
       </el-input>
@@ -64,12 +64,12 @@
       >
         <template #prefix>
           <el-icon class="el-input__icon">
-            <GoodsFilled />
+            <GoodsFilled/>
           </el-icon>
         </template>
         <template #suffix>
           <div class="show-pwd" @click="showPwd">
-            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'" />
+            <svg-icon :icon-class="passwordType === 'password' ? 'eye' : 'eye-open'"/>
           </div>
         </template>
       </el-input>
@@ -89,12 +89,12 @@
   </el-form>
 </template>
 <script lang="ts" setup>
-import { ref, reactive } from "vue";
-import type { FormInstance } from "element-plus";
-import { ElNotification } from "element-plus";
-import { useRouter } from "vue-router";
-import { useUserStore } from "@/store/modules/user";
-import { getTimeStateStr } from "@/utils/index";
+import {ref, reactive} from "vue";
+import type {FormInstance} from "element-plus";
+import {ElNotification} from "element-plus";
+import {useRouter} from "vue-router";
+import {useUserStore} from "@/store/modules/user";
+import {getTimeStateStr} from "@/utils/index";
 
 const size = ref("large");
 
@@ -106,9 +106,9 @@ const passwordType = ref("password");
 const loading = ref(false);
 
 const rules = reactive({
-  password: [{ required: true, message: "请输入密码", trigger: "blur" }],
-  username: [{ required: true, message: "请输入姓名", trigger: "blur" }],
-  workNumber: [{ required: true, message: "请输入工号", trigger: "blur" }]
+  password: [{required: true, message: "请输入密码", trigger: "blur"}],
+  code: [{required: true, message: "请输入工号", trigger: "blur"}],
+  workNumber: [{required: true, message: "请输入工号", trigger: "blur"}]
 });
 
 // const v_rules = reactive({
@@ -118,8 +118,8 @@ const rules = reactive({
 // 表单数据
 const ruleForm = reactive({
   workNumber: "1634",
-  username: "admin",
-  password: "123456"
+  code: "1209",
+  password: "666"
 });
 
 // 显示密码图标
@@ -129,23 +129,33 @@ const showPwd = () => {
 
 const submitForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return;
-  formEl.validate((valid) => {
+  formEl.validate(async (valid) => {
     if (valid) {
       loading.value = true;
       // 登录
-      setTimeout(async () => {
-        await UserStore.login(ruleForm);
-        await router.push({
-          path: "/"
-        });
+
+      const result = await UserStore.login(ruleForm);
+      if (!result.success) {
         ElNotification({
           title: getTimeStateStr(),
-          message: "欢迎登录 Vue Admin Perfect",
-          type: "success",
+          message: result.msg,
+          type: "warning",
           duration: 3000
         });
-        loading.value = true;
-      }, 1000);
+        loading.value = false
+        return
+      }
+      await router.push({
+        path: "/"
+      });
+      ElNotification({
+        title: getTimeStateStr(),
+        message: "欢迎登录",
+        type: "success",
+        duration: 3000
+      });
+      loading.value = true;
+
     } else {
       console.log("error submit!");
       return false;

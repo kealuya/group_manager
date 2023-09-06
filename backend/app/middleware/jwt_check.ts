@@ -8,7 +8,7 @@ export default function jwt_check(_: EggAppConfig, app: Application): any {
   return async (ctx: Context, next: () => Promise<any>) => {
 
     // 这些地址可以过滤掉，比如登录，报错，测试等
-    const exceptJwtUrl = ["/user/login", "/error", "/user/test"];
+    const exceptJwtUrl = ["/user/login", "/error"];
 
     if (exceptJwtUrl.includes(ctx.request.url)) {
       await next();
