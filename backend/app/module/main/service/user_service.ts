@@ -6,7 +6,7 @@ import { EggMySQL } from "egg-mysql";
   // 如果需要在上层使用，需要把 accessLevel 显示声明为 public
   accessLevel: AccessLevel.PUBLIC
 })
-export class UserService {
+export class User_service {
 
 
   @Inject()
@@ -36,4 +36,5 @@ export interface UserInfo {
   code: string;
   name: string;
   role: string;
+  password?: string;
 }

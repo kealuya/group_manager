@@ -8,7 +8,7 @@ export default (appInfo: EggAppInfo) => {
   config.keys = appInfo.name + "_1693811591796_8363";
 
   // add your egg config in here
-  config.middleware = [];
+  config.middleware = ["jwtCheck"];
 
   // add your special config in here
   const bizConfig = {
@@ -40,7 +40,9 @@ export default (appInfo: EggAppInfo) => {
     // 是否加载到 agent 上，默认关闭
     agent: false
   };
-
+  config.jwt = {
+    secret: "zq"//自定义 token 的加密条件字符串
+  };
 
   // the return config will combines to EggAppConfig
   return {

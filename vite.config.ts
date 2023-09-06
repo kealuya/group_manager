@@ -69,11 +69,11 @@ export default defineConfig(({ mode }: ConfigEnv): UserConfig => {
       cors: true,
       // 代理跨域（模拟示例）
       proxy: {
-        // "/api": {
-        //   target: "", // easymock
-        //   changeOrigin: true,
-        //   rewrite: path => path.replace(/^\/api/, "")
-        // }
+        "/api": {
+          target: "http://127.0.0.1:7001", // easymock
+          changeOrigin: true,
+          rewrite: path => path.replace(/^\/api/, "")
+        }
       }
     },
     // 生产环境打包配置
