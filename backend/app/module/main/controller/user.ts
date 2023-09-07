@@ -31,7 +31,7 @@ export class UserController {
   async login(@Context() _, @HTTPBody() body: LoginParam): Promise<ControllerResponse> {
     // this.logger.info(body);
     const rule = {
-      code: {
+      username: {
         required: true,
         type: "string"
       },
@@ -55,9 +55,9 @@ export class UserController {
     }
 
 
-    const { code, password } = body;
+    const { username, password } = body;
 
-    const userInfo = await this.userService.login(code, password);
+    const userInfo = await this.userService.login(username, password);
 
 
     if (userInfo != null) {
@@ -89,7 +89,7 @@ export class UserController {
 }
 
 export interface LoginParam {
-  code: string;
+  username: string;
   password: string;
 }
 

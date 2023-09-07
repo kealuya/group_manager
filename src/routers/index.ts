@@ -17,11 +17,15 @@ import externalLink from './modules/externalLink'
 import formRouter from './modules/form'
 import functionPageRouter from './modules/functionPage'
 import workStage from "@/routers/modules/workStage";
+import schoolManage from "@/routers/modules/schoolManage";
+import systemSetting from "@/routers/modules/systemSetting";
 
 
 // 异步组件
 export const asyncRoutes = [
     ...workStage,
+    ...schoolManage,
+    ...systemSetting,
     ...dataScreenRouter,
     ...echartsRouter,
     ...tableRouter,

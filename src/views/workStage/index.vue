@@ -1,6 +1,7 @@
 <template>
   <div class="app-container m-user">
-    <WorkSide/>
+    <SchoolSide/>
+<!--    <WorkSide/>-->
     <WorkTable/>
   </div>
 <!--    <div class="box-card-right">-->
@@ -40,6 +41,7 @@
 import { ref } from "vue";
 import WorkSide from "@/views/workStage/component/workSide.vue";
 import WorkTable from "@/views/workStage/component/workTable.vue";
+import SchoolSide from "@/components/SchoolList/schoolSide.vue";
 
 // import addDialog from './addDialog.vue'
 // import { Search } from '@element-plus/icons-vue'

@@ -108,7 +108,6 @@ const loading = ref(false);
 const rules = reactive({
   password: [{required: true, message: "请输入密码", trigger: "blur"}],
   code: [{required: true, message: "请输入工号", trigger: "blur"}],
-  workNumber: [{required: true, message: "请输入工号", trigger: "blur"}]
 });
 
 // const v_rules = reactive({
@@ -117,7 +116,6 @@ const rules = reactive({
 
 // 表单数据
 const ruleForm = reactive({
-  workNumber: "1634",
   code: "1209",
   password: "666"
 });
