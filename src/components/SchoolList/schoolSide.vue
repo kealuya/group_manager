@@ -31,13 +31,14 @@ import { getTimeStateStr } from "@/utils";
 import { useUserStore } from "@/store/modules/user";
 import { toRaw } from '@vue/reactivity'
 import { string } from "fast-glob/out/utils";
+import {useCommonStore} from "@/store/modules/common";
 
 const input1 = ref("");
 const isOwner = ref(true);
 const listData =  ref([])
 const userStore = ref({})
 const emit = defineEmits(['getSchool'])
-
+const commonStore = useCommonStore();
 
 const getList = async ()=>{
   const userStore = useUserStore();
@@ -50,7 +51,8 @@ const getList = async ()=>{
 
 const chooseSchool = (name) => {
 
-  emit('getSchool',name)
+  commonStore.selectedSchool = name
+  // emit('getSchool',name)
 };
 
 onMounted( () => {

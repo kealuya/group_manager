@@ -2,7 +2,7 @@
 <div class="school-form">
     <div class="form-title">
       <el-form-item prop="school">
-        <el-input size="large" class="title-input" style="width: 200px;" clearable v-model="mmsg  " />
+        <el-input size="large" class="title-input" style="width: 200px;" clearable v-model="selectedSchool  " />
       </el-form-item>
     </div>
     <div class="form-body">
@@ -86,14 +86,20 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, defineProps, defineComponent, computed } from "vue";
 import type { FormInstance } from 'element-plus'
+import {useCommonStore} from "@/store/modules/common";
+import {storeToRefs} from "pinia";
 // import Upload from './components/Upload.vue'
 const schoolValue = ref("")
 const props = defineProps(['msg'])
-const mmsg = computed({
-  get() {
-    return props.msg
-  },
-})
+
+const commonStore = useCommonStore();
+// 使用storeToRefs函数可以辅助保持数据的响应式解构，如果直接结构，会失去响应式
+const {selectedSchool} =storeToRefs( commonStore)
+// const mmsg = computed({
+//   get() {
+//     return props.msg
+//   },
+// })
 const formSize = ref('default')
 const ruleFormRef = ref<FormInstance>()
 const initials  = ['行旅国际', '差旅管家', '采购平台', '费控服务']
