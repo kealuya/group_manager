@@ -2,7 +2,7 @@
 <div class="school-form">
     <div class="form-title">
       <el-form-item prop="school">
-        <el-input size="large" class="title-input" style="width: 200px;" clearable v-model="ruleForm.school" />
+        <el-input size="large" class="title-input" style="width: 200px;" clearable v-model="mmsg  " />
       </el-form-item>
     </div>
     <div class="form-body">
@@ -84,10 +84,25 @@
 </template>
 
 <script lang="ts" setup>
-import { reactive, ref } from 'vue'
+import { onMounted, reactive, ref, defineProps, defineComponent, computed } from "vue";
 import type { FormInstance } from 'element-plus'
 // import Upload from './components/Upload.vue'
+const schoolValue = ref("")
+const props = defineProps(['modelValue'])
 
+const emit = defineEmits(['update:modelValue'])
+// const props=defineProps({
+//   msg:String
+// })
+
+const mmsg = computed({
+  get() {
+    return props.modelValue
+  },
+
+})
+// const mmsg = ref( props.modelValue)
+console.log(mmsg)
 const formSize = ref('default')
 const ruleFormRef = ref<FormInstance>()
 const initials  = ['行旅国际', '差旅管家', '采购平台', '费控服务']
@@ -174,6 +189,7 @@ const resetForm = (formEl: FormInstance | undefined) => {
   if (!formEl) return
   formEl.resetFields()
 }
+
 </script>
 
 <style scoped>
