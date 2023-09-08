@@ -14,7 +14,6 @@
   box-sizing: border-box;
   width: 240px;
   height: 100%;
-  pad0ding: 18px;
   margin-right: 10px;
   flex-shrink: 0;
   .card-header .text,.card-header .checkbox,.item{
@@ -26,6 +25,10 @@
     font-size: 14px;
     color: #409EFF;
     margin-bottom: 8px;
+    cursor: pointer;
+  }
+  .item:hover{
+    box-shadow: 0 0 12px rgb(0 0 0 / 10%);
   }
 }
 .m-user-table{

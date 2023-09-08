@@ -24,16 +24,16 @@ export class schoolController {
     })
     async getList(@Context() _,@HTTPBody() body:listParam): Promise<ControllerResponse> {
         this.logger.info(body)
-        const rule = {
-            schoolName:{
-                required:true,
-                type:"String"
-            },
-            schoolCode:{
-                required: true,
-                type: "Number"
+            const rule = {
+                code:{
+                    required:true,
+                    type:"string"
+                },
+                isOwner:{
+                    required: true,
+                    type: "boolean"
+                }
             }
-        }
         let ng = helper.makeControllerResponse(null)
         const result = this.validator.validate(rule,body)
         if (result){
@@ -42,9 +42,9 @@ export class schoolController {
             ng.data = result;
             return ng
         }
-         const {schoolName,schoolCode} = body
-         const schoolInfo = await this.schoolServer.getList(schoolName,schoolCode)
-        ng.data = schoolInfo!
+         const {code,isOwner} = body
+         const schoolInfo = await this.schoolServer.getList(code,isOwner)
+         ng.data = schoolInfo!
 
 
         return ng
@@ -52,6 +52,6 @@ export class schoolController {
 
 }
 export interface listParam {
-    schoolName:string;
-    schoolCode:number;
+    code:string;
+    isOwner:boolean;
 }
