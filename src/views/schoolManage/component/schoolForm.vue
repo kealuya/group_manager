@@ -88,21 +88,12 @@ import { onMounted, reactive, ref, defineProps, defineComponent, computed } from
 import type { FormInstance } from 'element-plus'
 // import Upload from './components/Upload.vue'
 const schoolValue = ref("")
-const props = defineProps(['modelValue'])
-
-const emit = defineEmits(['update:modelValue'])
-// const props=defineProps({
-//   msg:String
-// })
-
+const props = defineProps(['msg'])
 const mmsg = computed({
   get() {
-    return props.modelValue
+    return props.msg
   },
-
 })
-// const mmsg = ref( props.modelValue)
-console.log(mmsg)
 const formSize = ref('default')
 const ruleFormRef = ref<FormInstance>()
 const initials  = ['行旅国际', '差旅管家', '采购平台', '费控服务']
