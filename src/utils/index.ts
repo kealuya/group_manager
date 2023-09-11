@@ -61,7 +61,7 @@ export function formatTime(time, option) {
   } else {
     time = +time
   }
-  const d = new Date(time)
+  const d:any = new Date(time)
   const now = Date.now()
 
   const diff = (now - d) / 1000
@@ -285,7 +285,7 @@ export function debounce(func, wait, immediate) {
  */
 export function deepClone(source) {
   if (!source && typeof source !== 'object') {
-    throw new Error('error arguments', 'deepClone')
+    throw new Error('error arguments', null)
   }
   const targetObj = source.constructor === Array ? [] : {}
   Object.keys(source).forEach((keys) => {
@@ -311,7 +311,7 @@ export function uniqueArr(arr) {
  */
 export function createUniqueString() {
   const timestamp = +new Date() + ''
-  const randomNum = parseInt((1 + Math.random()) * 65536) + ''
+  const randomNum = parseInt(String((1 + Math.random()) * 65536)) + ''
   return (+(randomNum + timestamp)).toString(32)
 }
 
@@ -350,7 +350,7 @@ export function getColor() {
   var str = '#'
   var arr = ['1', '2', '3', '4', '4', '5', '6', '7', '8', '9', 'a', 'b', 'c', 'd', 'e', 'f']
   for (var i = 0; i < 6; i++) {
-    var num = parseInt(Math.random() * 16)
+    var num = parseInt(String(Math.random() * 16))
     str += arr[num]
   }
   return str

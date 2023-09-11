@@ -1,30 +1,33 @@
-import { createRouter, createWebHistory, RouteRecordRaw,createWebHashHistory,Router } from 'vue-router'
+import { createRouter, createWebHashHistory, RouteRecordRaw } from "vue-router";
 import Layout from "@/layout/index.vue";
-// 扩展继承属性
-interface extendRoute {
-    hidden?:boolean
-}
 //
-import tableRouter from './modules/table'
-import dataScreenRouter from './modules/dataScreen'
-import excelRouter from './modules/excel'
-import nestedRouter from './modules/nested'
-import systemRouter from './modules/system'
-import echartsRouter from './modules/echarts'
-import chatRouter from './modules/chat'
-import othersRouter from './modules/other'
-import externalLink from './modules/externalLink'
-import formRouter from './modules/form'
-import functionPageRouter from './modules/functionPage'
+import tableRouter from "./modules/table";
+import dataScreenRouter from "./modules/dataScreen";
+import excelRouter from "./modules/excel";
+import nestedRouter from "./modules/nested";
+import systemRouter from "./modules/system";
+import echartsRouter from "./modules/echarts";
+import chatRouter from "./modules/chat";
+import othersRouter from "./modules/other";
+import externalLink from "./modules/externalLink";
+import formRouter from "./modules/form";
+import functionPageRouter from "./modules/functionPage";
 import workStage from "@/routers/modules/workStage";
 import schoolManage from "@/routers/modules/schoolManage";
 import systemSetting from "@/routers/modules/systemSetting";
+import fileReport from "@/routers/modules/fileReport";
+
+// 扩展继承属性
+interface extendRoute {
+    hidden?: boolean;
+}
 
 
 // 异步组件
 export const asyncRoutes = [
     ...workStage,
     ...schoolManage,
+    ...fileReport,
     ...systemSetting,
     ...dataScreenRouter,
     ...echartsRouter,
@@ -36,9 +39,8 @@ export const asyncRoutes = [
     ...nestedRouter,
     ...excelRouter,
     ...externalLink,
-    ...systemRouter,
-
-]
+    ...systemRouter
+];
 
 /**
  * path ==> 路由路径
@@ -55,57 +57,57 @@ export const asyncRoutes = [
  * meta.breadcrumb ==> 如果设置为false，该项将隐藏在breadcrumb中（默认值为true）
  */
 
-export const constantRoutes: Array<RouteRecordRaw&extendRoute> = [
+export const constantRoutes: Array<RouteRecordRaw & extendRoute> = [
     {
         path: "/404",
         name: "404",
         component: () => import("@/views/errorPages/404.vue"),
-        hidden:true,
+        hidden: true
     },
     {
         path: "/403",
         name: "403",
         component: () => import("@/views/errorPages/403.vue"),
-        hidden:true,
+        hidden: true
     },
-  {
-    path: '/login',
-    name: 'Login',
-    component: () => import('@/views/login/index.vue'),
-    hidden: true,
-    meta: { title: '登录',}
-  },
-  {
-    path: '/',
-    name: 'layout',
-    component: Layout,
-    redirect: '/home',
-    meta: { title: '首页', icon: 'House', },
-    children: [
-      {
-        path: '/home',
-        component: () => import('@/views/home/index.vue'),
-        name: 'home',
-        meta: { title: '首页', icon: 'House', affix: true ,role:['other']}
-      },
-    ]
-  },
-]
+    {
+        path: "/login",
+        name: "Login",
+        component: () => import("@/views/login/index.vue"),
+        hidden: true,
+        meta: { title: "登录" }
+    },
+    {
+        path: "/",
+        name: "layout",
+        component: Layout,
+        redirect: "/home",
+        meta: { title: "首页", icon: "House" },
+        children: [
+            {
+                path: "/home",
+                component: () => import("@/views/home/index.vue"),
+                name: "home",
+                meta: { title: "首页", icon: "House", affix: true, role: ["other"] }
+            }
+        ]
+    }
+];
 
 /**
  * notFoundRouter(找不到路由)
  */
 export const notFoundRouter = {
-    path: '/:pathMatch(.*)',
+    path: "/:pathMatch(.*)",
     name: "notFound",
-    redirect: '/404'
+    redirect: "/404"
 };
 
 
 const router = createRouter({
-  // history: createWebHistory(process.env.BASE_URL), // history
-  history: createWebHashHistory(), // hash
-  routes:constantRoutes
-})
+    // history: createWebHistory(process.env.BASE_URL), // history
+    history: createWebHashHistory(), // hash
+    routes: constantRoutes
+});
 
-export default router
+export default router;

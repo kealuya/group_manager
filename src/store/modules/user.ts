@@ -1,18 +1,16 @@
-import {defineStore} from 'pinia'
-import request from "@/api/request";
+import { defineStore } from "pinia";
 import service from "@/api/request";
-import {string} from "fast-glob/out/utils";
 
 
 export const useUserStore = defineStore({
     // id: 必须的，在所有 Store 中唯一
-    id: 'userInfo',
+    id: "userInfo",
     // state: 返回对象的函数
-    state: () => ({
+    state: (): { token: any, userInfo: UserInfo, roles: any } => ({
         // 登录token
         token: null,
         // 登录用户信息
-        userInfo: {},
+        userInfo: null,
         // 角色
         roles: localStorage.roles ? JSON.parse(localStorage.roles) : []
 
@@ -24,44 +22,44 @@ export const useUserStore = defineStore({
         async login(userInfo: { code: string, password: string }) {
             return new Promise<BackendData<UserInfo>>(async (resolve, reject) => {
 
-                const {code, password} = userInfo
+                const { code, password } = userInfo;
 
-                let response = await service.post<BackendData<UserInfo>>("/user/login", userInfo)
-                const backendData = response.data
+                let response = await service.post<BackendData<UserInfo>>("/user/login", userInfo);
+                const backendData = response.data;
                 // console.log(backendData)
                 if (!backendData.success) {
-                    resolve(backendData)
-                    return
+                    resolve(backendData);
+                    return;
                 }
-                this.token = backendData.data.jwt
-                this.userInfo = backendData.data
-                this.roles = backendData.data.role
-                resolve(backendData)
-            })
+                this.token = backendData.data.jwt;
+                this.userInfo = backendData.data;
+                this.roles = backendData.data.role;
+                resolve(backendData);
+            });
         },
 
         async test() {
             return new Promise(async (resolve, reject) => {
-                let t = await service.post("/user/test")
-                console.log(t)
-            })
+                let t = await service.post("/user/test");
+                console.log(t);
+            });
         },
         // 获取用户信息 ，如实际应用中 可以通过token通过请求接口在这里获取用户信息
         getInfo(roles) {
             return new Promise((resolve, reject) => {
-                this.roles = roles
-                resolve(roles)
-            })
+                this.roles = roles;
+                resolve(roles);
+            });
         },
         // 退出
         logout() {
             return new Promise((resolve, reject) => {
-                this.token = null
-                this.userInfo = {}
-                this.roles = []
-                resolve(null)
-            })
-        },
+                this.token = null;
+                this.userInfo = {};
+                this.roles = [];
+                resolve(null);
+            });
+        }
 
     },
     // 进行持久化存储
@@ -69,16 +67,10 @@ export const useUserStore = defineStore({
         // 本地存储的名称
         key: "userInfo",
         //保存的位置
-        storage: window.localStorage,//localstorage
-    },
+        storage: window.localStorage//localstorage
+    }
 
-})
-
-export interface BackendData<T> {
-    success: boolean;
-    msg: string;
-    data: T;
-}
+});
 
 export interface UserInfo {
     id: number;

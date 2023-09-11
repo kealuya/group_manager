@@ -1,58 +1,58 @@
-import {defineStore} from 'pinia'
-import { asyncRoutes, constantRoutes,routerArray,notFoundRouter } from '@/routers/index'
-import {hasPermission,filterAsyncRoutes} from "@/utils/routers"
-import {filterKeepAlive,filterRoutes} from "@/utils/routers";
+import { defineStore } from "pinia";
+import { asyncRoutes, constantRoutes, notFoundRouter } from "@/routers/index";
+import { filterAsyncRoutes, filterKeepAlive } from "@/utils/routers";
+
 export const usePermissionStore = defineStore({
     // id: 必须的，在所有 Store 中唯一
-    id:'permissionState',
+    id: "permissionState",
     // state: 返回对象的函数
-    state: ()=>({
+    state: () => ({
         // 路由
-        routes:[],
+        routes: [],
         // 动态路由
-        addRoutes:[],
+        addRoutes: [],
         // 缓存路由
-        cacheRoutes:{},
+        cacheRoutes: {}
     }),
     getters: {
-        permission_routes:state=> {
-            return state.routes
+        permission_routes: state => {
+            return state.routes;
         },
-        keepAliveRoutes: state=>{
-            return filterKeepAlive(asyncRoutes)
+        keepAliveRoutes: state => {
+            return filterKeepAlive(asyncRoutes);
         }
     },
     // 可以同步 也可以异步
-    actions:{
+    actions: {
         // 生成路由
-        generateRoutes(roles){
+        generateRoutes(roles) {
             return new Promise(resolve => {
                 // 在这判断是否有权限，哪些角色拥有哪些权限
-                let accessedRoutes
-                if (roles&&roles.length&&!roles.includes('admin')) {
-                    accessedRoutes = filterAsyncRoutes(asyncRoutes, roles)
+                let accessedRoutes;
+                if (roles && roles.length && !roles.includes("admin")) {
+                    accessedRoutes = filterAsyncRoutes(asyncRoutes, roles);
                 } else {
-                    accessedRoutes = asyncRoutes || []
+                    accessedRoutes = asyncRoutes || [];
                 }
-                accessedRoutes = accessedRoutes.concat(notFoundRouter)
-                this.routes = constantRoutes.concat(accessedRoutes)
-                this.addRoutes = accessedRoutes
-                resolve(accessedRoutes)
-            })
+                accessedRoutes = accessedRoutes.concat(notFoundRouter);
+                this.routes = constantRoutes.concat(accessedRoutes);
+                this.addRoutes = accessedRoutes;
+                resolve(accessedRoutes);
+            });
         },
         // 清楚路由
-        clearRoutes(){
-            this.routes = []
-            this.addRoutes = []
-            this.cacheRoutes = []
+        clearRoutes() {
+            this.routes = [];
+            this.addRoutes = [];
+            this.cacheRoutes = [];
         },
-        getCacheRoutes(){
-            this.cacheRoutes = filterKeepAlive(asyncRoutes)
-            return this.cacheRoutes
+        getCacheRoutes() {
+            this.cacheRoutes = filterKeepAlive(asyncRoutes);
+            return this.cacheRoutes;
         }
-    },
+    }
 
-})
+});
 
 
 
