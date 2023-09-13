@@ -61,11 +61,12 @@ service.interceptors.response.use(async (response: AxiosResponse) => {
 
 
 }, async (error: AxiosError) => {
+    // fixme 有其他401的场合，没必要额外退出登录 再修改
     // 追加 401的场合（token认证失败） 错误处理
-    let bd = error.response.data as BackendData<any>;
-    if (!bd.success) {
-        await logoutHandler(bd.msg);
-    }
+    // let bd = error.response.data as BackendData<any>;
+    // if (!bd.success) {
+    //     await logoutHandler(bd.msg);
+    // }
 
     return Promise.reject(error);
 });

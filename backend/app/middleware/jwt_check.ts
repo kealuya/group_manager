@@ -1,7 +1,8 @@
-import { Application, Context, EggAppConfig } from "egg";
+import {Application, Context, EggAppConfig } from "egg";
 import helper from "../extend/helper";
+
 /*
-  jwt验证
+  jwt验证 且获取错误
  */
 export default function jwt_check(_: EggAppConfig, app: Application): any {
 
@@ -22,13 +23,15 @@ export default function jwt_check(_: EggAppConfig, app: Application): any {
         // 解码token
         const decode = app.jwt.verify(jwt, app.config.jwt.secret);
         console.log(decode);
+        // try包括了这里的next ，后续的错误统一在这里获取
         await next();
       } catch (error) {
-        ctx.status = 401;
+        ctx.logger.error(error);
+        ctx.status = 400;
         let re = helper.makeControllerResponse(null);
-        re.msg = "token错误";
+        re.msg =  "发生预料外的错误"
         re.success = false;
-        ctx.body = re;
+        ctx.body = error;
         return;
       }
     } else {

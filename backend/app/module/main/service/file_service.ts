@@ -22,19 +22,19 @@ export class FileService {
                                     search: string): Promise<any> {
 
         let sqlForCount = `
-                    SELECT
-                    count(1) as count
+                      SELECT
+                  count(*)
                 FROM
                     doc doc
-                    INNER JOIN ( SELECT f1.* FROM file f1,
-                    ( SELECT doc_id  ,MAX( version ) AS version FROM file GROUP BY doc_id ) ff WHERE f1.version = ff.version and f1.doc_id = ff.doc_id ) f
+                    INNER JOIN ( SELECT version FROM file f1,
+                    ( SELECT doc_id  ,MAX( version ) AS version1 FROM file GROUP BY doc_id ) ff WHERE f1.version = ff.version1 and f1.doc_id = ff.doc_id ) f
                     ON doc.doc_id = f.doc_id
                 WHERE
                     doc.is_discard = 'false' 
                     AND doc.is_release = 'true' 
+            
          `;
-        const count = await this.mysql.query(sqlForCount);
-
+        const count = await this.mysql.count(sqlForCount);
         let where = "";
         let whereParam = "";
         if (search == "" || search == null) {
@@ -82,8 +82,9 @@ export class FileService {
             limit2: pageSize,
             where1: whereParam
         });
+
         if (result.length > 0) {
-            return { docFiles: result, count: count };
+            return { docFiles: result, count: count  };
         }
 
         return null;

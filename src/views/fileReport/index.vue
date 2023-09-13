@@ -5,7 +5,7 @@
       :stripe="true"
       :data="tableData"
       @sort-change="sortChange"
-      :default-sort="{prop:'updateDate',order:'descending'}"
+      :default-sort="{prop:'update_date',order:'descending'}"
       style="width: 100%"
     >
       <el-table-column width="60">
@@ -86,7 +86,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="updateDate" label="更新时间" sortable="custom" min-width="140">
+      <el-table-column prop="update_date" label="更新时间" sortable="custom" min-width="140">
         <template #default="scope">
           <div style="display: flex; align-items: center">
             <span style="margin-left: 10px">{{ timeChange(scope.row.update_date) }}</span>
@@ -102,7 +102,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="createDate" label="追加时间" sortable="custom" min-width="140">
+      <el-table-column prop="create_date" label="追加时间" sortable="custom" min-width="140">
         <template #default="scope">
           <div style="display: flex; align-items: center">
             <span style="margin-left: 10px">{{ timeChange(scope.row.create_date) }}</span>
@@ -189,7 +189,7 @@ import { downLoadFile, OBS_URL, timeChange } from "@/api/fileReport/common";
 
 type  ParamObject = { [key: string]: string }
 
-const PAGE_SIZE: number = 5;
+const PAGE_SIZE: number = 10;
 const tableData: DocFile[] = reactive([]);
 const pageCount = ref<number>(1);
 const currentPage = ref<number>(1);
