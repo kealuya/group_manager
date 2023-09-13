@@ -10,8 +10,8 @@ export const useCommonStore = defineStore({
     // state: 返回对象的函数
     state: () => ({
         // 当前选中高校
-        selectedSchool: "",
-
+        selectedSchoolName: "",
+        selectedSchoolCode:"",
     }),
     getters: {},
     // 可以同步 也可以异步

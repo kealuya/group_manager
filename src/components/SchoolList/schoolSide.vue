@@ -14,7 +14,7 @@
       </div>
     </template>
     <el-scrollbar class="scrollbar">
-      <div v-for="item in listData" :key="item.school_code" class="item" @click="chooseSchool(item.school_name)">
+      <div v-for="item in listData" :key="item.school_code" class="item" @click="chooseSchool(item.school_code,item.school_name)">
         {{ item.school_name }}
       </div>
     </el-scrollbar>
@@ -43,15 +43,15 @@ const commonStore = useCommonStore();
 const getList = async ()=>{
   const userStore = useUserStore();
   const userInfo   = toRaw(userStore.userInfo) ;
-  console.log(userInfo.code)
   let e = await getSchoolList1(userInfo.code,isOwner.value);
   listData.value = e.data.data
-  console.log("schoolList", listData.value);
+  console.log(listData.value)
 }
 
-const chooseSchool = (name) => {
+const chooseSchool = (code,name) => {
 
-  commonStore.selectedSchool = name
+  commonStore.selectedSchoolCode = code
+  commonStore.selectedSchoolName = name
   // emit('getSchool',name)
 };
 

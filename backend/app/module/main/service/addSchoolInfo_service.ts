@@ -5,23 +5,28 @@ import { EggLogger } from 'egg';
 @SingletonProto({
     accessLevel:AccessLevel.PUBLIC
 })
-export class SchoolInfo_service{
+
+export class addSchoolInfo_service{
     @Inject()
-    mysql:EggMySQL;
+    mysql:EggMySQL
     @Inject()
     logger: EggLogger;
 
-    async getInfo(school:string):Promise<Array<SchoolInfo> | null>{
-        const result = await this.mysql.query<Array<SchoolInfo>>("SELECT * FROM `xt` WHERE school_code=:school",{
-            school:school
+
+    async addInfo(school:string,fzr1:string):Promise<Array<addSchoolInfo>|null>{
+        const result = await this.mysql.query<Array<addSchoolInfo>>("",{
+            school:school,
+            fzr1:fzr1
         });
         if (result.length > 0){
             return result
         }
         return null
     }
-}
-export interface SchoolInfo {
-    school: string;
 
+
+}
+export interface addSchoolInfo {
+    school: string;
+    fzr1:string
 }

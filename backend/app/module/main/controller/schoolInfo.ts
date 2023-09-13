@@ -20,7 +20,7 @@ export class schoolInfoController {
 
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
-        path: "/info"
+        path: "/getInfo"
     })
     async getInfo(@Context() _, @HTTPBody() body: InfoParam): Promise<ControllerResponse> {
         const rule = {

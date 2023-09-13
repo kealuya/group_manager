@@ -23,7 +23,6 @@ export class schoolController {
         path:"/list"
     })
     async getList(@Context() _,@HTTPBody() body:listParam): Promise<ControllerResponse> {
-        this.logger.info(body)
             const rule = {
                 code:{
                     required:true,
@@ -45,8 +44,6 @@ export class schoolController {
          const {code,isOwner} = body
          const schoolInfo = await this.schoolServer.getList(code,isOwner)
          ng.data = schoolInfo!
-
-
         return ng
     }
 

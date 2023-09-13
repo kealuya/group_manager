@@ -1,192 +1,243 @@
 <template>
-<div class="school-form">
-    <div class="form-title">
-      <el-form-item prop="school">
-        <el-input size="large" class="title-input" style="width: 200px;" clearable v-model="selectedSchool  " />
-      </el-form-item>
-    </div>
-    <div class="form-body">
-      <el-form
-        ref="ruleFormRef"
-        :model="ruleForm"
-        :rules="rules"
-        label-width="120px"
-        class="demo-ruleForm"
-        :size="formSize"
-      >
-        <el-form-item label="主负责人" prop="name">
-          <el-input clearable v-model="ruleForm.name" />
+  <div class="school-form">
+    <el-header style="margin-top:20px">
+        <el-form-item prop="school">
+          <el-input size="large" class="title-input" style="width: 400px;" clearable v-model="selectedSchoolName" />
         </el-form-item>
-        <el-form-item label="建设阶段" prop="buildStage">
-          <el-select v-model="ruleForm.buildStage" placeholder="建设阶段">
-            <el-option label="部署已使用" value="over" />
-            <el-option label="部署未使用" value="wait" />
-          </el-select>
-        </el-form-item>
-        <el-form-item label="服务商" prop="service">
-          <el-select-v2 v-model="ruleForm.service"
-                        :options="serviceOptions" placeholder="请选择服务商" style="width: 240px" multiple />
-        </el-form-item>
-
-        <el-form-item label="协议签订" required>
-          <el-col :span="11">
-            <el-form-item prop="date1">
-              <el-date-picker
-                v-model="ruleForm.date1"
-                type="date"
-                placeholder="选择时间"
-                style="width: 100%"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col class="text-center" :span="2" style="text-align: center">
-            <span class="text-gray-500">-</span>
-          </el-col>
-          <el-col :span="11">
-            <el-form-item prop="date2">
-              <el-time-picker v-model="ruleForm.date2" placeholder="选择时间" style="width: 100%" />
-            </el-form-item>
-          </el-col>
-        </el-form-item>
-        <el-form-item label="其他协议" prop="desc">
-          <el-input v-model="ruleForm.desc" type="textarea" />
-        </el-form-item>
-<!--        <el-form-item label="即时配送" prop="delivery">-->
-<!--          <el-switch v-model="ruleForm.delivery" />-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="活动性质" prop="type">-->
-<!--          <el-checkbox-group v-model="ruleForm.type">-->
-<!--            <el-checkbox label="美食/餐厅线上活动" name="type" />-->
-<!--            <el-checkbox label="地推活动" name="type" />-->
-<!--            <el-checkbox label="线下主题活动" name="type" />-->
-<!--            <el-checkbox label="单纯品牌曝光" name="type" />-->
-<!--          </el-checkbox-group>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="特殊资源" prop="resource">-->
-<!--          <el-radio-group v-model="ruleForm.resource">-->
-<!--            <el-radio label="线上品牌商赞助" />-->
-<!--            <el-radio label="线下场地免费" />-->
-<!--          </el-radio-group>-->
-<!--        </el-form-item>-->
-<!--        <el-form-item label="上传图片" prop="img">-->
-<!--          <Upload v-model="ruleForm.img" />-->
-<!--        </el-form-item>-->
-        <el-form-item label="备注" prop="desc">
-          <el-input v-model="ruleForm.desc" type="textarea" />
-        </el-form-item>
+    </el-header>
+    <el-main>
+      <el-row :gutter="30">
+        <el-col v-for="item in ruleForm" :span="12" style="margin-bottom: 30px">
+          <el-card>
+            <el-form
+              ref="ruleFormRef"
+              :model="ruleForm"
+              :rules="rules"
+              label-width="100px"
+              class="demo-ruleForm"
+              :size="formSize"
+            >
+              <el-form-item label="主负责人" prop="fzr1">
+                <el-input clearable v-model="item.fzr1" />
+              </el-form-item>
+              <el-form-item label="系统" prop="xt">
+                <el-input clearable v-model="item.xt" />
+              </el-form-item>
+              <el-form-item label="建设阶段" prop="buildStage">
+                <el-select v-model="item.buildStage" placeholder="建设阶段">
+                  <el-option label="已部署已推广" value="over" />
+                  <el-option label="部署未实施" value="wait" />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="服务商" prop="service">
+                <el-select v-model="item.service" placeholder="请选择服务商" :options="serviceOptions">
+                </el-select>
+              </el-form-item>
+              <el-form-item label="协议签订" required>
+                <el-col :span="11">
+                  <el-form-item prop="fwsxy_start_date">
+                    <el-date-picker
+                      v-model="item.fwsxy_start_date"
+                      type="datetime"
+                      placeholder="选择协议开始签订时间"
+                      :shortcuts="shortcuts"
+                    />
+                  </el-form-item>
+                </el-col>
+                <el-col class="text-center" :span="2" style="text-align: center">
+                  <span class="text-gray-500">-</span>
+                </el-col>
+                <el-col :span="11">
+                  <el-form-item prop="fwsxy_end_date">
+                    <el-date-picker
+                      v-model="item.fwsxy_end_date"
+                      type="datetime"
+                      placeholder="选择协议结束签订时间"
+                      :shortcuts="shortcuts"
+                    />
+                  </el-form-item>
+                </el-col>
+              </el-form-item>
+              <el-form-item label="其他协议" prop="qtxy">
+                <el-input v-model="item.qtxy" type="textarea" />
+              </el-form-item>
+              <el-form-item label="备注" prop="remark">
+                <el-input v-model="item.remark" type="textarea" />
+              </el-form-item>
+            </el-form>
+          </el-card>
+        </el-col>
+      </el-row>
+    </el-main>
+    <el-footer>
         <el-form-item>
           <el-button type="primary" @click="submitForm(ruleFormRef)">立即创建</el-button>
           <el-button @click="resetForm(ruleFormRef)">重置</el-button>
         </el-form-item>
-      </el-form>
-    </div>
-</div>
+    </el-footer>
+
+  </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, defineProps, defineComponent, computed } from "vue";
-import type { FormInstance } from 'element-plus'
-import {useCommonStore} from "@/store/modules/common";
-import {storeToRefs} from "pinia";
+import { onMounted, reactive, ref, defineProps, computed, watch } from "vue";
+import type { FormInstance } from "element-plus";
+import { useCommonStore } from "@/store/modules/common";
+import { storeToRefs } from "pinia";
+import { getSchoolInfo } from "@/api/schoolList";
+import { ElNotification } from "element-plus";
 // import Upload from './components/Upload.vue'
-const schoolValue = ref("")
-const props = defineProps(['msg'])
-
+const msg = ref({});
+// const props = defineProps(['msg'])
+const shortcuts = [
+  {
+    text: "Today",
+    value: new Date()
+  },
+  {
+    text: "Yesterday",
+    value: () => {
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24);
+      return date;
+    }
+  },
+  {
+    text: "A week ago",
+    value: () => {
+      const date = new Date();
+      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
+      return date;
+    }
+  }
+];
 const commonStore = useCommonStore();
 // 使用storeToRefs函数可以辅助保持数据的响应式解构，如果直接结构，会失去响应式
-const {selectedSchool} =storeToRefs( commonStore)
-// const mmsg = computed({
-//   get() {
-//     return props.msg
-//   },
-// })
-const formSize = ref('default')
-const ruleFormRef = ref<FormInstance>()
-const initials  = ['行旅国际', '差旅管家', '采购平台', '费控服务']
-const serviceOptions = ref(
-  Array.from({ length: 4 }).map((_, idx) => ({
-    value: `Option ${idx + 1}`,
-    label: `${initials[idx % 4]}${idx}`,
-  }))
-)
-const ruleForm = reactive({
-  school: '中国传媒大学',
-  name:'张琦',
-  buildStage: '',
-  service:'',
-  date1: '',
-  date2: '',
-  delivery: false,
-  type: [],
-  resource: '',
-  desc: '',
-  img: [],
-})
-
+const { selectedSchoolName } = storeToRefs(commonStore);
+const { selectedSchoolCode } = storeToRefs(commonStore);
+const ruleForm = ref([]);
+const getInfo = async () => {
+  let result = await getSchoolInfo(selectedSchoolCode.value);
+  if (!result.data.success) {
+    ElNotification({
+      message: result.msg,
+      type: "warning",
+      duration: 3000
+    });
+    return;
+  }
+  ruleForm.value = result.data.data;
+  console.log("33333333", ruleForm.value);
+  console.log("55555555", ruleForm.value.length);
+};
+// const ruleFormArray = ref(
+//   Array.from({length:ruleForm.value.length})
+// )
+const formSize = ref("default");
+const ruleFormRef = ref<FormInstance>();
+// const initials  = ['行旅国际', '差旅管家', '采购平台', '费控服务']
+// const serviceOptions = ref(
+//   Array.from({ length: 4 }).map((_, idx) => ({
+//     value: `Option ${idx + 1}`,
+//     label: `${initials[idx % 4]}${idx}`,
+//   }))
+// )
+const serviceOptions = [
+  {
+    label: "行旅国际",
+    value: "行旅国际"
+  },
+  {
+    label: "差旅管家",
+    value: "差旅管家"
+  },
+  {
+    label: "采购平台",
+    value: "采购平台"
+  },
+  {
+    label: "费控服务",
+    value: "费控服务"
+  },
+  {
+    label: "史泰博",
+    value: "史泰博"
+  },
+  {
+    label: "京东",
+    value: "京东"
+  }
+];
 const rules = reactive({
-  name: [
-    { required: true, message: '请输入主负责人名称', trigger: 'blur' },
-    { min: 1, max: 5, message: '长度在 1 到 5 个字符', trigger: 'blur' },
+  fzr1: [
+    { required: true, message: "请输入主负责人名称", trigger: "blur" },
+    { min: 1, max: 5, message: "长度在 1 到 5 个字符", trigger: "blur" }
   ],
-  school:[{required: true, message: '请输入学校名称', trigger: 'blur'}],
-  img: [{ required: true, message: '请上传图片', trigger: 'blur' }],
+  school: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
+  img: [{ required: true, message: "请上传图片", trigger: "blur" }],
   buildStage: [
     {
       required: true,
-      message: '请选择建设阶段',
-      trigger: 'change',
-    },
+      message: "请选择建设阶段",
+      trigger: "change"
+    }
   ],
-  service:[{
+  service: [{
     required: true,
-    message: '请选择服务商',
-    trigger: 'change',
-  },],
-  date1: [
+    message: "请选择服务商",
+    trigger: "change"
+  }],
+  fwsxy_start_date: [
     {
-      type: 'date',
+      type: "date",
       required: true,
-      message: '请选择时间',
-      trigger: 'change',
-    },
+      message: "请选择时间",
+      trigger: "change"
+    }
   ],
-  date2: [
+  fwsxy_end_date: [
     {
-      type: 'date',
+      type: "date",
       required: true,
-      message: '请选择时间',
-      trigger: 'change',
-    },
+      message: "请选择时间",
+      trigger: "change"
+    }
   ],
   type: [
     {
-      type: 'array',
+      type: "array",
       required: true,
-      message: '请至少选择一个活动性质',
-      trigger: 'change',
-    },
+      message: "请至少选择一个活动性质",
+      trigger: "change"
+    }
   ],
   resource: [
     {
       required: true,
-      message: '请选择活动资源\n',
-      trigger: 'change',
-    },
+      message: "请选择活动资源\n",
+      trigger: "change"
+    }
   ],
-  desc: [{ required: false, message: '请填写备注', trigger: 'blur' }],
-})
+  remark: [{ required: false, message: "请填写备注", trigger: "blur" }]
+});
 
 const submitForm = async (formEl: FormInstance | undefined) => {
-  console.log('--FORM---', ruleForm)
-  if (!formEl) return
+  console.log("--FORM---", ruleForm);
+  if (!formEl) return;
 
-}
+};
 
 const resetForm = (formEl: FormInstance | undefined) => {
-  if (!formEl) return
-  formEl.resetFields()
-}
-
+  if (!formEl) return;
+  formEl.resetFields();
+};
+// watch(selectedSchoolCode.value,getInfo())
+watch(selectedSchoolCode, (newVal, oldVal) => {
+  getInfo();
+});
+onMounted(() => {
+  getInfo();
+});
 </script>
 
 <style scoped>
