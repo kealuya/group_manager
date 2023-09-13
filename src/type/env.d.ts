@@ -12,7 +12,7 @@ declare type PagingInfo = {
     page: number
     pageSize: number
     sortCol: object
-    search: object
+    search: string
 }
 
 declare interface DocFile {

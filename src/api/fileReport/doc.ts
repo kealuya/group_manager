@@ -1,7 +1,7 @@
 import request from "@/api/request";
 
 export function callDocFileList(p: PagingInfo) {
-    return request.post<BackendData<DocFileList>>("/file/getDocFileList", p);
+    return request.post<BackendData<DocFileList>>("/file/getDocList", p);
 }
 
 export interface DocFileList {

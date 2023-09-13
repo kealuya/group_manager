@@ -19,20 +19,20 @@
         <template #default="scope">
           <div style="display: flex; align-items: center">
             <span style="margin-left: 10px">
-                 {{ scope.row.docName }}
+                 {{ scope.row.doc_name }}
              </span>
-            <template v-if="scope.row.isDiscard == 'true'">
+            <template v-if="scope.row.is_discard == 'true'">
               <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/discard.png"></el-image>
             </template>
             <template v-else>
-              <template v-if="scope.row.isRelease == 'true'">
+              <template v-if="scope.row.is_release == 'true'">
                 <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isRelease.png"></el-image>
               </template>
               <template v-else>
                 <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/noRelease.png"></el-image>
               </template>
 
-              <template v-if="scope.row.isOwnerEdit == 'true'">
+              <template v-if="scope.row.is_owner_edit == 'true'">
                 <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isOwner.png"></el-image>
               </template>
               <template v-else>
@@ -49,12 +49,12 @@
         <template #default="scope">
           <div style="display: flex; align-items: center">
             <div style="display: flex; align-items: center">
-              <el-image @click="downloadClickFile(scope.row.fileName,scope.row.docName )"
+              <el-image @click="downloadClickFile(scope.row.file_name,scope.row.doc_name )"
                         style="width: 20px; height: 20px" src="/download.png"></el-image>
             </div>
             <div style="width: 30px"></div>
             <div style="display: flex; align-items: center">
-              <el-image @click="reviewClickFile(scope.row.fileName)" style="width: 20px; height: 20px"
+              <el-image @click="reviewClickFile(scope.row.file_name)" style="width: 20px; height: 20px"
                         src="/review.png"></el-image>
             </div>
           </div>
@@ -64,20 +64,20 @@
       <el-table-column label="版本" min-width="100">
         <template #default="scope">
           <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ scope.row.versionShow }}</span>
+            <span style="margin-left: 10px">{{ scope.row.version_show }}</span>
             <el-popover placement="right" :width="200" trigger="hover">
               <template #reference>
                 <div style="display: flex; align-items: center">
                   <el-image style="width: 20px; height: 20px" src="/list.png"></el-image>
                 </div>
               </template>
-              <el-table :data=" scope.row.updateContentList ">
+              <el-table :data=" scope.row.update_content_list ">
                 <el-table-column width="80" property="versionShow" label="版本" />
                 <el-table-column width="120" property="updateContent" label="更新内容" />
               </el-table>
             </el-popover>
 
-            <template v-if="scope.row.isRelease===true">
+            <template v-if="scope.row.is_release===true">
               <div class="release">
                 发布
               </div>
@@ -89,7 +89,7 @@
       <el-table-column prop="updateDate" label="更新时间" sortable="custom" min-width="140">
         <template #default="scope">
           <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ timeChange(scope.row.updateDate) }}</span>
+            <span style="margin-left: 10px">{{ timeChange(scope.row.update_date) }}</span>
           </div>
         </template>
       </el-table-column>
@@ -97,7 +97,7 @@
       <el-table-column label="更新人" min-width="100">
         <template #default="scope">
           <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ scope.row.updateUser }}</span>
+            <span style="margin-left: 10px">{{ scope.row.update_user }}</span>
           </div>
         </template>
       </el-table-column>
@@ -105,7 +105,7 @@
       <el-table-column prop="createDate" label="追加时间" sortable="custom" min-width="140">
         <template #default="scope">
           <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ timeChange(scope.row.createDate) }}</span>
+            <span style="margin-left: 10px">{{ timeChange(scope.row.create_date) }}</span>
           </div>
         </template>
       </el-table-column>
@@ -120,7 +120,7 @@
 
       <el-table-column label="操作" min-width="120">
         <template #default="scope">
-          <template v-if="scope.row.isDiscard=='true'">
+          <template v-if="scope.row.is_discard=='true'">
             <el-button type="primary" plain disabled> 操作
               <el-icon class="el-icon--right">
                 <arrow-down />
@@ -194,9 +194,15 @@ const tableData: DocFile[] = reactive([]);
 const pageCount = ref<number>(1);
 const currentPage = ref<number>(1);
 const projectId: string = useRoute().query.projectId as string;
-const sortCol = reactive<ParamObject>({ "updateDate": "descending" });
+const sortCol = reactive<ParamObject>({ "update_date": "descending" });
 const searchContent = ref("");
-const searchContentObj = reactive<ParamObject>({});
+const searchContentObj = ref("");
+
+
+onMounted(async () => {
+
+
+});
 
 // 检索定义
 const getDocFileList = async (p: PagingInfo) => {
@@ -205,6 +211,9 @@ const getDocFileList = async (p: PagingInfo) => {
   const res: BackendData<DocFileList> = response.data;
   if (res.success) {
     tableData.length = 0;
+
+    console.log(res);
+
     let data = res.data as { docFiles: Array<DocFile>, count: number };
     tableData.push(...data.docFiles);
     pageCount.value = Math.ceil(data.count / PAGE_SIZE);
@@ -226,24 +235,13 @@ watchEffect(
       pageSize: PAGE_SIZE,
       sortCol: sortCol,
       // search: {}
-      search: searchContentObj
+      search: searchContentObj.value
     };
     console.log("watchEffect", p);
     await getDocFileList(p);
   }
 );
 
-const searchContentChange = async (value: string) => {
-
-  Object.keys(searchContentObj).forEach(key => delete searchContentObj[key]);
-  if (value !== "") {
-    searchContentObj["docName"] = value;
-    searchContentObj["updateUser"] = value;
-    searchContentObj["owner"] = value;
-  }
-  currentPage.value = 1;
-
-};
 
 const downloadClickFile = (fileName: string, docName: string) => {
   downLoadFile(OBS_URL + fileName, docName);
@@ -255,7 +253,7 @@ const reviewClickFile = (fileName: string) => {
 
 
 const sortChange = async (column: any) => {
-  console.log(column);
+  // console.log(column);
   Object.keys(sortCol).forEach(key => delete sortCol[key]);
   if (column.prop !== null) {
     sortCol[column.prop] = column.order;
@@ -283,14 +281,13 @@ const fileUpdate = (type: UPLOAD_MODAL_MODE, item?: DocFile) => {
 };
 const updateSuccess = async () => {
   console.log("更新list");
-  Object.keys(searchContentObj).forEach(key => delete searchContentObj[key]);
   currentPage.value = 1;
   let p: PagingInfo = {
     proId: parseInt(projectId),
     page: currentPage.value,
     pageSize: PAGE_SIZE,
     sortCol: sortCol,
-    search: searchContentObj
+    search: searchContentObj.value
   };
   await getDocFileList(p);
 };
