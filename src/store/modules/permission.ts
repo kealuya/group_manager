@@ -26,6 +26,7 @@ export const usePermissionStore = defineStore({
     actions: {
         // 生成路由
         generateRoutes(roles) {
+
             return new Promise(resolve => {
                 // 在这判断是否有权限，哪些角色拥有哪些权限
                 let accessedRoutes;

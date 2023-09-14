@@ -2,7 +2,7 @@
   <el-dropdown >
         <span class="el-dropdown-link">
           <el-avatar :size="30" class="avatar" :src="AvatarLogo"/>
-          {{userInfo.username}}
+          {{userInfo.name}}
           <el-icon class="header-icon el-icon--right">
             <arrow-down />
           </el-icon>

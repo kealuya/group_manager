@@ -12,7 +12,7 @@ export const useUserStore = defineStore({
         // 登录用户信息
         userInfo: null,
         // 角色
-        roles: localStorage.roles ? JSON.parse(localStorage.roles) : []
+        roles: []
 
     }),
     getters: {},
@@ -33,7 +33,7 @@ export const useUserStore = defineStore({
                 }
                 this.token = backendData.data.jwt;
                 this.userInfo = backendData.data;
-                this.roles = backendData.data.role;
+                this.roles = [backendData.data.role];
                 resolve(backendData);
             });
         },
