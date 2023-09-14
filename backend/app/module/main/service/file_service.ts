@@ -22,11 +22,11 @@ export class FileService {
                                     search: string): Promise<any> {
 
         let sqlForCount = `
-                      SELECT
-                  count(*)
+                SELECT
+                  count(*) as count
                 FROM
                     doc doc
-                    INNER JOIN ( SELECT version FROM file f1,
+                    INNER JOIN ( SELECT f1.* FROM file f1,
                     ( SELECT doc_id  ,MAX( version ) AS version1 FROM file GROUP BY doc_id ) ff WHERE f1.version = ff.version1 and f1.doc_id = ff.doc_id ) f
                     ON doc.doc_id = f.doc_id
                 WHERE
@@ -34,7 +34,9 @@ export class FileService {
                     AND doc.is_release = 'true' 
             
          `;
-        const count = await this.mysql.count(sqlForCount);
+
+        const countObj = await this.mysql.query(sqlForCount);
+
         let where = "";
         let whereParam = "";
         if (search == "" || search == null) {
@@ -76,7 +78,7 @@ export class FileService {
                     LIMIT :limit1,:limit2
         `;
 
-        console.log(sqlForSearch);
+        // console.log(sqlForSearch);
         const result = await this.mysql.query(sqlForSearch, {
             limit1: (page - 1) * pageSize,
             limit2: pageSize,
@@ -84,7 +86,14 @@ export class FileService {
         });
 
         if (result.length > 0) {
-            return { docFiles: result, count: count  };
+            // 通过doc 获取 file中 的修改记录 ，取前5个
+            for (let i = 0; i < result.length; i++) {
+                result[i]["update_content_list"] = await this.mysql.query(
+                  "select version_show as versionShow, update_content as updateContent from file where doc_id = :doc_id order by update_date desc limit 5",
+                  { doc_id: result[i].doc_id });
+            }
+
+            return { docFiles: result, count: countObj[0].count };
         }
 
         return null;

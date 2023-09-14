@@ -11,7 +11,7 @@
       <el-table-column width="60">
         <template #default="scope">
           <div style="display: flex; align-items: center">
-            <el-image style="width: 40px; height: 40px" src="/folder/icon-doc.png"></el-image>
+            <el-image style="width: 40px; height: 40px" :src="displayIcon(scope.row.doc_type)"></el-image>
           </div>
         </template>
       </el-table-column>
@@ -21,24 +21,24 @@
             <span style="margin-left: 10px">
                  {{ scope.row.doc_name }}
              </span>
-            <template v-if="scope.row.is_discard == 'true'">
-              <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/discard.png"></el-image>
-            </template>
-            <template v-else>
-              <template v-if="scope.row.is_release == 'true'">
-                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isRelease.png"></el-image>
-              </template>
-              <template v-else>
-                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/noRelease.png"></el-image>
-              </template>
+            <!--            <template v-if="scope.row.is_discard == 'true'">-->
+            <!--              <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/discard.png"></el-image>-->
+            <!--            </template>-->
+            <!--            <template v-else>-->
+            <!--              <template v-if="scope.row.is_release == 'true'">-->
+            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isRelease.png"></el-image>-->
+            <!--              </template>-->
+            <!--              <template v-else>-->
+            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/noRelease.png"></el-image>-->
+            <!--              </template>-->
 
-              <template v-if="scope.row.is_owner_edit == 'true'">
-                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isOwner.png"></el-image>
-              </template>
-              <template v-else>
-                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/noOwner.png"></el-image>
-              </template>
-            </template>
+            <!--              <template v-if="scope.row.is_owner_edit == 'true'">-->
+            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isOwner.png"></el-image>-->
+            <!--              </template>-->
+            <!--              <template v-else>-->
+            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/noOwner.png"></el-image>-->
+            <!--              </template>-->
+            <!--            </template>-->
 
 
           </div>
@@ -50,13 +50,13 @@
           <div style="display: flex; align-items: center">
             <div style="display: flex; align-items: center">
               <el-image @click="downloadClickFile(scope.row.file_name,scope.row.doc_name )"
-                        style="width: 20px; height: 20px" src="/download.png"></el-image>
+                        style="width: 20px; height: 20px" :src="IconDownload"></el-image>
             </div>
             <div style="width: 30px"></div>
-            <div style="display: flex; align-items: center">
-              <el-image @click="reviewClickFile(scope.row.file_name)" style="width: 20px; height: 20px"
-                        src="/review.png"></el-image>
-            </div>
+            <!--            <div style="display: flex; align-items: center">-->
+            <!--              <el-image @click="reviewClickFile(scope.row.file_name)" style="width: 20px; height: 20px"-->
+            <!--                        src="/review.png"></el-image>-->
+            <!--            </div>-->
           </div>
         </template>
       </el-table-column>
@@ -68,7 +68,7 @@
             <el-popover placement="right" :width="200" trigger="hover">
               <template #reference>
                 <div style="display: flex; align-items: center">
-                  <el-image style="width: 20px; height: 20px" src="/list.png"></el-image>
+                  <el-image style="width: 20px; height: 20px" :src="IconList"></el-image>
                 </div>
               </template>
               <el-table :data=" scope.row.update_content_list ">
@@ -186,6 +186,17 @@ import { UPLOAD_MODAL_MODE } from "@/utils/common";
 import { useRoute } from "vue-router";
 import { callDocFileList, DocFileList } from "@/api/fileReport/doc";
 import { downLoadFile, OBS_URL, timeChange } from "@/api/fileReport/common";
+import IconDownload from "@/assets/fileReport/download.png";
+import IconList from "@/assets/fileReport/list.png";
+import IconDoc from "@/assets/fileReport/icon-doc.png";
+import IconXls from "@/assets/fileReport/icon-xls.png";
+import IconPpt from "@/assets/fileReport/icon-ppt.png";
+import IconTxt from "@/assets/fileReport/icon-txt.png";
+import IconPdf from "@/assets/fileReport/icon-pdf.png";
+import IconZip from "@/assets/fileReport/icon-zip.png";
+import IconImage from "@/assets/fileReport/icon-image.png";
+import IconRar from "@/assets/fileReport/icon-rar.png";
+import IconNone from "@/assets/fileReport/icon-none.png";
 
 type  ParamObject = { [key: string]: string }
 
@@ -198,6 +209,47 @@ const sortCol = reactive<ParamObject>({ "update_date": "descending" });
 const searchContent = ref("");
 const searchContentObj = ref("");
 
+const displayIcon = (type: string): any => {
+  /*
+   IconDoc
+   IconXls
+   IconPdf
+   IconPpt
+   IconTxt
+   IconZip
+   IconImag
+   IconFold
+   IconRar
+   IconNone
+   */
+  switch (type) {
+    case "docx":
+    case "doc":
+      return IconDoc;
+    case "xlsx":
+    case "xls":
+      return IconXls;
+    case "ppt":
+    case "pptx":
+      return IconPpt;
+    case "pdf":
+      return IconPdf;
+    case "txt":
+      return IconTxt;
+    case "zip":
+      return IconZip;
+    case "rar":
+      return IconRar;
+    case "jpg":
+    case "bmp":
+    case "gif":
+    case "png":
+      return IconImage;
+    default:
+      return IconNone;
+  }
+
+};
 
 onMounted(async () => {
 
