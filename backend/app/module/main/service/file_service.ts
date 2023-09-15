@@ -20,7 +20,6 @@ export class FileService {
     async getDocFileListByCondition(pageSize: number, page: number,
                                     sortCol: { [key: string]: string },
                                     search: string): Promise<any> {
-
         let sqlForCount = `
                 SELECT
                   count(*) as count

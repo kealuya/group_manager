@@ -23,10 +23,8 @@ export class FileController {
         method: HTTPMethodEnum.POST,
         path: "/getDocList"
     })
-    async login(@Context() _, @HTTPBody() body: PagingInfo): Promise<ControllerResponse> {
-        // this.logger.info(body);
-
-
+    async login(@Context() ctx, @HTTPBody() body: PagingInfo): Promise<ControllerResponse> {
+        console.log("用户:", ctx.session.userInfo);
         const { pageSize, page, sortCol, search } = body;
 
         const result = await this.fileService.getDocFileListByCondition(pageSize, page, sortCol, search);
