@@ -1,13 +1,100 @@
 <template>
   <div class="school-form">
-    <el-header style="margin-top:20px">
-        <el-form-item prop="school">
+    <el-header class="form-title">
+        <el-form-item prop="school_code">
           <el-input size="large" class="title-input" style="width: 400px;" clearable v-model="selectedSchoolName" />
         </el-form-item>
+      <el-button type="primary" @click="dialogVisible = true">立即创建</el-button>
     </el-header>
-    <el-main>
+
+
+    <el-dialog
+      v-model="dialogVisible"
+      title="添加学校"
+      width="30%"
+      :before-close="handleClose"
+    >
+      <el-form
+        ref="ruleFormRefAdd"
+        :model="ruleFormAdd"
+        label-width="100"
+        :rules="rulesAdd"
+        class="demo-ruleForm"
+        :size="formSize"
+      >
+        <el-form-item label="学校" prop="school_code">
+          <el-input size="large" class="title-input" style="width: 400px;" v-model="ruleFormAdd.school_code" clearable  />
+        </el-form-item>
+        <el-form-item label="主负责人" prop="fzr1">
+          <el-input clearable v-model="ruleFormAdd.fzr1" />
+        </el-form-item>
+        <el-form-item label="其他负责人" prop="fzr2">
+          <el-input clearable v-model="ruleFormAdd.fzr2" />
+        </el-form-item>
+        <el-form-item label="系统" prop="xt">
+          <el-input clearable v-model="ruleFormAdd.xt" />
+        </el-form-item>
+        <el-form-item label="建设阶段" prop="buildStage">
+          <el-select v-model="ruleFormAdd.buildStage" placeholder="建设阶段">
+            <el-option label="已部署已推广" value="over" />
+            <el-option label="部署未实施" value="wait" />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="服务商" prop="service">
+          <el-select v-model="ruleFormAdd.service" placeholder="请选择服务商" >
+            <el-option
+              v-for="item in serviceOptions"
+              :key="item.value"
+              :label="item.label"
+              :value="item.value"
+            />
+          </el-select>
+        </el-form-item>
+        <el-form-item label="协议签订">
+          <el-col :span="11">
+            <el-form-item prop="fwsxy_start_date">
+              <el-date-picker
+                v-model="ruleFormAdd.fwsxy_start_date"
+                type="datetime"
+                placeholder="协议开始签订时间"
+                :shortcuts="shortcuts"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col class="text-center" :span="2" style="text-align: center">
+            <span class="text-gray-500">-</span>
+          </el-col>
+          <el-col :span="11">
+            <el-form-item prop="fwsxy_end_date">
+              <el-date-picker
+                v-model="ruleFormAdd.fwsxy_end_date"
+                type="datetime"
+                placeholder="协议结束签订时间"
+                :shortcuts="shortcuts"
+              />
+            </el-form-item>
+          </el-col>
+        </el-form-item>
+        <el-form-item label="其他协议" prop="qtxy">
+          <el-input v-model="ruleFormAdd.qtxy" type="textarea" />
+        </el-form-item>
+        <el-form-item label="备注" prop="remark">
+          <el-input v-model="ruleFormAdd.remark" type="textarea" />
+        </el-form-item>
+      </el-form>
+      <template #footer>
+      <span class="dialog-footer">
+        <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button type="primary" @click="addSchool(ruleFormAdd)">
+          确认提交
+        </el-button>
+      </span>
+      </template>
+    </el-dialog>
+
+    <el-main class="form-body">
       <el-row :gutter="30">
-        <el-col v-for="item in ruleForm" :span="12" style="margin-bottom: 30px">
+        <el-col class="body-card" v-for="item in ruleForm" :span="12">
           <el-card>
             <el-form
               ref="ruleFormRef"
@@ -67,6 +154,11 @@
             </el-form>
           </el-card>
         </el-col>
+        <el-col  :span="12">
+          <div class="addCardStyle" @click="addOne" >
+            <el-icon size="140" color="#bababa" ><Plus /></el-icon>
+          </div>
+        </el-col>
       </el-row>
     </el-main>
     <el-footer>
@@ -81,11 +173,14 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, defineProps, computed, watch } from "vue";
+import { ElMessageBox } from 'element-plus'
 import type { FormInstance } from "element-plus";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
 import { getSchoolInfo } from "@/api/schoolList";
 import { ElNotification } from "element-plus";
+import { addSchoolInfo } from "@/api/schoolList";
+import { toRefs } from "@vueuse/core";
 // import Upload from './components/Upload.vue'
 const msg = ref({});
 // const props = defineProps(['msg'])
@@ -128,11 +223,38 @@ const getInfo = async () => {
   }
   ruleForm.value = result.data.data;
   console.log("33333333", ruleForm.value);
-  console.log("55555555", ruleForm.value.length);
 };
+
+
 // const ruleFormArray = ref(
 //   Array.from({length:ruleForm.value.length})
 // )
+//添加新学校部分
+const ruleFormAdd = ref({})
+const dialogVisible = ref(false)
+const handleClose = (done: () => void) => {
+  ElMessageBox.confirm('Are you sure to close this dialog?')
+    .then(() => {
+      done()
+    })
+    .catch(() => {
+      // catch error
+    })
+}
+const addOne = async ()=>{
+  return  ruleForm.value.length+1
+}
+const addSchool = async (formEl: FormInstance | undefined) => {
+  console.log("--FORMADD---", ruleFormAdd.value);
+  if (!formEl)
+    return;
+  else {
+    await addSchoolInfo(ruleFormAdd.value)
+  }
+
+};
+
+
 const formSize = ref("default");
 const ruleFormRef = ref<FormInstance>();
 // const initials  = ['行旅国际', '差旅管家', '采购平台', '费控服务']
@@ -173,7 +295,7 @@ const rules = reactive({
     { required: true, message: "请输入主负责人名称", trigger: "blur" },
     { min: 1, max: 5, message: "长度在 1 到 5 个字符", trigger: "blur" }
   ],
-  school: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
+  school_code: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
   img: [{ required: true, message: "请上传图片", trigger: "blur" }],
   buildStage: [
     {
@@ -235,6 +357,9 @@ const resetForm = (formEl: FormInstance | undefined) => {
 watch(selectedSchoolCode, (newVal, oldVal) => {
   getInfo();
 });
+// watch(ruleForm,(newVal, oldVal)=>{
+//   addOne()
+// })
 onMounted(() => {
   getInfo();
 });

@@ -119,7 +119,7 @@ const ruleForm = reactive({
   code: "1209",
   password: "666"
 });
-
+// const ruleForm = ref({code:'',password:''})
 // 显示密码图标
 const showPwd = () => {
   passwordType.value = passwordType.value === "password" ? "" : "password";

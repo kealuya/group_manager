@@ -18,7 +18,6 @@
         {{ item.school_name }}
       </div>
     </el-scrollbar>
-
   </el-card>
 </template>
 

@@ -49,13 +49,14 @@ const PermissionStore = usePermissionStore()
 
 const currentRoles = computed({
   get() {
-    return UserStore.roles[0]
+    console.log('UserStore.roles[0]',UserStore.roles)
+    return "other"
   },
   set(val) {
-    ;(async () => {
+    (async () => {
       await UserStore.getInfo([val])
-      router.push({
-        path:'/'
+      await router.push({
+        path: '/'
       })
       location.reload()
     })()

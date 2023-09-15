@@ -15,10 +15,31 @@
 
   .form-title{
     font-size: 20px;
-    height: 50px;
-    padding: 20px 40px;
+    margin-top:20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
   }
   .form-body{
-    width: calc(100%);
+    .body-card{
+      margin-bottom: 30px;
+      height: 430px;
+    }
+    .addCardStyle{
+      border: 1px dashed #bababa;
+      border-radius: 8px;
+      height: 430px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .addCardStyle:hover{
+      border: 1px dashed #409eff;
+      ::v-deep(.el-icon):hover{
+        color:  #409eff;
+      }
+    }
+
   }
 }
+
