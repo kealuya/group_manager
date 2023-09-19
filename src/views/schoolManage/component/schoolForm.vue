@@ -22,9 +22,19 @@
         class="demo-ruleForm"
         :size="formSize"
       >
-        <el-form-item label="学校" prop="school_code">
-          <el-input size="large" class="title-input" style="width: 400px;" v-model="ruleFormAdd.school_code" clearable  />
-        </el-form-item>
+        <el-row>
+          <el-col :span="12">
+            <el-form-item label="学校" prop="school_name">
+              <el-input size="large" class="title-input" style="width: 400px;" v-model="ruleFormAdd.school_name" clearable  />
+            </el-form-item>
+          </el-col>
+          <el-col :span="12">
+            <el-form-item label="学校编码" prop="school_code">
+              <el-input size="large" class="title-input" style="width: 400px;" v-model="ruleFormAdd.school_code" clearable  />
+            </el-form-item>
+          </el-col>
+        </el-row>
+
         <el-form-item label="主负责人" prop="fzr1">
           <el-input clearable v-model="ruleFormAdd.fzr1" />
         </el-form-item>
@@ -295,7 +305,8 @@ const rules = reactive({
     { required: true, message: "请输入主负责人名称", trigger: "blur" },
     { min: 1, max: 5, message: "长度在 1 到 5 个字符", trigger: "blur" }
   ],
-  school_code: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
+  school_name: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
+  school_code: [{ required: true, message: "请输入学校编码", trigger: "blur" }],
   img: [{ required: true, message: "请上传图片", trigger: "blur" }],
   buildStage: [
     {

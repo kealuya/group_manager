@@ -13,22 +13,41 @@ export class addSchoolInfo_service {
     logger: EggLogger;
 
 
-    async addInfo(ruleFormAdd:object): Promise<Array<addSchoolInfo> | null> {
+    async addInfo(ruleFormAdd: object): Promise<Array<addSchoolInfo> | null> {
 
-        const a = Object.keys(ruleFormAdd)
-        const b = Object.values(ruleFormAdd)
-        console.log('55555555555555555',a)
-        console.log('66666666666666666',ruleFormAdd)
+        // const a = Object.keys(ruleFormAdd)
+        // const b = Object.values(ruleFormAdd)
+        // let sql1 = ``
+        // school 表
+        const result = await this.mysql.insert('school', { school_name: ruleFormAdd["school_name"],school_code: ruleFormAdd["school_code"] });
+        // const result = await this.mysql.query<Array<addSchoolInfo>>("INSERT INTO school (school_name,school_code) VALUES (':school_name',':school_code')",{
+        //     school_name:ruleFormAdd["school_name"],
+        //     school_code:ruleFormAdd["school_code"]
+        // });
+        console.log('result',result)
 
-        let sql = `INSERT INTO xt (` +(a)+ `) VALUES (` +(b)+ `)`
+
+        const ruleFormAdd2 = JSON.parse(JSON.stringify(ruleFormAdd))
+        delete ruleFormAdd2['school_name']
 
 
-        const result = await this.mysql.query<Array<addSchoolInfo>>(sql, {
-            ...ruleFormAdd,
-        });
-        if (result.length > 0) {
-            return result
-        }
+
+        //
+        // const a2 = Object.keys(ruleFormAdd2)
+        // const b2 = Object.values(ruleFormAdd2)
+        // let sql = `INSERT INTO xt (` + (a2) + `) VALUES (` + (b2) + `)`
+
+        // xt 表
+        // const result2 = await this.mysql.query<Array<addSchoolInfo>>(sql,ruleFormAdd2);
+        const result2 = await this.mysql.insert('xt', ruleFormAdd2);
+
+        console.log('result2',result2)
+        // if (result.length > 0) {
+
+        // }
+        // if (result2.length > 0) {
+        //     return result2
+        // }
         return null
     }
 
