@@ -12,10 +12,16 @@ export const useCommonStore = defineStore({
         // 当前选中高校
         selectedSchoolName: "",
         selectedSchoolCode:"",
+        updateListValue:false
     }),
     getters: {},
     // 可以同步 也可以异步
-    actions: {},
+    actions: {
+        updateList(){
+            this.updateListValue  = ! this.updateListValue
+        }
+
+    },
     // 进行持久化存储
     persist: {
         // 本地存储的名称

@@ -22,8 +22,8 @@ export class SchoolList {
                          b.bz
                         FROM
                          xt a
-                         LEFT JOIN school b ON a.school_code = b.school_code
-                        INNER JOIN user c ON a.fzr1 = c.CODE  or a.fzr2 = c.CODE `
+                         LEFT JOIN school b ON a.school_code = b.school_code `
+        // INNER JOIN user c ON a.fzr1 = c.CODE  or a.fzr2 = c.CODE
         const sql2 = `WHERE 
                        a.fzr1 = :code  
                         OR a.fzr2 = :code `

@@ -8,6 +8,13 @@ const helper = {
       msg: "",
       data: data
     };
+  },
+  makeWrongControllerResponse: (data: any): ControllerResponse => {
+    return {
+      success: false,
+      msg: "",
+      data: data
+    };
   }
 };
 

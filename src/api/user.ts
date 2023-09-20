@@ -7,3 +7,10 @@ export function login(data) {
         data
     })
 }
+
+export function userList() {
+    return request({
+        url: '/user/list',
+        method: 'post',
+    })
+}

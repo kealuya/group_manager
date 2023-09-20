@@ -31,7 +31,15 @@ export class addSchoolController {
         // }
         const { ruleFormAdd } = body;
         console.log(ruleFormAdd)
-        const addSchoolInfo = await this.addSchoolServer.addInfo(ruleFormAdd);
+        let addSchoolInfo
+        try {
+              addSchoolInfo = await this.addSchoolServer.addInfo(ruleFormAdd);
+
+        }catch (e) {
+            ng.msg="提交信息异常"
+            ng.success=false
+            return ng
+        }
         ng.data = addSchoolInfo!
         return ng
     }

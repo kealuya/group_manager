@@ -13,7 +13,7 @@
         <el-checkbox class="checkbox" v-model="isOwner" label="本人负责" size="large" @change="getList"/>
       </div>
     </template>
-    <el-scrollbar class="scrollbar">
+    <el-scrollbar height="500px" class="scrollbar">
       <div v-for="item in listData" :key="item.school_code" class="item" @click="chooseSchool(item.school_code,item.school_name)">
         {{ item.school_name }}
       </div>
@@ -23,7 +23,7 @@
 
 <script lang="ts" setup>
 
-import { onMounted, ref, toRefs, defineEmits  } from "vue";
+import { onMounted, ref, toRefs, defineEmits, watch } from "vue";
 import { getSchoolList1 } from "@/api/schoolList";
 import { ElNotification } from "element-plus";
 import { getTimeStateStr } from "@/utils";
@@ -31,6 +31,7 @@ import { useUserStore } from "@/store/modules/user";
 import { toRaw } from '@vue/reactivity'
 import { string } from "fast-glob/out/utils";
 import {useCommonStore} from "@/store/modules/common";
+import { storeToRefs } from "pinia";
 
 const input1 = ref("");
 const isOwner = ref(true);
@@ -38,6 +39,7 @@ const listData =  ref([])
 const userStore = ref({})
 const emit = defineEmits(['getSchool'])
 const commonStore = useCommonStore();
+const { updateListValue } = storeToRefs(commonStore);
 
 const getList = async ()=>{
   const userStore = useUserStore();
@@ -53,7 +55,10 @@ const chooseSchool = (code,name) => {
   commonStore.selectedSchoolName = name
   // emit('getSchool',name)
 };
-
+watch(() => updateListValue.value , ( ) => {
+  console.log('newValue, oldValue' )
+  getList()
+})
 onMounted( () => {
    getList()
 });
