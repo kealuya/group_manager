@@ -1,9 +1,20 @@
 <template>
   <div class="school-form">
     <el-header class="form-title">
-      <el-form-item prop="school_code">
-        <el-input size="large" class="title-input" style="width: 400px;" clearable v-model="selectedSchoolName" />
-      </el-form-item>
+      <el-row>
+        <el-col :span="12">
+          <el-form-item label="学校" prop="school_name">
+            <el-input size="large" class="title-input" style="width: 300px;" v-model="selectedSchoolName"
+                      readonly />
+          </el-form-item>
+        </el-col>
+        <el-col :span="12">
+          <el-form-item label="学校编码" prop="school_code">
+            <el-input size="large" class="title-input" style="width: 300px;" v-model="selectedSchoolCode"
+                      readonly />
+          </el-form-item>
+        </el-col>
+      </el-row>
       <el-button type="primary" @click="dialogVisible = true">立即创建</el-button>
     </el-header>
 
@@ -128,21 +139,38 @@
               :size="formSize"
             >
               <el-form-item label="主负责人" prop="fzr1">
-                <el-input clearable v-model="item.fzr1" />
+                <el-select v-model="item.fzr1" filterable placeholder="请选择主负责人">
+                  <el-option
+                    v-for="item in userOptions"
+                    :key="item.code"
+                    :label="item.name"
+                    :value="item.code"
+                  />
+                </el-select>
+              </el-form-item>
+              <el-form-item label="其他负责人" prop="fzr2">
+                <el-select v-model="item.fzr2" filterable placeholder="请选择其他负责人">
+                  <el-option
+                    v-for="item in userOptions"
+                    :key="item.code"
+                    :label="item.name"
+                    :value="item.code"
+                  />
+                </el-select>
               </el-form-item>
               <el-form-item label="系统" prop="xt">
                 <el-input clearable v-model="item.xt" />
               </el-form-item>
               <el-form-item label="建设阶段" prop="buildStage">
                 <el-select v-model="item.buildStage" placeholder="建设阶段">
-                  <el-option label="已部署已推广" value="over" />
-                  <el-option label="部署未实施" value="wait" />
+                  <el-option label="已部署已推广" value="已部署已推广" />
+                  <el-option label="部署未实施" value="部署未实施" />
                 </el-select>
               </el-form-item>
               <el-form-item label="服务商" prop="service">
-                <el-input clearable v-model="ruleFormAdd.service" />
+                <el-input clearable v-model="item.service" />
               </el-form-item>
-              <el-form-item label="协议签订" required>
+              <el-form-item label="协议签订">
                 <el-col :span="11">
                   <el-form-item prop="fwsxy_start_date">
                     <el-date-picker
@@ -170,6 +198,15 @@
                     />
                   </el-form-item>
                 </el-col>
+              </el-form-item>
+              <el-form-item label="创建时间" prop="create_date">
+                <el-date-picker
+                  v-model="item.create_date"
+                  type="datetime"
+                  placeholder="Pick a Date"
+                  format="YYYY-MM-DD hh:mm:ss"
+                  value-format="YYYY-MM-DD h:m:s"
+                />
               </el-form-item>
               <el-form-item label="其他协议" prop="qtxy">
                 <el-input v-model="item.qtxy" type="textarea" />
@@ -205,7 +242,7 @@ import { ElMessageBox } from "element-plus";
 import type { FormInstance } from "element-plus";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
-import { getSchoolInfo } from "@/api/schoolList";
+import { editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
 import { ElNotification } from "element-plus";
 import { addSchoolInfo } from "@/api/schoolList";
 import { toRefs } from "@vueuse/core";
@@ -273,10 +310,18 @@ const rules = reactive({
       trigger: "change"
     }
   ],
+  create_date: [
+    {
+      type: "date",
+      required: true,
+      message: "请选择时间",
+      trigger: "change"
+    }
+  ],
   remark: [{ required: false, message: "请填写备注", trigger: "blur" }]
 });
-
-
+const defaultTime = new Date(2000, 1, 1, 12, 0, 0);
+const value2 = ref('')
 
 // 点击左侧side,获取学校信息
 const commonStore = useCommonStore();
@@ -296,15 +341,15 @@ const getInfo = async () => {
     return;
   }
   ruleForm.value = result.data.data;
+  console.log(ruleForm.value)
 };
 
 //获取人员列表，选择负责人
-const userOptions = ref([])
-const querySearch = async ()=>{
-  let userList1 = await userList()
-  userOptions.value = userList1.data.data
-}
-
+const userOptions = ref([]);
+const querySearch = async () => {
+  let userList1 = await userList();
+  userOptions.value = userList1.data.data;
+};
 
 
 //添加《新》学校部分
@@ -345,14 +390,11 @@ const addSchool = async (formEl: FormInstance | undefined) => {
       type: "success",
       duration: 3000
     });
-    // updateListValue.value  = ! updateListValue.value;
-    commonStore.updateList()
-    dialogVisible.value = false
-    formEl.resetFields()
+    commonStore.updateList();
+    dialogVisible.value = false;
+    formEl.resetFields();
   }
 };
-
-
 
 
 //添加一个模块
@@ -362,8 +404,12 @@ const addOne = async () => {
 //编辑已有数据提交
 const submitForm = async (formEl: FormInstance | undefined) => {
   console.log("--FORM---", ruleForm);
+  console.log('value2',value2)
   if (!formEl) return;
-
+  else {
+    let b = await editSchoolInfo(ruleForm.value, selectedSchoolCode.value);
+    console.log("bbbbbbbbbb", b);
+  }
 };
 //重置
 const resetForm = (formEl: FormInstance | undefined) => {

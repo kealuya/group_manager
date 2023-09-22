@@ -28,17 +28,17 @@ export function addSchoolInfo(ruleFormAdd) {
       ruleFormAdd: ruleFormAdd
     }
 
-    // data:{
-    //   school:name,
-    //   fzr1:fzr1,
-    //   fzl2:fzr2,
-    //   xt:xt,
-    //   buildStage:buildStage,
-    //   service:service,
-    //   fwsxy_start_date:fwsxy_start_date,
-    //   fwsxy_end_date:fwsxy_end_date,
-    //   qtxy:qtxy,
-    //   remark:remark
-    // }
+  })
+}
+
+export function editSchoolInfo(ruleFormEditArray,school_code) {
+  return request({
+    url:"/school/editInfo",
+    method:"post",
+    data:{
+      ruleFormEditArray: ruleFormEditArray,
+      school_code:school_code
+    }
+
   })
 }
