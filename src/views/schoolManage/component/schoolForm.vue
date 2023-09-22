@@ -150,8 +150,8 @@
                     v-model="item.fwsxy_start_date"
                     type="datetime"
                     placeholder="选择协议开始签订时间"
-                    format="YYYY--MM/DD HH:mm:ss"
-                    value-format="YYYY--MM/DD HH:mm:ss"
+                    format="YYYY/MM/DD HH:mm:ss"
+                    value-format="YYYY-MM-DD HH:mm:ss"
                     />
                   </el-form-item>
                 </el-col>
@@ -165,8 +165,8 @@
                       type="datetime"
                       placeholder="选择协议结束签订时间"
                       :shortcuts="shortcuts"
-                      format="YYYY/MM/DD hh:mm:ss"
-                      value-format="YYYY-MM-DD hh:mm:ss"
+                      format="YYYY/MM/DD HH:mm:ss"
+                      value-format="YYYY-MM-DD HH:mm:ss"
                     />
                   </el-form-item>
                 </el-col>
@@ -327,6 +327,9 @@ const addSchool = async (formEl: FormInstance | undefined) => {
     return;
   else {
     let a = await addSchoolInfo(ruleFormAdd.value);
+
+    console.log("ruleFormAdd.value",ruleFormAdd.value)
+
     let result = a.data;
     console.log("result", a.data);
     if (!result.success) {
