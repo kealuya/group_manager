@@ -14,10 +14,9 @@ export class editSchoolInfo_service {
     logger: EggLogger;
 
 
-    async editInfo(ruleFormEdit: any,school_code:string): Promise<any > {
-        // const conn = await this.mysql.beginTransaction(); // 初始化事务
+    async editInfo(ruleFormEdit: any,school_code:string): Promise<any> {
+        const conn = await this.mysql.beginTransaction(); // 初始化事务
         try {
-
             for (const item of ruleFormEdit) {
                 const options = {
                     where: {
@@ -25,17 +24,22 @@ export class editSchoolInfo_service {
                         id:item.id
                     }
                 };
-                console.log('数组',item)
-                const result = await this.mysql.update("xt",item,options)
-                console.log('result', result)
-                // null;
-                return result.affectedRows === ruleFormEdit.length
+                if (item.id){
+                    const result = await conn.update("xt",item,options)
+                    if (result.affectedRows!==1){
+                        throw new Error("Method not implemented.")
+                    }
+                }else {
+                    const result2 = await conn.insert('xt', item );
+                    if (result2.affectedRows!==1){
+                        throw new Error("Method not implemented.")
+                    }
+                }
             }
-
-            // xt 表
-            // UPDATE xt set service = '222' WHERE school_code= :school_code
+            await conn.commit(); // 提交事务
         } catch (e) {
             console.log('eeeeeeeeeeeeeeeee', e)
+            await conn.rollback()//捕获异常后回滚事务！！
             throw e
         }
 
