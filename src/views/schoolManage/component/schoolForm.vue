@@ -334,8 +334,9 @@ const { selectedSchoolName } = storeToRefs(commonStore);
 const { selectedSchoolCode } = storeToRefs(commonStore);
 const { updateListValue } = storeToRefs(commonStore);
 const { schoolListFirstCode } = storeToRefs(commonStore);
+const { schoolListFirstName } = storeToRefs(commonStore);
 const ruleForm = ref([]);
-const getInfo = async () => {
+const getInfo = async (selectedSchoolCode) => {
   let result = await getSchoolInfo(selectedSchoolCode.value);
   if (!result.data.success) {
     ElNotification({
@@ -429,55 +430,67 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 };
 //重置
 const resetForm = (formEl: FormInstance | undefined) => {
-  console.log('formEl',formEl)
+  console.log("formEl", formEl);
   if (!formEl) return;
   formEl.resetFields();
 };
+
+//操作后刷新
+const refreshForm = async ()=>{
+  await getInfo(schoolListFirstCode);
+  selectedSchoolCode.value = schoolListFirstCode.value;
+  selectedSchoolName.value = schoolListFirstName.value;
+}
+
 //删除delete整个学校
 const deleteForm = (done: () => void) => {
   ElMessageBox.confirm("您确定删除整个学校吗")
     .then(async () => {
-      let c = await deleteSchoolAll(selectedSchoolCode.value)
-      console.log('cccccccccccccccccc',c)
+      let c = await deleteSchoolAll(selectedSchoolCode.value);
+      console.log("cccccccccccccccccc", c);
       ElMessage({
-        type: 'success',
-        message: '删除成功',
-      })
+        type: "success",
+        message: "删除成功"
+      });
       commonStore.updateList();
-      await getInfo()
+      await refreshForm()
     })
     .catch(() => {
       ElMessage({
-        type: 'success',
-        message: '删除失败',
-      })
+        type: "success",
+        message: "删除失败"
+      });
       commonStore.updateList();
     });
 };
 
 watch(selectedSchoolCode, (newVal, oldVal) => {
-  getInfo();
+  getInfo(selectedSchoolCode);
 });
+
 function timestampToTime(date) {
-  let y = date.getFullYear()
-  let m = date.getMonth() + 1
-  m = m < 10 ? ('0' + m) : m
-  let d = date.getDate()
-  d = d < 10 ? ('0' + d) : d
-  let h =date.getHours()
-  h = h < 10 ? ('0' + h) : h
-  let M =date.getMinutes()
-  M = M < 10 ? ('0' + M) : M
-  let s =date.getSeconds()
-  s = s < 10 ? ('0' + s) : s
-  let dateTime= y + '-' + m + '-' + d + ' ' + h + ':' + M + ':' + s;
-  console.log(dateTime)
-  return dateTime
+  let y = date.getFullYear();
+  let m = date.getMonth() + 1;
+  m = m < 10 ? ("0" + m) : m;
+  let d = date.getDate();
+  d = d < 10 ? ("0" + d) : d;
+  let h = date.getHours();
+  h = h < 10 ? ("0" + h) : h;
+  let M = date.getMinutes();
+  M = M < 10 ? ("0" + M) : M;
+  let s = date.getSeconds();
+  s = s < 10 ? ("0" + s) : s;
+  let dateTime = y + "-" + m + "-" + d + " " + h + ":" + M + ":" + s;
+  console.log(dateTime);
+  return dateTime;
 }
+
 onMounted(() => {
-  getInfo();
+  refreshForm()
+  // selectedSchoolCode.value = schoolListFirstCode.value;
+  // selectedSchoolName.value = schoolListFirstName.value;
+  // getInfo(schoolListFirstCode);
   userQuerySearch();
-  console.log('schoolListFirstCode11111111111111',schoolListFirstCode.value)
 
 });
 </script>

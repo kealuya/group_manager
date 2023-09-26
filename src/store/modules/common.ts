@@ -14,6 +14,7 @@ export const useCommonStore = defineStore({
         selectedSchoolCode:"",
         updateListValue:false,
         schoolListFirstCode:"",
+        schoolListFirstName:"",
     }),
     getters: {},
     // 可以同步 也可以异步

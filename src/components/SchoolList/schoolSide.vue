@@ -43,10 +43,9 @@ const getList = async ()=>{
   const userInfo   = toRaw(userStore.userInfo) ;
   let e = await getSchoolList1(userInfo.code,isOwner.value);
   listData.value = e.data.data
-  // commonStore.schoolListFirstCode =
-  // listData.value.forEach((item)=>console.log('item',item))
-  let a = Object.values(listData)
-  console.log('schoolListFirstCode',toRaw(listData[0]))
+  commonStore.schoolListFirstCode = listData.value[0].school_code
+  commonStore.schoolListFirstName = listData.value[0].school_name
+  console.log('aaaaaaaaaaaaaaaaaa',commonStore.schoolListFirstName)
 }
 
 const chooseSchool = (code,name) => {
