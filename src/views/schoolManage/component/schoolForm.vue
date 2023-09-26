@@ -85,11 +85,10 @@
             <el-form-item prop="fwsxy_start_date">
               <el-date-picker
                 v-model="ruleFormAdd.fwsxy_start_date"
-                type="datetime"
-                placeholder="选择协议开始签订时间"
-                format="YYYY-MM-DD HH:mm:ss"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                :shortcuts="shortcuts"
+                type="date"
+                placeholder="选择协议开始签订日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
               />
             </el-form-item>
           </el-col>
@@ -100,14 +99,22 @@
             <el-form-item prop="fwsxy_end_date">
               <el-date-picker
                 v-model="ruleFormAdd.fwsxy_end_date"
-                type="datetime"
-                placeholder="协议结束签订时间"
-                format="YYYY-MM-DD HH:mm:ss"
-                value-format="YYYY-MM-DD HH:mm:ss"
-                :shortcuts="shortcuts"
+                type="date"
+                placeholder="协议结束签日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
               />
             </el-form-item>
           </el-col>
+        </el-form-item>
+        <el-form-item label="创建时间" prop="create_date">
+          <el-date-picker
+            v-model="ruleFormAdd.create_date"
+            type="datetime"
+            placeholder="请选择创建时间"
+            format="YYYY-MM-DD HH:mm:ss"
+            value-format="YYYY-MM-DD HH:mm:ss"
+          />
         </el-form-item>
         <el-form-item label="其他协议" prop="qtxy">
           <el-input v-model="ruleFormAdd.qtxy" type="textarea" />
@@ -176,12 +183,11 @@
                   <el-col :span="11">
                     <el-form-item prop="fwsxy_start_date">
                       <el-date-picker
-
                         v-model="item.fwsxy_start_date"
-                        type="datetime"
-                        placeholder="选择协议开始签订时间"
-                        format="YYYY/MM/DD HH:mm:ss"
-                        value-format="YYYY-MM-DD HH:mm:ss"
+                        type="date"
+                        placeholder="选择协议开始签订日期"
+                        format="YYYY-MM-DD"
+                        value-format="YYYY-MM-DD"
                       />
                     </el-form-item>
                   </el-col>
@@ -192,11 +198,10 @@
                     <el-form-item prop="fwsxy_end_date">
                       <el-date-picker
                         v-model="item.fwsxy_end_date"
-                        type="datetime"
-                        placeholder="选择协议结束签订时间"
-                        :shortcuts="shortcuts"
-                        format="YYYY/MM/DD HH:mm:ss"
-                        value-format="YYYY-MM-DD HH:mm:ss"
+                        type="date"
+                        placeholder="选择协议结束签订日期"
+                        format="YYYY-MM-DD"
+                        value-format="YYYY-MM-DD"
                       />
                     </el-form-item>
                   </el-col>
@@ -216,7 +221,14 @@
                 <el-form-item label="备注" prop="remark">
                   <el-input v-model="item.remark" type="textarea" />
                 </el-form-item>
+
+
+                <el-form-item>
+                  <el-button type="primary" @click="deleteItemBefore(item)">删除模块</el-button>
+                </el-form-item>
+
               </el-form>
+
             </el-card>
           </el-col>
           <!--          <el-col :span="12">-->
@@ -229,6 +241,8 @@
         </el-row>
       </el-scrollbar>
     </el-main>
+
+
     <el-footer>
       <el-form-item>
         <el-button type="primary" @click="submitForm(ruleFormRef)">编辑保存</el-button>
@@ -246,7 +260,7 @@ import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance } from "element-plus";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
-import { deleteSchoolAll, editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
+import { deleteSchoolAll, deleteSchoolModule, editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
 import { ElNotification } from "element-plus";
 import { addSchoolInfo } from "@/api/schoolList";
 import { toRefs } from "@vueuse/core";
@@ -254,54 +268,33 @@ import { getTimeStateStr } from "@/utils";
 import { userList } from "@/api/user";
 // 页面设置部分
 const formSize = ref("default");
-const shortcuts = [
-  {
-    text: "Today",
-    value: new Date()
-  },
-  {
-    text: "Yesterday",
-    value: () => {
-      const date = new Date();
-      date.setTime(date.getTime() - 3600 * 1000 * 24);
-      return date;
-    }
-  },
-  {
-    text: "A week ago",
-    value: () => {
-      const date = new Date();
-      date.setTime(date.getTime() - 3600 * 1000 * 24 * 7);
-      return date;
-    }
-  }
-];// 选择时间部分
+
 
 //整体初始化部分
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive({
   fzr1: [
-    { required: true, message: "请输入主负责人名称", trigger: "blur" },
+    { required: false, message: "请输入主负责人名称", trigger: "blur" },
     { min: 1, max: 5, message: "长度在 1 到 5 个字符", trigger: "blur" }
   ],
   school_name: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
   school_code: [{ required: true, message: "请输入学校编码", trigger: "blur" }],
   buildStage: [
     {
-      required: true,
+      required: false,
       message: "请选择建设阶段",
       trigger: "change"
     }
   ],
   service: [{
-    required: true,
+    required: false,
     message: "请选择服务商",
     trigger: "change"
   }],
   fwsxy_start_date: [
     {
       type: "date",
-      required: true,
+      required: false,
       message: "请选择时间",
       trigger: "change"
     }
@@ -309,7 +302,7 @@ const rules = reactive({
   fwsxy_end_date: [
     {
       type: "date",
-      required: true,
+      required: false,
       message: "请选择时间",
       trigger: "change"
     }
@@ -317,22 +310,19 @@ const rules = reactive({
   create_date: [
     {
       type: "date",
-      required: true,
+      required: false,
       message: "请选择时间",
       trigger: "change"
     }
   ],
   remark: [{ required: false, message: "请填写备注", trigger: "blur" }]
 });
-const defaultTime = new Date(2000, 1, 1, 12, 0, 0);
-const value2 = ref("");
 
 // 点击左侧side,获取学校信息
 const commonStore = useCommonStore();
 // 使用storeToRefs函数可以辅助保持数据的响应式解构，如果直接结构，会失去响应式
 const { selectedSchoolName } = storeToRefs(commonStore);
 const { selectedSchoolCode } = storeToRefs(commonStore);
-const { updateListValue } = storeToRefs(commonStore);
 const { schoolListFirstCode } = storeToRefs(commonStore);
 const { schoolListFirstName } = storeToRefs(commonStore);
 const ruleForm = ref([]);
@@ -359,7 +349,19 @@ const userQuerySearch = async () => {
 
 
 //添加《新》学校部分
-const ruleFormAdd = ref({});
+const ruleFormAdd = ref({
+  school_code: '',
+  buildStage: "",
+  create_date: timestampToTime(new Date()),
+  fwsxy_end_date: timestampToTime(new Date()),
+  fwsxy_start_date: timestampToTime(new Date()),
+  fzr1: "",
+  fzr2: "",
+  qtxy: "",
+  remark: "",
+  service: "",
+  xt: ""
+});
 // 弹窗部分
 const dialogVisible = ref(false);
 const handleClose = (done: () => void) => {
@@ -377,9 +379,6 @@ const addSchool = async (formEl: FormInstance | undefined) => {
     return;
   else {
     let a = await addSchoolInfo(ruleFormAdd.value);
-
-    console.log("ruleFormAdd.value", ruleFormAdd.value);
-
     let result = a.data;
     console.log("result", a.data);
     if (!result.success) {
@@ -421,11 +420,22 @@ const addOne = async () => {
 //编辑已有数据提交
 const submitForm = async (formEl: FormInstance | undefined) => {
   console.log("--FORM---", ruleForm);
-  console.log("value2", value2);
   if (!formEl) return;
   else {
     let b = await editSchoolInfo(ruleForm.value, selectedSchoolCode.value);
     console.log("bbbbbbbbbb", b);
+    if (b.data.success){
+      ElMessage({
+        type: "success",
+        message: "提交成功"
+      });
+    }else {
+      ElMessage({
+        type: "error",
+        message: "提交失败"
+      });
+    }
+
   }
 };
 //重置
@@ -464,6 +474,36 @@ const deleteForm = (done: () => void) => {
     });
 };
 
+//删除单个模块
+const deleteItemBefore = async (item)=>{
+  if (ruleForm.value.length>1){
+    deleteItem(item)
+  }else {
+    ElMessage({
+      type: "error",
+      message: "每个学校至少有一个模块"
+    });
+  }
+}
+const deleteItem = (item) => {
+  ElMessageBox.confirm("您确定删除"+selectedSchoolName.value+"的该模块吗")
+    .then(async () => {
+      let a = await deleteSchoolModule(item.school_code,item.id);
+      console.log("aaaaaaaaaaa", a);
+      ElMessage({
+        type: "success",
+        message: "删除成功"
+      });
+      await getInfo(selectedSchoolCode);
+    })
+    .catch(() => {
+      ElMessage({
+        type: "success",
+        message: "删除失败"
+      });
+    });
+};
+
 watch(selectedSchoolCode, (newVal, oldVal) => {
   getInfo(selectedSchoolCode);
 });
@@ -487,9 +527,6 @@ function timestampToTime(date) {
 
 onMounted(() => {
   refreshForm()
-  // selectedSchoolCode.value = schoolListFirstCode.value;
-  // selectedSchoolName.value = schoolListFirstName.value;
-  // getInfo(schoolListFirstCode);
   userQuerySearch();
 
 });
