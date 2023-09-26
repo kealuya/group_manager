@@ -42,3 +42,25 @@ export function editSchoolInfo(ruleFormEditArray,school_code) {
 
   })
 }
+
+export function deleteSchoolAll(school_code) {
+  return request({
+    url:"/school/delete",
+    method:"post",
+    data:{
+      school_code:school_code
+    }
+
+  })
+}
+export function deleteSchoolModule(school_code,id) {
+  return request({
+    url:"/school/delete",
+    method:"post",
+    data:{
+      id:id,
+      school_code:school_code
+    }
+
+  })
+}

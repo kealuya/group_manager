@@ -12,7 +12,8 @@ export const useCommonStore = defineStore({
         // 当前选中高校
         selectedSchoolName: "",
         selectedSchoolCode:"",
-        updateListValue:false
+        updateListValue:false,
+        schoolListFirstCode:"",
     }),
     getters: {},
     // 可以同步 也可以异步

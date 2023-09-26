@@ -29,7 +29,7 @@
         ref="ruleFormRefAdd"
         :model="ruleFormAdd"
         label-width="100"
-        :rules="rulesAdd"
+        :rules="rules"
         class="demo-ruleForm"
         :size="formSize"
       >
@@ -119,6 +119,7 @@
       <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
+        <el-button @click="resetForm(ruleFormRefAdd)">重置</el-button>
         <el-button type="primary" @click="addSchool(ruleFormAdd)">
           确认提交
         </el-button>
@@ -231,7 +232,7 @@
     <el-footer>
       <el-form-item>
         <el-button type="primary" @click="submitForm(ruleFormRef)">编辑保存</el-button>
-        <el-button @click="resetForm(ruleFormRef)">重置</el-button>
+        <el-button @click="deleteForm(ruleFormRef)">删除学校</el-button>
         <el-button @click="addOne">添加模块</el-button>
       </el-form-item>
     </el-footer>
@@ -241,11 +242,11 @@
 
 <script lang="ts" setup>
 import { onMounted, reactive, ref, defineProps, computed, watch } from "vue";
-import { ElMessageBox } from "element-plus";
+import { ElMessage, ElMessageBox } from "element-plus";
 import type { FormInstance } from "element-plus";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
-import { editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
+import { deleteSchoolAll, editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
 import { ElNotification } from "element-plus";
 import { addSchoolInfo } from "@/api/schoolList";
 import { toRefs } from "@vueuse/core";
@@ -332,6 +333,7 @@ const commonStore = useCommonStore();
 const { selectedSchoolName } = storeToRefs(commonStore);
 const { selectedSchoolCode } = storeToRefs(commonStore);
 const { updateListValue } = storeToRefs(commonStore);
+const { schoolListFirstCode } = storeToRefs(commonStore);
 const ruleForm = ref([]);
 const getInfo = async () => {
   let result = await getSchoolInfo(selectedSchoolCode.value);
@@ -349,7 +351,7 @@ const getInfo = async () => {
 
 //获取人员列表，选择负责人
 const userOptions = ref([]);
-const querySearch = async () => {
+const userQuerySearch = async () => {
   let userList1 = await userList();
   userOptions.value = userList1.data.data;
 };
@@ -369,7 +371,6 @@ const handleClose = (done: () => void) => {
     });
 };
 // 添加学校
-// const { updateListValue } = storeToRefs(commonStore);
 const addSchool = async (formEl: FormInstance | undefined) => {
   if (!formEl)
     return;
@@ -428,10 +429,31 @@ const submitForm = async (formEl: FormInstance | undefined) => {
 };
 //重置
 const resetForm = (formEl: FormInstance | undefined) => {
+  console.log('formEl',formEl)
   if (!formEl) return;
   formEl.resetFields();
 };
-
+//删除delete整个学校
+const deleteForm = (done: () => void) => {
+  ElMessageBox.confirm("您确定删除整个学校吗")
+    .then(async () => {
+      let c = await deleteSchoolAll(selectedSchoolCode.value)
+      console.log('cccccccccccccccccc',c)
+      ElMessage({
+        type: 'success',
+        message: '删除成功',
+      })
+      commonStore.updateList();
+      await getInfo()
+    })
+    .catch(() => {
+      ElMessage({
+        type: 'success',
+        message: '删除失败',
+      })
+      commonStore.updateList();
+    });
+};
 
 watch(selectedSchoolCode, (newVal, oldVal) => {
   getInfo();
@@ -454,8 +476,8 @@ function timestampToTime(date) {
 }
 onMounted(() => {
   getInfo();
-  querySearch();
-
+  userQuerySearch();
+  console.log('schoolListFirstCode11111111111111',schoolListFirstCode.value)
 
 });
 </script>

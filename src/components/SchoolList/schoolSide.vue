@@ -23,14 +23,11 @@
 
 <script lang="ts" setup>
 
-import { onMounted, ref, toRefs, defineEmits, watch } from "vue";
+import { defineEmits, onMounted, ref, watch } from "vue";
 import { getSchoolList1 } from "@/api/schoolList";
-import { ElNotification } from "element-plus";
-import { getTimeStateStr } from "@/utils";
 import { useUserStore } from "@/store/modules/user";
-import { toRaw } from '@vue/reactivity'
-import { string } from "fast-glob/out/utils";
-import {useCommonStore} from "@/store/modules/common";
+import { toRaw } from "@vue/reactivity";
+import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
 
 const input1 = ref("");
@@ -46,7 +43,10 @@ const getList = async ()=>{
   const userInfo   = toRaw(userStore.userInfo) ;
   let e = await getSchoolList1(userInfo.code,isOwner.value);
   listData.value = e.data.data
-  console.log(listData.value)
+  // commonStore.schoolListFirstCode =
+  // listData.value.forEach((item)=>console.log('item',item))
+  let a = Object.values(listData)
+  console.log('schoolListFirstCode',toRaw(listData[0]))
 }
 
 const chooseSchool = (code,name) => {
