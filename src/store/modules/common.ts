@@ -1,26 +1,23 @@
-import {defineStore} from 'pinia'
-import request from "@/api/request";
-import service from "@/api/request";
-import {string} from "fast-glob/out/utils";
+import { defineStore } from "pinia";
 
 
 export const useCommonStore = defineStore({
     // id: 必须的，在所有 Store 中唯一
-    id: 'common',
+    id: "common",
     // state: 返回对象的函数
     state: () => ({
         // 当前选中高校
         selectedSchoolName: "",
-        selectedSchoolCode:"",
-        updateListValue:false,
-        schoolListFirstCode:"",
-        schoolListFirstName:"",
+        selectedSchoolCode: "",
+        updateListValue: false,
+        schoolListFirstCode: "",
+        schoolListFirstName: ""
     }),
     getters: {},
     // 可以同步 也可以异步
     actions: {
-        updateList(){
-            this.updateListValue  = ! this.updateListValue
+        updateList() {
+            this.updateListValue = !this.updateListValue;
         }
 
     },
@@ -29,7 +26,7 @@ export const useCommonStore = defineStore({
         // 本地存储的名称
         key: "common",
         //保存的位置
-        storage: window.localStorage,//localstorage
-    },
+        storage: window.localStorage//localstorage
+    }
 
-})
+});

@@ -1,155 +1,155 @@
 <template>
   <div class="app-container">
-
-    <el-table
-      :stripe="true"
-      :data="tableData"
-      @sort-change="sortChange"
-      :default-sort="{prop:'update_date',order:'descending'}"
-      style="width: 100%"
-    >
-      <el-table-column width="60">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
-            <el-image style="width: 40px; height: 40px" :src="displayIcon(scope.row.doc_type)"></el-image>
-          </div>
-        </template>
-      </el-table-column>
-      <el-table-column label="名称" min-width="400">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
+    <div class="card">
+      <div style="width:100%;display: flex;justify-content: space-between">
+        <div>
+          <el-button type="primary" @click="fileUpdate(UPLOAD_MODAL_MODE.NEW)">
+            新建文档
+            <div style="width: 10px;"></div>
+            <el-image style="width: 20px; height: 20px" :src="IconNewFile"></el-image>
+          </el-button>
+        </div>
+        <el-input style="width:600px" v-model="searchContent" placeholder="检索" class="input-with-select"
+                  @change="searchContentChange ">
+          <template #prepend>
+            <el-button :icon="Search" />
+          </template>
+        </el-input>
+      </div>
+      <div style="height: 20px;"></div>
+      <el-table
+        :stripe="true"
+        :data="tableData"
+        @sort-change="sortChange"
+        :default-sort="{prop:'update_date',order:'descending'}"
+        style="width: 100%"
+      >
+        <el-table-column width="60">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
+              <el-image style="width: 40px; height: 40px" :src="displayIcon(scope.row.doc_type)"></el-image>
+            </div>
+          </template>
+        </el-table-column>
+        <el-table-column label="名称" min-width="400">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
             <span style="margin-left: 10px">
                  {{ scope.row.doc_name }}
              </span>
-            <!--            <template v-if="scope.row.is_discard == 'true'">-->
-            <!--              <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/discard.png"></el-image>-->
-            <!--            </template>-->
-            <!--            <template v-else>-->
-            <!--              <template v-if="scope.row.is_release == 'true'">-->
-            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isRelease.png"></el-image>-->
-            <!--              </template>-->
-            <!--              <template v-else>-->
-            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/noRelease.png"></el-image>-->
-            <!--              </template>-->
-
-            <!--              <template v-if="scope.row.is_owner_edit == 'true'">-->
-            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/isOwner.png"></el-image>-->
-            <!--              </template>-->
-            <!--              <template v-else>-->
-            <!--                <el-image style="width: 20px; height: 20px;margin-left: 10px" src="/noOwner.png"></el-image>-->
-            <!--              </template>-->
-            <!--            </template>-->
 
 
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="" min-width="100">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
-            <div style="display: flex; align-items: center">
-              <el-image @click="downloadClickFile(scope.row.file_name,scope.row.doc_name )"
-                        style="width: 20px; height: 20px" :src="IconDownload"></el-image>
             </div>
-            <div style="width: 30px"></div>
-            <!--            <div style="display: flex; align-items: center">-->
-            <!--              <el-image @click="reviewClickFile(scope.row.file_name)" style="width: 20px; height: 20px"-->
-            <!--                        src="/review.png"></el-image>-->
-            <!--            </div>-->
-          </div>
-        </template>
-      </el-table-column>
+          </template>
+        </el-table-column>
 
-      <el-table-column label="版本" min-width="100">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ scope.row.version_show }}</span>
-            <el-popover placement="right" :width="200" trigger="hover">
-              <template #reference>
-                <div style="display: flex; align-items: center">
-                  <el-image style="width: 20px; height: 20px" :src="IconList"></el-image>
+        <el-table-column label="" min-width="100">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
+              <div style="display: flex; align-items: center">
+                <el-image @click="downloadClickFile(scope.row.file_name,scope.row.doc_name )"
+                          style="width: 20px; height: 20px" :src="IconDownload"></el-image>
+              </div>
+              <div style="width: 30px"></div>
+              <!--            <div style="display: flex; align-items: center">-->
+              <!--              <el-image @click="reviewClickFile(scope.row.file_name)" style="width: 20px; height: 20px"-->
+              <!--                        src="/review.png"></el-image>-->
+              <!--            </div>-->
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="版本" min-width="100">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
+              <span style="margin-left: 10px">{{ scope.row.version_show }}</span>
+              <el-popover placement="right" :width="200" trigger="hover">
+                <template #reference>
+                  <div style="display: flex; align-items: center">
+                    <el-image style="width: 20px; height: 20px" :src="IconList"></el-image>
+                  </div>
+                </template>
+                <el-table :data=" scope.row.update_content_list ">
+                  <el-table-column width="80" property="versionShow" label="版本" />
+                  <el-table-column width="120" property="updateContent" label="更新内容" />
+                </el-table>
+              </el-popover>
+
+              <template v-if="scope.row.is_release===true">
+                <div class="release">
+                  发布
                 </div>
               </template>
-              <el-table :data=" scope.row.update_content_list ">
-                <el-table-column width="80" property="versionShow" label="版本" />
-                <el-table-column width="120" property="updateContent" label="更新内容" />
-              </el-table>
-            </el-popover>
-
-            <template v-if="scope.row.is_release===true">
-              <div class="release">
-                发布
-              </div>
-            </template>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="update_date" label="更新时间" sortable="custom" min-width="140">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ timeChange(scope.row.update_date) }}</span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="更新人" min-width="100">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ scope.row.update_user }}</span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column prop="create_date" label="追加时间" sortable="custom" min-width="140">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ timeChange(scope.row.create_date) }}</span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="所有者" min-width="50">
-        <template #default="scope">
-          <div style="display: flex; align-items: center">
-            <span style="margin-left: 10px">{{ scope.row.owner }}</span>
-          </div>
-        </template>
-      </el-table-column>
-
-      <el-table-column label="操作" min-width="120">
-        <template #default="scope">
-          <template v-if="scope.row.is_discard=='true'">
-            <el-button type="primary" plain disabled> 操作
-              <el-icon class="el-icon--right">
-                <arrow-down />
-              </el-icon>
-            </el-button>
+            </div>
           </template>
-          <template v-else>
-            <el-dropdown>
-              <el-button type="primary">
-                操作
+        </el-table-column>
+
+        <el-table-column prop="update_date" label="更新时间" sortable="custom" min-width="140">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
+              <span style="margin-left: 10px">{{ timeChange(scope.row.update_date) }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="更新人" min-width="100">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
+              <span style="margin-left: 10px">{{ scope.row.update_user }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column prop="create_date" label="追加时间" sortable="custom" min-width="140">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
+              <span style="margin-left: 10px">{{ timeChange(scope.row.create_date) }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="所有者" min-width="50">
+          <template #default="scope">
+            <div style="display: flex; align-items: center">
+              <span style="margin-left: 10px">{{ scope.row.owner }}</span>
+            </div>
+          </template>
+        </el-table-column>
+
+        <el-table-column label="操作" min-width="120">
+          <template #default="scope">
+            <template v-if="scope.row.is_discard=='true'">
+              <el-button type="primary" plain disabled> 操作
                 <el-icon class="el-icon--right">
                   <arrow-down />
                 </el-icon>
               </el-button>
-              <template #dropdown>
-                <el-dropdown-menu>
-                  <el-dropdown-item @click="fileUpdate(UPLOAD_MODAL_MODE.UPLOAD,scope.row)">更新上传</el-dropdown-item>
-                  <el-dropdown-item divided @click="fileAuthority(scope.row)">权限调整</el-dropdown-item>
-                  <el-dropdown-item @click="fileDiscard(scope.row)">废弃文档</el-dropdown-item>
-                  <el-dropdown-item @click="fileHistory">版本历史</el-dropdown-item>
-                </el-dropdown-menu>
-              </template>
-            </el-dropdown>
+            </template>
+            <template v-else>
+              <el-dropdown>
+                <el-button type="primary">
+                  操作
+                  <el-icon class="el-icon--right">
+                    <arrow-down />
+                  </el-icon>
+                </el-button>
+                <template #dropdown>
+                  <el-dropdown-menu>
+                    <el-dropdown-item @click="fileUpdate(UPLOAD_MODAL_MODE.UPLOAD,scope.row)">更新上传
+                    </el-dropdown-item>
+                    <el-dropdown-item divided @click="fileAuthority(scope.row)">权限调整</el-dropdown-item>
+                    <el-dropdown-item @click="fileDiscard(scope.row)">废弃文档</el-dropdown-item>
+                    <el-dropdown-item @click="fileHistory">版本历史</el-dropdown-item>
+                  </el-dropdown-menu>
+                </template>
+              </el-dropdown>
+            </template>
           </template>
-        </template>
-      </el-table-column>
-    </el-table>
-    <div style="height: 20px"></div>
-    <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage" :page-count="pageCount" />
+        </el-table-column>
+      </el-table>
+      <div style="height: 20px"></div>
+      <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage" :page-count="pageCount" />
+    </div>
   </div>
   <UploadModal v-model="uploadModalDialogVisible" :mode="uploadModalMode" :item="selectFile"
                @updateSuccess="updateSuccess"></UploadModal>
@@ -197,6 +197,7 @@ import IconZip from "@/assets/fileReport/icon-zip.png";
 import IconImage from "@/assets/fileReport/icon-image.png";
 import IconRar from "@/assets/fileReport/icon-rar.png";
 import IconNone from "@/assets/fileReport/icon-none.png";
+import IconNewFile from "@/assets/fileReport/icon-new-file.png";
 
 type  ParamObject = { [key: string]: string }
 
@@ -293,7 +294,12 @@ watchEffect(
     await getDocFileList(p);
   }
 );
+const searchContentChange = async (value: string) => {
+  console.log(value);
+  searchContentObj.value = value;
+  currentPage.value = 1;
 
+};
 
 const downloadClickFile = (fileName: string, docName: string) => {
   downLoadFile(OBS_URL + fileName, docName);
@@ -381,6 +387,25 @@ onMounted(async () => {
 
 </script>
 <style>
+.app-container {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  padding: 16px;
+  box-sizing: border-box;
+  font-size: 14px;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+  padding: 18px;
+  position: relative;
+  border-radius: 4px;
+  background: white;
+  box-shadow: 0 0 12px rgb(0 0 0 / 5%);
+}
 
 .record {
   box-shadow: 0px 0px 0px #b4b3b3;

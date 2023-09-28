@@ -20,28 +20,13 @@ export class FileService {
     async getDocFileListByCondition(pageSize: number, page: number,
                                     sortCol: { [key: string]: string },
                                     search: string): Promise<any> {
-        let sqlForCount = `
-                SELECT
-                  count(*) as count
-                FROM
-                    doc doc
-                    INNER JOIN ( SELECT f1.* FROM file f1,
-                    ( SELECT doc_id  ,MAX( version ) AS version1 FROM file GROUP BY doc_id ) ff WHERE f1.version = ff.version1 and f1.doc_id = ff.doc_id ) f
-                    ON doc.doc_id = f.doc_id
-                WHERE
-                    doc.is_discard = 'false' 
-                    AND doc.is_release = 'true' 
-            
-         `;
-
-        const countObj = await this.mysql.query(sqlForCount);
 
         let where = "";
         let whereParam = "";
         if (search == "" || search == null) {
             ;
         } else {
-            where = " AND ( doc_name like :where1 OR update_user like :where1 OR owner like :where1 )";
+            where = " AND ( doc_name like :where1 OR u1.name like :where1 OR u2.name like :where1 )";
             whereParam = search;
         }
 
@@ -55,6 +40,27 @@ export class FileService {
         } else {
             orderBy = " update_time desc ";
         }
+
+        let sqlForCount = `
+                SELECT
+                    count(*) as count
+                FROM
+                    doc doc
+                    INNER JOIN ( SELECT f1.* FROM file f1,
+                    ( SELECT doc_id  ,MAX( version ) AS version1 FROM file GROUP BY doc_id ) ff WHERE f1.version = ff.version1 and f1.doc_id = ff.doc_id ) f
+                    ON doc.doc_id = f.doc_id
+                    LEFT JOIN user u1 ON doc.owner_id = u1.code
+                    LEFT JOIN user u2 ON f.update_user_id = u2.code 
+                WHERE
+                    doc.is_discard = 'false' 
+                    AND doc.is_release = 'true' 
+                    ${where}
+         `;
+
+        const countObj = await this.mysql.query(sqlForCount, {
+            where1: "%" + whereParam + "%"
+        });
+
 
         let sqlForSearch = `
                 SELECT
@@ -81,7 +87,7 @@ export class FileService {
         const result = await this.mysql.query(sqlForSearch, {
             limit1: (page - 1) * pageSize,
             limit2: pageSize,
-            where1: whereParam
+            where1: "%" + whereParam + "%"
         });
 
         if (result.length > 0) {

@@ -14,16 +14,17 @@
         :http-request="httpRequest"
         :on-change="onChange"
       >
+
         <template #trigger>
           <el-button type="primary">选择文件</el-button>
         </template>
-
+        <span>　　</span>
         <el-button ref="uploadHandler" :disabled="isUploadBtnDisabled" class="ml-3" type="success"
                    @click="submitUpload">
           上传
         </el-button>
-
       </el-upload>
+
       <el-divider />
       <div style="display: flex;align-items: center;justify-content: start">
         <div>文档名称：</div>
@@ -49,7 +50,7 @@
         <el-input disabled v-model="item.docType" size="small" style="width: 80px" maxlength="5" />
       </div>
       <template #footer>
-      <span class="dialog-footer">
+        <span class="dialog-footer">
         <el-button @click="handleClose">关闭</el-button>
       </span>
       </template>
