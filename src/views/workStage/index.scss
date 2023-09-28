@@ -22,13 +22,18 @@
     justify-content: center;
   }
   .item{
-    font-size: 14px;
+    font-size: 16px;
+    width: 80%;
     color: #409EFF;
-    margin-bottom: 8px;
+    margin-bottom: 12px;
+    padding: 6px;
+    border:1px solid #409EFF ;
+    border-radius: 8px;
     cursor: pointer;
+    transition: all 0.38s ease-out;
   }
   .item:hover{
-    box-shadow: 0 0 12px rgb(0 0 0 / 10%);
+    box-shadow: 6px 6px 3px rgb(191, 224, 255);
   }
 }
 .m-user-table{
