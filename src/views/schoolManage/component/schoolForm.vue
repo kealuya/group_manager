@@ -81,31 +81,33 @@
           <el-input clearable v-model="ruleFormAdd.service" />
         </el-form-item>
         <el-form-item label="协议签订">
-          <el-col :span="11">
-            <el-form-item prop="fwsxy_start_date">
-              <el-date-picker
-                v-model="ruleFormAdd.fwsxy_start_date"
-                type="date"
-                placeholder="选择协议开始签订日期"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-              />
-            </el-form-item>
-          </el-col>
-          <el-col class="text-center" :span="2" style="text-align: center">
-            <span class="text-gray-500">-</span>
-          </el-col>
-          <el-col :span="11">
-            <el-form-item prop="fwsxy_end_date">
-              <el-date-picker
-                v-model="ruleFormAdd.fwsxy_end_date"
-                type="date"
-                placeholder="协议结束签日期"
-                format="YYYY-MM-DD"
-                value-format="YYYY-MM-DD"
-              />
-            </el-form-item>
-          </el-col>
+          <el-row :gutter="10">
+            <el-col :span="11">
+              <el-form-item prop="fwsxy_start_date">
+                <el-date-picker
+                  v-model="ruleFormAdd.fwsxy_start_date"
+                  type="date"
+                  placeholder="选择协议开始签订日期"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                />
+              </el-form-item>
+            </el-col>
+            <el-col class="text-center" :span="2" style="text-align: center">
+              <span class="text-gray-500">-</span>
+            </el-col>
+            <el-col :span="11">
+              <el-form-item prop="fwsxy_end_date">
+                <el-date-picker
+                  v-model="ruleFormAdd.fwsxy_end_date"
+                  type="date"
+                  placeholder="协议结束签日期"
+                  format="YYYY-MM-DD"
+                  value-format="YYYY-MM-DD"
+                />
+              </el-form-item>
+            </el-col>
+          </el-row>
         </el-form-item>
         <el-form-item label="创建时间" prop="create_date">
           <el-date-picker
@@ -180,31 +182,33 @@
                   <el-input clearable v-model="item.service" />
                 </el-form-item>
                 <el-form-item label="协议签订">
-                  <el-col :span="11">
-                    <el-form-item prop="fwsxy_start_date">
-                      <el-date-picker
-                        v-model="item.fwsxy_start_date"
-                        type="date"
-                        placeholder="选择协议开始签订日期"
-                        format="YYYY-MM-DD"
-                        value-format="YYYY-MM-DD"
-                      />
-                    </el-form-item>
-                  </el-col>
-                  <el-col class="text-center" :span="2" style="text-align: center">
-                    <span class="text-gray-500">-</span>
-                  </el-col>
-                  <el-col :span="11">
-                    <el-form-item prop="fwsxy_end_date">
-                      <el-date-picker
-                        v-model="item.fwsxy_end_date"
-                        type="date"
-                        placeholder="选择协议结束签订日期"
-                        format="YYYY-MM-DD"
-                        value-format="YYYY-MM-DD"
-                      />
-                    </el-form-item>
-                  </el-col>
+                  <el-row :gutter="10">
+                    <el-col :span="11">
+                      <el-form-item prop="fwsxy_start_date">
+                        <el-date-picker
+                          v-model="item.fwsxy_start_date"
+                          type="date"
+                          placeholder="选择协议开始签订日期"
+                          format="YYYY-MM-DD"
+                          value-format="YYYY-MM-DD"
+                        />
+                      </el-form-item>
+                    </el-col>
+                    <el-col class="text-center" :span="2" style="text-align: center">
+                      <span class="text-gray-500">-</span>
+                    </el-col>
+                    <el-col :span="11">
+                      <el-form-item prop="fwsxy_end_date">
+                        <el-date-picker
+                          v-model="item.fwsxy_end_date"
+                          type="date"
+                          placeholder="选择协议结束签订日期"
+                          format="YYYY-MM-DD"
+                          value-format="YYYY-MM-DD"
+                        />
+                      </el-form-item>
+                    </el-col>
+                  </el-row>
                 </el-form-item>
                 <el-form-item label="创建时间" prop="create_date">
                   <el-date-picker
@@ -255,16 +259,12 @@
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, defineProps, computed, watch } from "vue";
-import { ElMessage, ElMessageBox } from "element-plus";
+import { onMounted, reactive, ref, watch } from "vue";
 import type { FormInstance } from "element-plus";
+import { ElMessage, ElMessageBox, ElNotification } from "element-plus";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
-import { deleteSchoolAll, deleteSchoolModule, editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
-import { ElNotification } from "element-plus";
-import { addSchoolInfo } from "@/api/schoolList";
-import { toRefs } from "@vueuse/core";
-import { getTimeStateStr } from "@/utils";
+import { addSchoolInfo, deleteSchoolAll, deleteSchoolModule, editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
 import { userList } from "@/api/user";
 // 页面设置部分
 const formSize = ref("default");
@@ -350,7 +350,7 @@ const userQuerySearch = async () => {
 
 //添加《新》学校部分
 const ruleFormAdd = ref({
-  school_code: '',
+  school_code: "",
   buildStage: "",
   create_date: timestampToTime(new Date()),
   fwsxy_end_date: timestampToTime(new Date()),
@@ -424,12 +424,12 @@ const submitForm = async (formEl: FormInstance | undefined) => {
   else {
     let b = await editSchoolInfo(ruleForm.value, selectedSchoolCode.value);
     console.log("bbbbbbbbbb", b);
-    if (b.data.success){
+    if (b.data.success) {
       ElMessage({
         type: "success",
         message: "提交成功"
       });
-    }else {
+    } else {
       ElMessage({
         type: "error",
         message: "提交失败"
@@ -446,11 +446,11 @@ const resetForm = (formEl: FormInstance | undefined) => {
 };
 
 //操作后刷新
-const refreshForm = async ()=>{
+const refreshForm = async () => {
   await getInfo(schoolListFirstCode);
   selectedSchoolCode.value = schoolListFirstCode.value;
   selectedSchoolName.value = schoolListFirstName.value;
-}
+};
 
 //删除delete整个学校
 const deleteForm = (done: () => void) => {
@@ -463,7 +463,7 @@ const deleteForm = (done: () => void) => {
         message: "删除成功"
       });
       commonStore.updateList();
-      await refreshForm()
+      await refreshForm();
     })
     .catch(() => {
       ElMessage({
@@ -475,20 +475,20 @@ const deleteForm = (done: () => void) => {
 };
 
 //删除单个模块
-const deleteItemBefore = async (item)=>{
-  if (ruleForm.value.length>1){
-    deleteItem(item)
-  }else {
+const deleteItemBefore = async (item) => {
+  if (ruleForm.value.length > 1) {
+    deleteItem(item);
+  } else {
     ElMessage({
       type: "error",
       message: "每个学校至少有一个模块"
     });
   }
-}
+};
 const deleteItem = (item) => {
-  ElMessageBox.confirm("您确定删除"+selectedSchoolName.value+"的该模块吗")
+  ElMessageBox.confirm("您确定删除" + selectedSchoolName.value + "的该模块吗")
     .then(async () => {
-      let a = await deleteSchoolModule(item.school_code,item.id);
+      let a = await deleteSchoolModule(item.school_code, item.id);
       console.log("aaaaaaaaaaa", a);
       ElMessage({
         type: "success",
@@ -526,7 +526,7 @@ function timestampToTime(date) {
 }
 
 onMounted(() => {
-  refreshForm()
+  refreshForm();
   userQuerySearch();
 
 });
