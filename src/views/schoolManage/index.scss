@@ -34,12 +34,6 @@
       align-items: center;
       justify-content: center;
     }
-    .addCardStyle:hover{
-      border: 1px dashed #409eff;
-      ::v-deep(.el-icon):hover{
-        color:  #409eff;
-      }
-    }
 
   }
 }

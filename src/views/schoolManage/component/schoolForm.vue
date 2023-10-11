@@ -81,33 +81,33 @@
           <el-input clearable v-model="ruleFormAdd.service" />
         </el-form-item>
         <el-form-item label="协议签订">
-          <el-row :gutter="10">
-            <el-col :span="11">
-              <el-form-item prop="fwsxy_start_date">
-                <el-date-picker
-                  v-model="ruleFormAdd.fwsxy_start_date"
-                  type="date"
-                  placeholder="选择协议开始签订日期"
-                  format="YYYY-MM-DD"
-                  value-format="YYYY-MM-DD"
-                />
-              </el-form-item>
-            </el-col>
-            <el-col class="text-center" :span="2" style="text-align: center">
-              <span class="text-gray-500">-</span>
-            </el-col>
-            <el-col :span="11">
-              <el-form-item prop="fwsxy_end_date">
-                <el-date-picker
-                  v-model="ruleFormAdd.fwsxy_end_date"
-                  type="date"
-                  placeholder="协议结束签日期"
-                  format="YYYY-MM-DD"
-                  value-format="YYYY-MM-DD"
-                />
-              </el-form-item>
-            </el-col>
-          </el-row>
+          <el-col :span="11">
+            <el-form-item prop="fwsxy_start_date">
+              <el-date-picker
+                v-model="ruleFormAdd.fwsxy_start_date"
+                type="date"
+                placeholder="选择协议开始签订日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
+          <el-col class="text-center" :span="2" >
+            <span class="text-gray-500">-</span>
+          </el-col>
+          <el-col :span="11" >
+            <el-form-item prop="fwsxy_end_date">
+              <el-date-picker
+                v-model="ruleFormAdd.fwsxy_end_date"
+                type="date"
+                placeholder="协议结束签日期"
+                format="YYYY-MM-DD"
+                value-format="YYYY-MM-DD"
+                style="width: 100%"
+              />
+            </el-form-item>
+          </el-col>
         </el-form-item>
         <el-form-item label="创建时间" prop="create_date">
           <el-date-picker
@@ -129,7 +129,7 @@
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">Cancel</el-button>
         <el-button @click="resetForm(ruleFormRefAdd)">重置</el-button>
-        <el-button type="primary" @click="addSchool(ruleFormAdd)">
+        <el-button type="primary" @click="addSchool(ruleFormRefAdd)">
           确认提交
         </el-button>
       </span>
@@ -182,33 +182,33 @@
                   <el-input clearable v-model="item.service" />
                 </el-form-item>
                 <el-form-item label="协议签订">
-                  <el-row :gutter="10">
-                    <el-col :span="11">
-                      <el-form-item prop="fwsxy_start_date">
-                        <el-date-picker
-                          v-model="item.fwsxy_start_date"
-                          type="date"
-                          placeholder="选择协议开始签订日期"
-                          format="YYYY-MM-DD"
-                          value-format="YYYY-MM-DD"
-                        />
-                      </el-form-item>
-                    </el-col>
-                    <el-col class="text-center" :span="2" style="text-align: center">
-                      <span class="text-gray-500">-</span>
-                    </el-col>
-                    <el-col :span="11">
-                      <el-form-item prop="fwsxy_end_date">
-                        <el-date-picker
-                          v-model="item.fwsxy_end_date"
-                          type="date"
-                          placeholder="选择协议结束签订日期"
-                          format="YYYY-MM-DD"
-                          value-format="YYYY-MM-DD"
-                        />
-                      </el-form-item>
-                    </el-col>
-                  </el-row>
+                  <el-col :span="11">
+                    <el-form-item prop="fwsxy_start_date">
+                      <el-date-picker
+                        v-model="item.fwsxy_start_date"
+                        type="date"
+                        placeholder="选择协议开始签订日期"
+                        format="YYYY-MM-DD"
+                        value-format="YYYY-MM-DD"
+                        style="width: 100%"
+                      />
+                    </el-form-item>
+                  </el-col>
+                  <el-col class="text-center" :span="2" style="text-align: center">
+                    <span class="text-gray-500">-</span>
+                  </el-col>
+                  <el-col :span="11">
+                    <el-form-item prop="fwsxy_end_date">
+                      <el-date-picker
+                        v-model="item.fwsxy_end_date"
+                        type="date"
+                        placeholder="选择协议结束签订日期"
+                        format="YYYY-MM-DD"
+                        value-format="YYYY-MM-DD"
+                        style="width: 100%"
+                      />
+                    </el-form-item>
+                  </el-col>
                 </el-form-item>
                 <el-form-item label="创建时间" prop="create_date">
                   <el-date-picker
@@ -217,6 +217,7 @@
                     placeholder="Pick a Date"
                     format="YYYY-MM-DD HH:mm:ss"
                     value-format="YYYY-MM-DD HH:mm:ss"
+                    style="width: 100%"
                   />
                 </el-form-item>
                 <el-form-item label="其他协议" prop="qtxy">
@@ -271,6 +272,7 @@ const formSize = ref("default");
 
 
 //整体初始化部分
+const ruleFormRefAdd = ref<FormInstance>();
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive({
   fzr1: [

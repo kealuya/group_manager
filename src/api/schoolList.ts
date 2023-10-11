@@ -20,6 +20,15 @@ export function getSchoolInfo(name) {
     }
   })
 }
+export function getSchoolCodeInfo(name) {
+  return request({
+    url:"/school/getSchoolCodeInfo",
+    method:"post",
+    data:{
+      school_name:name
+    }
+  })
+}
 export function addSchoolInfo(ruleFormAdd) {
   return request({
     url:"/school/addInfo",

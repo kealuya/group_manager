@@ -12,8 +12,6 @@ export class SchoolList {
     logger: EggLogger;
     @Inject()
     mysql: EggMySQL;
-
-
     async getList(code: string, isOwner: boolean): Promise<Array<SchoolInfo> | null> {
 
         const sql1 = `SELECT DISTINCT
@@ -54,6 +52,5 @@ export class SchoolList {
 }
 
 export interface SchoolInfo {
-    // schoolCode: string;
     school_code: number;
 }

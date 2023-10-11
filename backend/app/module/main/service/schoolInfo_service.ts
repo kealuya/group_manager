@@ -11,6 +11,7 @@ export class SchoolInfo_service{
     @Inject()
     logger: EggLogger;
 
+    // 根据学校编码获取学校信息
     async getInfo(school:string):Promise<Array<SchoolInfo> | null>{
         const result = await this.mysql.query<Array<SchoolInfo>>(
           `SELECT
@@ -32,15 +33,29 @@ export class SchoolInfo_service{
             school:school
         });
 
-        this.logger.info(result)
-
         if (result.length > 0){
             return result
         }
         return null
     }
+    async getSchoolCodeInfo(school_name:string):Promise<Array<SchoolCodeInfo>|null>{
+        const result1 = await this.mysql.query<Array<SchoolCodeInfo>>(
+            `SELECT * FROM school WHERE school_name LIKE :school_name`,{
+                school_name: "%"+school_name+"%"
+            });
+        console.log('result1result1result1',result1)
+        if (result1.length > 0){
+            return result1
+        }
+        return null
+    }
+
+
+
 }
 export interface SchoolInfo {
     school: string;
-
+}
+export interface SchoolCodeInfo {
+    school_name: string;
 }
