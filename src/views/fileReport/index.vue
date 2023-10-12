@@ -31,7 +31,7 @@
             </div>
           </template>
         </el-table-column>
-        <el-table-column label="名称" min-width="400">
+        <el-table-column label="名称" min-width="300">
           <template #default="scope">
             <div style="display: flex; align-items: center">
             <span style="margin-left: 10px">

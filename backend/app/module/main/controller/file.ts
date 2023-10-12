@@ -37,14 +37,27 @@ export class FileController {
 
 
     /*
-      jwt 测试
+      查询文件
      */
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
-        path: "/test"
+        path: "/newDoc"
     })
-    async test(): Promise<ControllerResponse> {
-        return helper.makeControllerResponse(null);
+    async newDoc(@Context() ctx, @HTTPBody() body: DocFile): Promise<ControllerResponse> {
+        console.log("用户:", ctx.session.userInfo);
+        this.logger.info(body);
+        console.log(body);
+        let cr = helper.makeControllerResponse(null);
+        // DocFile 处理
+        try {
+            await this.fileService.newDocHandler(body);
+        } catch (e) {
+            cr.msg = "创建文档发生错误";
+            cr.success = false;
+        }
+
+        // 业务错误处理
+        return cr;
     }
 
 
@@ -59,6 +72,22 @@ export interface PagingInfo {
 }
 
 
-
+export interface DocFile {
+    docType: string;
+    versionShow: string;
+    docName: string;
+    fileName: string;
+    ownerId: string;
+    docId: string;
+    proId: string;
+    createDate: string;
+    isDiscard: string;
+    isOwnerEdit: string;
+    isRelease: string;
+    owner: string;
+    updateContent: string;
+    updateDate: string;
+    updateUser: string;
+}
 
 

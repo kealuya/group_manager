@@ -174,7 +174,8 @@ const httpRequest = (options: UploadRequestOptions): any => {
       Bucket: bucket,
       Key: fileName,
       SourceFile: options.file
-    }).then(function(result: any) {
+    }).then(async function(result: any) {
+      console.log(result.CommonMsg.Status);
       if (result.CommonMsg.Status < 300) {
         // 上传成功，后台处理
         let myFile: DocFile = props.item;
@@ -182,23 +183,25 @@ const httpRequest = (options: UploadRequestOptions): any => {
         myFile.ownerId = userStore.userInfo.code;
         myFile.proId = projectId;
         // 其他字段，后端补齐
-        callNewDoc(myFile).then((res: HttpResponse) => {
-          if (res.success) {
-            // 关闭加载
-            loadingFlg.close();
-            // 清空自己
-            handleClose();
-            ElMessage.success("上传 " + props.item.docName + " 文件成功");
-            // 上传成功,考虑只是通知上一个页面刷新...
-            emit("updateSuccess");
-          } else {
-            ElMessageBox.alert(res.msg, "提示", {
-              confirmButtonText: "好的",
-              callback: () => {
-              }
-            });
-          }
-        });
+
+        let response = await callNewDoc(myFile);
+        const callNewDocResp: BackendData<any> = response.data;
+
+        if (callNewDocResp.success) {
+          // 关闭加载
+          loadingFlg.close();
+          // 清空自己
+          handleClose();
+          ElMessage.success("上传 " + props.item.docName + " 文件成功");
+          // 上传成功,考虑只是通知上一个页面刷新...
+          emit("updateSuccess");
+        } else {
+          await ElMessageBox.alert(callNewDocResp.msg, "提示", {
+            confirmButtonText: "好的",
+            callback: () => {
+            }
+          });
+        }
       }
     });
   } else {
@@ -209,7 +212,7 @@ const httpRequest = (options: UploadRequestOptions): any => {
       Bucket: bucket,
       Key: fileName,
       SourceFile: options.file
-    }).then(function(result: any) {
+    }).then(async function(result: any) {
       if (result.CommonMsg.Status < 300) {
         // 上传成功，后台处理
         let myFile: DocFile = props.item;
@@ -218,23 +221,23 @@ const httpRequest = (options: UploadRequestOptions): any => {
         myFile.versionShow = updatedVersion.value;
         myFile.updateContent = updateContent.value;
         // 其他字段，后端补齐
-        callUpdateDoc(myFile).then((res: HttpResponse) => {
-          if (res.success) {
-            // 关闭加载
-            loadingFlg.close();
-            // 清空自己
-            handleClose();
-            ElMessage.success("上传 " + props.item.docName + " 文件成功");
-            // 上传成功,考虑只是通知上一个页面刷新...
-            emit("updateSuccess");
-          } else {
-            ElMessageBox.alert(res.msg, "提示", {
-              confirmButtonText: "好的",
-              callback: () => {
-              }
-            });
-          }
-        });
+        let response = await callUpdateDoc(myFile);
+        const callUpdateDocResp: BackendData<any> = response.data;
+        if (callUpdateDocResp.success) {
+          // 关闭加载
+          loadingFlg.close();
+          // 清空自己
+          handleClose();
+          ElMessage.success("上传 " + props.item.docName + " 文件成功");
+          // 上传成功,考虑只是通知上一个页面刷新...
+          emit("updateSuccess");
+        } else {
+          await ElMessageBox.alert(callUpdateDocResp.msg, "提示", {
+            confirmButtonText: "好的",
+            callback: () => {
+            }
+          });
+        }
       }
     });
   }

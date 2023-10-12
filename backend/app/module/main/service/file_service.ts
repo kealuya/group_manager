@@ -1,6 +1,8 @@
 import { EggLogger } from "egg";
 import { AccessLevel, Inject, SingletonProto } from "@eggjs/tegg";
 import { EggMySQL } from "egg-mysql";
+import { DocFile } from "@/module/main/controller/file";
+import moment from "moment";
 
 @SingletonProto({
     // 如果需要在上层使用，需要把 accessLevel 显示声明为 public
@@ -16,6 +18,54 @@ export class FileService {
     logger: EggLogger;
 
 
+    async newDocHandler(docFile: DocFile): Promise<any> {
+        const conn = await this.mysql.beginTransaction(); // 初始化事务
+        try {
+            // doc处理 fileName , docName , docType , ownerId ,proId 传过来
+            const resultForDoc = await conn.insert("doc", {
+                doc_name: docFile.docName,
+                owner_id: docFile.ownerId,
+                create_date: moment().format("YYYY-MM-DD hh:mm:ss"),
+                doc_type: docFile.docType,
+                is_release: "true",
+                is_owner_edit: "true",
+                pro_id: docFile.proId,
+                is_discard: "false"
+            });
+
+            if (resultForDoc.affectedRows != 1) {
+                // console.log("result.affectedRows!=1");
+                // 业务异常，通过throw传达给父类统一处理
+                throw new Error("resultForDoc.affectedRows != 1 ::" + JSON.stringify(docFile));
+            }
+
+            // file处理
+            const resultForFile = await conn.insert("file", {
+                doc_id: resultForDoc.insertId,// 自动返回自增主键
+                version: 1,
+                version_show: docFile.versionShow,
+                update_content: "初始化",
+                update_user_id: docFile.ownerId,
+                update_date: moment().format("YYYY-MM-DD hh:mm:ss"),
+                file_name: docFile.fileName
+            });
+
+            if (resultForFile.affectedRows != 1) {
+                console.log("resultForFile.affectedRows!=1");
+                // 业务异常，通过throw传达给父类统一处理
+                throw new Error("resultForFile.affectedRows!=1 ::" + JSON.stringify(docFile));
+            }
+
+            await conn.commit();
+
+        } catch (e) {
+            await conn.rollback();
+            this.logger.error("newDocHandler发生错误::", e, JSON.stringify(docFile));
+            throw e;
+        }
+
+    }
+
     // 封装业务
     async getDocFileListByCondition(pageSize: number, page: number,
                                     sortCol: { [key: string]: string },
@@ -24,6 +74,7 @@ export class FileService {
         let where = "";
         let whereParam = "";
         if (search == "" || search == null) {
+            // @ts-ignore
             ;
         } else {
             where = " AND ( doc_name like :where1 OR u1.name like :where1 OR u2.name like :where1 )";

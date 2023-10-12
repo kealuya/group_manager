@@ -11,27 +11,15 @@ export interface DocFileList {
 
 
 export function callNewDoc(file: DocFile) {
-    return request({
-        url: "/file/newDoc",
-        method: "post",
-        data: file
-    });
+    return request.post<BackendData<any>>("/file/newDoc", file);
 }
 
 export function callUpdateDoc(file: DocFile) {
-    return request({
-        url: "/file/updateDoc",
-        method: "post",
-        data: file
-    });
+    return request.post("/file/updateDoc", file);
 }
 
 export function callAuthorityDoc(file: DocFile) {
-    return request({
-        url: "/file/updateAuthorityDoc",
-        method: "post",
-        data: file
-    });
+    return request.post("/file/updateAuthorityDoc", file);
 }
 
 
