@@ -18,6 +18,35 @@ export class FileService {
     logger: EggLogger;
 
 
+    async updateDocHandler(docFile: DocFile): Promise<any> {
+        // 获取file的最大version
+        let resultForMaxId = await this.mysql.queryOne("select max(version) as version from file where doc_id = :doc_id", { doc_id: docFile.docId });
+
+        if (resultForMaxId.version == null) {
+            // 业务异常，通过throw传达给父类统一处理
+            throw new Error("resultForMaxId.version == null ::" + JSON.stringify(docFile.docId));
+        }
+        //
+        // file处理
+        const resultForUpdateFile = await this.mysql.insert("file", {
+            doc_id: docFile.docId,// 自动返回自增主键
+            version: resultForMaxId.version + 1,
+            version_show: docFile.versionShow,
+            update_content: docFile.updateContent,
+            update_user_id: docFile.ownerId,
+            update_date: moment().format("YYYY-MM-DD HH:mm:ss"),
+            file_name: docFile.fileName
+        });
+
+        if (resultForUpdateFile.affectedRows != 1) {
+            console.log("resultForUpdateFile.affectedRows!=1");
+            // 业务异常，通过throw传达给父类统一处理
+            throw new Error("resultForUpdateFile.affectedRows!=1 ::" + JSON.stringify(docFile));
+        }
+
+
+    }
+
     async newDocHandler(docFile: DocFile): Promise<any> {
         const conn = await this.mysql.beginTransaction(); // 初始化事务
         try {
@@ -25,7 +54,7 @@ export class FileService {
             const resultForDoc = await conn.insert("doc", {
                 doc_name: docFile.docName,
                 owner_id: docFile.ownerId,
-                create_date: moment().format("YYYY-MM-DD hh:mm:ss"),
+                create_date: moment().format("YYYY-MM-DD HH:mm:ss"),
                 doc_type: docFile.docType,
                 is_release: "true",
                 is_owner_edit: "true",
@@ -46,7 +75,7 @@ export class FileService {
                 version_show: docFile.versionShow,
                 update_content: "初始化",
                 update_user_id: docFile.ownerId,
-                update_date: moment().format("YYYY-MM-DD hh:mm:ss"),
+                update_date: moment().format("YYYY-MM-DD HH:mm:ss"),
                 file_name: docFile.fileName
             });
 
@@ -116,6 +145,8 @@ export class FileService {
         let sqlForSearch = `
                 SELECT
                     *,
+                    date_format( create_date, '%Y-%m-%d %T' ) AS create_date,
+                    date_format( update_date, '%Y-%m-%d %T' ) AS update_date,
                     u1.name AS owner,
                     u2.name AS update_user 
                 FROM
@@ -140,7 +171,6 @@ export class FileService {
             limit2: pageSize,
             where1: "%" + whereParam + "%"
         });
-
         if (result.length > 0) {
             // 通过doc 获取 file中 的修改记录 ，取前5个
             for (let i = 0; i < result.length; i++) {

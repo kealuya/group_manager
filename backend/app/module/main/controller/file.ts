@@ -41,6 +41,31 @@ export class FileController {
      */
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
+        path: "/updateDoc"
+    })
+    async updateDoc(@Context() ctx, @HTTPBody() body: DocFile): Promise<ControllerResponse> {
+        console.log("用户:", ctx.session.userInfo);
+        this.logger.info(body);
+        console.log(body);
+        let cr = helper.makeControllerResponse(null);
+        // DocFile 处理
+        try {
+            await this.fileService.updateDocHandler(body);
+        } catch (e) {
+            cr.msg = "更新文档发生错误";
+            cr.success = false;
+        }
+
+        // 业务错误处理
+        return cr;
+    }
+
+
+    /*
+      查询文件
+     */
+    @HTTPMethod({
+        method: HTTPMethodEnum.POST,
         path: "/newDoc"
     })
     async newDoc(@Context() ctx, @HTTPBody() body: DocFile): Promise<ControllerResponse> {

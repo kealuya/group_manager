@@ -21,13 +21,13 @@
         :stripe="true"
         :data="tableData"
         @sort-change="sortChange"
-        :default-sort="{prop:'update_date',order:'descending'}"
+        :default-sort="{prop:'updateDate',order:'descending'}"
         style="width: 100%"
       >
         <el-table-column width="60">
           <template #default="scope">
             <div style="display: flex; align-items: center">
-              <el-image style="width: 40px; height: 40px" :src="displayIcon(scope.row.doc_type)"></el-image>
+              <el-image style="width: 40px; height: 40px" :src="displayIcon(scope.row.docType)"></el-image>
             </div>
           </template>
         </el-table-column>
@@ -35,7 +35,7 @@
           <template #default="scope">
             <div style="display: flex; align-items: center">
             <span style="margin-left: 10px">
-                 {{ scope.row.doc_name }}
+                 {{ scope.row.docName }}
              </span>
 
 
@@ -47,7 +47,7 @@
           <template #default="scope">
             <div style="display: flex; align-items: center">
               <div style="display: flex; align-items: center">
-                <el-image @click="downloadClickFile(scope.row.file_name,scope.row.doc_name )"
+                <el-image @click="downloadClickFile(scope.row.fileName,scope.row.docName )"
                           style="width: 20px; height: 20px" :src="IconDownload"></el-image>
               </div>
               <div style="width: 30px"></div>
@@ -62,20 +62,20 @@
         <el-table-column label="版本" min-width="100">
           <template #default="scope">
             <div style="display: flex; align-items: center">
-              <span style="margin-left: 10px">{{ scope.row.version_show }}</span>
+              <span style="margin-left: 10px">{{ scope.row.versionShow }}</span>
               <el-popover placement="right" :width="200" trigger="hover">
                 <template #reference>
                   <div style="display: flex; align-items: center">
                     <el-image style="width: 20px; height: 20px" :src="IconList"></el-image>
                   </div>
                 </template>
-                <el-table :data=" scope.row.update_content_list ">
+                <el-table :data=" scope.row.updateContentList ">
                   <el-table-column width="80" property="versionShow" label="版本" />
                   <el-table-column width="120" property="updateContent" label="更新内容" />
                 </el-table>
               </el-popover>
 
-              <template v-if="scope.row.is_release===true">
+              <template v-if="scope.row.isRelease===true">
                 <div class="release">
                   发布
                 </div>
@@ -87,7 +87,7 @@
         <el-table-column prop="update_date" label="更新时间" sortable="custom" min-width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
-              <span style="margin-left: 10px">{{ timeChange(scope.row.update_date) }}</span>
+              <span style="margin-left: 10px">{{ timeChange(scope.row.updateDate) }}</span>
             </div>
           </template>
         </el-table-column>
@@ -95,7 +95,7 @@
         <el-table-column label="更新人" min-width="100">
           <template #default="scope">
             <div style="display: flex; align-items: center">
-              <span style="margin-left: 10px">{{ scope.row.update_user }}</span>
+              <span style="margin-left: 10px">{{ scope.row.updateUser }}</span>
             </div>
           </template>
         </el-table-column>
@@ -103,7 +103,7 @@
         <el-table-column prop="create_date" label="追加时间" sortable="custom" min-width="140">
           <template #default="scope">
             <div style="display: flex; align-items: center">
-              <span style="margin-left: 10px">{{ timeChange(scope.row.create_date) }}</span>
+              <span style="margin-left: 10px">{{ timeChange(scope.row.createDate) }}</span>
             </div>
           </template>
         </el-table-column>
@@ -118,7 +118,7 @@
 
         <el-table-column label="操作" min-width="120">
           <template #default="scope">
-            <template v-if="scope.row.is_discard=='true'">
+            <template v-if="scope.row.isDiscard=='true'">
               <el-button type="primary" plain disabled> 操作
                 <el-icon class="el-icon--right">
                   <arrow-down />
@@ -198,6 +198,7 @@ import IconImage from "@/assets/fileReport/icon-image.png";
 import IconRar from "@/assets/fileReport/icon-rar.png";
 import IconNone from "@/assets/fileReport/icon-none.png";
 import IconNewFile from "@/assets/fileReport/icon-new-file.png";
+import { makeArrayObjHumpToLine } from "@/utils";
 
 type  ParamObject = { [key: string]: string }
 
@@ -268,7 +269,8 @@ const getDocFileList = async (p: PagingInfo) => {
     console.log(res);
 
     let data = res.data as { docFiles: Array<DocFile>, count: number };
-    tableData.push(...data.docFiles);
+
+    tableData.push(...makeArrayObjHumpToLine<DocFile>(data.docFiles));
     pageCount.value = Math.ceil(data.count / PAGE_SIZE);
   } else {
     await ElMessageBox.alert(res.msg, "提示", {
@@ -333,6 +335,9 @@ const fileUpdate = (type: UPLOAD_MODAL_MODE, item?: DocFile) => {
     uploadModalMode.value = UPLOAD_MODAL_MODE.NEW;
   } else if (type == UPLOAD_MODAL_MODE.UPLOAD) {
     selectFile.value = { ...item!, "proId": projectId };
+
+    console.log(selectFile.value);
+
     uploadModalMode.value = UPLOAD_MODAL_MODE.UPLOAD;
   }
   uploadModalDialogVisible.value = true;
