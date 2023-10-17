@@ -165,7 +165,6 @@ export class FileService {
                     LIMIT :limit1,:limit2
         `;
 
-        // console.log(sqlForSearch);
         const result = await this.mysql.query(sqlForSearch, {
             limit1: (page - 1) * pageSize,
             limit2: pageSize,

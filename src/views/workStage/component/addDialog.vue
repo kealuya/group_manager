@@ -1,8 +1,9 @@
 <template>
   <el-dialog @close="close" class="dialog-title-input" v-model="dialogVisible" width="50%" center>
     <template #header>
-       标题
-      <el-input v-model="ruleForm.title" type="text" style="width: 25vh;" placeholder="请输入项目标题" />
+      <el-form-item label="标题">
+        <el-input v-model="ruleForm.title" type="text"  placeholder="请输入项目标题" />
+      </el-form-item>
     </template>
     <el-form
       ref="ruleFormRef"
@@ -23,7 +24,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="系统" prop="xt">
-            <el-select v-model="ruleForm.xt"  class="m-2" placeholder="请选择系统名称">
+            <el-select v-model="ruleForm.xt"  class="m-2" placeholder="请选择系统名称" >
               <el-option
                 v-for="item in xtOptions"
                 :key="item.value"
@@ -68,7 +69,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="分类" prop="programClass" required>
+          <el-form-item label="分类" prop="program_type" required>
             <el-select v-model="ruleForm.program_type" placeholder="请选择" style="width: 100%">
               <el-option label="bug" value="bug" :key="0"></el-option>
               <el-option label="更新" value="更新" :key="1"></el-option>
@@ -90,7 +91,6 @@
           </el-form-item>
         </el-col>
       </el-row>
-
       <el-form-item label="备注" prop="remark" >
         <el-input v-model="ruleForm.remark"
                   type="textarea"
@@ -113,8 +113,8 @@ import { computed, reactive, ref, watch } from "vue";
 import {QuillEditor} from '@vueup/vue-quill'
 import { getSchoolCodeInfo, getSchoolInfo } from "@/api/schoolList";
 import { useUserStore } from "@/store/modules/user";
-import { a } from "pinia-plugin-persistedstate/dist/types-374a3a36";
 import { userList } from "@/api/user";
+import { addProgram } from "@/api/workStage";
 const radio1 = ref('紧急')
 const ruleFormRef = ref<FormInstance>()
 const dialogVisible = ref<boolean>(false)
@@ -124,7 +124,7 @@ const rules = reactive({
   title: [{ required: true, message: '请输入标题', trigger: 'blur' }],
   school_name: [{ required: true, message: '请输入学校名称', trigger: 'blur' }],
   school_code: [{ required: true, message: '请先填写学校名称', trigger: 'blur' }],
-  xt:[{ required: true, message: '请输入', trigger: 'blur' }],
+  xt:[{ required: false, message: '请选择系统', trigger: 'blur' }],
   create_people:[{ required: true, message: '请输入', trigger: 'blur' }],
   process_people: [{required: true, message: '请选择处理人', trigger: 'change',},],
   program_type:[{required: true, message: '请选择项目分类', trigger: 'change',},],
@@ -169,7 +169,7 @@ function timestampToTime(date) {
 function close() {
   ruleFormRef.value.resetFields()
   Object.keys(ruleForm).forEach(key=>{
-    if(key==='sex') ruleForm[key] = '男'
+    if(key==='priority') ruleForm[key] = '紧急'
     else if(key==='status') ruleForm[key] = true
     else ruleForm[key] = null
 
@@ -188,10 +188,32 @@ const show = (item={})=>{
 }
 
 const handleClose = async (done: () => void) => {
-  await ruleFormRef.value.validate((valid, fields) => {
+  if (!ruleForm.title){
+    ElMessage({
+      type: "error",
+      message: "请填写项目标题"
+    });
+    return
+  }
+  await ruleFormRef.value.validate(async (valid, fields) => {
     if (valid) {
       dialogVisible.value = false
       console.log('submit!', ruleForm)
+      let a = await addProgram(ruleForm)
+      console.log('aaaaaaaaaaaaaa',a.data)
+      let currentResult = a.data
+      if (!currentResult.success) {
+        ElMessage({
+          type: "error",
+          message: currentResult.msg
+        });
+        return
+      } else {
+        ElMessage({
+          type: "success",
+          message: "提交成功"
+        });
+      }
     } else {
       console.log('error submit!', fields)
     }
@@ -212,8 +234,8 @@ const getProcessPeopleList = async ()=>{
   })
 }
 
-//xt 下拉optionList
-const xtOptions = ref([])
+
+//根据学校名称查找学校编码
 const searchCode = async(name)=>{
   console.log(name)
   let codeInfo = await getSchoolCodeInfo(name)
@@ -227,17 +249,31 @@ const searchCode = async(name)=>{
     });
     return;
   }
+  else if (codeInfoResult.data === null){
+    ElNotification({
+      message: '无法查询到该学校，请重新输入',
+      type: "warning",
+      duration: 3000
+    });
+    ruleForm.school_code = ''
+    return
+  }
   ruleForm.school_code = codeInfoResult.data[0].school_code
 }
+//xt 下拉optionList
+const xtOptions = ref([])
 watch( ()=>ruleForm.school_code,async (a)=>{
   let schoolInfo = await getSchoolInfo(a)
   let searchInfoResult = schoolInfo.data.data
+  console.log('searchInfoResult[0]',searchInfoResult[0].xt)
+  searchInfoResult[0].xt===null? xtOptions.value = []:''
   searchInfoResult.forEach(item=>{
     xtOptions.value.push({
       label:item.xt,
       value:item.xt
     })
   })
+  console.log('searchInfoResult',searchInfoResult)
 })
 defineExpose({
   show,
@@ -249,5 +285,6 @@ defineExpose({
 ::v-deep(.el-input__wrapper){
   box-shadow: 0 0 0 0px;
 }
+
 </style>
 

@@ -34,6 +34,20 @@ declare interface DocFile {
     updateContentList: Array<{ [string: string], string }>;
 }
 
+declare interface WorkInfo {
+    create_people:string,
+    create_time:string,
+    priority:string,
+    process_people:string,
+    program_type:string,
+    remark:string
+    school_code:string,
+    school_name:string,
+    status:string,
+    title:string,
+    xt:string,
+}
+
 declare interface User {
     phoneNumber: string;
     userName: string;
