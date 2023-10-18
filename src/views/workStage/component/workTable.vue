@@ -113,9 +113,23 @@ const del = (row) => {
     draggable: true,
   })
     .then(async () => {
+      loading.value = true;
       let a = await deleteProgram(row.id)
       let result = a.data
-      console.log('删除result',result)
+      if (!result.success){
+        loading.value = false;
+        ElMessage({
+          type: "error",
+          message: result.msg
+        });
+        return
+      }
+      loading.value = false;
+      ElMessage({
+        type: "success",
+        message: "删除成功"
+      });
+      await getList('', currentPage.value, pageSize.value)
     })
     .catch(() => {})
 }

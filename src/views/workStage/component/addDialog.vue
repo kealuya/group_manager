@@ -179,7 +179,6 @@ function close() {
 }
 const submitType = ref('add')
 const show = (item={})=>{
-  console.log('传到这了吗item',item['title'])
   if(item['title']){
     Object.keys(item).forEach(key=>{
       ruleForm[key] = item[key]
