@@ -17,19 +17,28 @@
         <el-table empty-text="暂无,点击左上角按钮添加项目"
           v-loading="loading" :table-layout="tableLayout"
           :data="tableData" style="width: 100%;height: 100%" border>
-          <el-table-column prop="title" label="标题" />
+          <el-table-column prop="title" min-width="120" label="问题简述" />
           <el-table-column prop="school_name" label="学校" />
           <el-table-column prop="xt" label="系统" />
-          <el-table-column prop="priority" label="优先级" />
+          <el-table-column prop="priority" label="优先级">
+            <template #default="scope">
+              <div style="display: flex; align-items: center">
+                <el-tag class="ml-2" effect="light" type="danger" v-if="scope.row.priority==='紧急'">紧急</el-tag>
+                <el-tag class="ml-2" effect="light" type="warning" v-if="scope.row.priority==='高'">高</el-tag>
+                <el-tag class="ml-2" effect="light" v-if="scope.row.priority==='中'">中</el-tag>
+                <el-tag class="ml-2" effect="light" type="info" v-if="scope.row.priority==='低'">低</el-tag>
+              </div>
+            </template>
+          </el-table-column>
           <el-table-column prop="program_type" label="分类" />
           <el-table-column prop="process_people" label="处理人" />
           <el-table-column prop="create_people" label="创建人" />
-          <el-table-column prop="create_time" label="创建时间" />
+          <el-table-column prop="create_time" min-width="160" label="创建时间" />
           <el-table-column prop="status" label="状态" align="center">
             <template #default="scope">
               <el-switch
                 inline-prompt
-                active-text="已处理" inactive-text="待处理" active-value="1" inactive-value="0"
+                active-text="已处理" inactive-text="待处理" :active-value=1 :inactive-value=0
                 v-model="scope.row.status" disabled />
             </template>
           </el-table-column>
@@ -48,29 +57,22 @@
         </el-table>
       </div>
       <div style="height: 20px"></div>
-<!--      <div class="pagination">-->
-<!--        <el-pagination-->
-<!--          v-model:currentPage="currentPage1"-->
-<!--          :page-count="pageCount"-->
-<!--          background-->
-<!--          layout="total, sizes, prev, pager, next, jumper"-->
-<!--        />-->
-<!--      </div>-->
-<!--      <template>-->
         <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage"
                        :page-count="pageCount"  @current-change="handleCurrentChange" />
-<!--      </template>-->
     </div>
     <AddDialog ref="addDialog" />
   </div>
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref } from "vue";
+import { onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
 import AddDialog from './addDialog.vue'
-import { getWorkList } from "@/api/workStage";
+import { deleteProgram, getWorkList } from "@/api/workStage";
 import ByteArray from "vue-qr/src/lib/gif.js/GIFEncoder";
+import { useCommonStore } from "@/store/modules/common";
+import { toRaw } from "@vue/reactivity";
+import { storeToRefs } from "pinia";
 
 const formInline = reactive({});
 const ruleFormRef = ref<FormInstance>();
@@ -86,7 +88,6 @@ const addProgram = () => {
   addDialog.value.show()
 };
 const onSubmit = () => {
-  console.log("submit!", formInline);
   loading.value = true;
   setTimeout(() => {
     loading.value = false;
@@ -100,6 +101,7 @@ const reset = (formEl: FormInstance | undefined) => {
   }, 1000);
 };
 const editHandler = (row) => {
+
   addDialog.value.show(row)
 }
 
@@ -110,21 +112,21 @@ const del = (row) => {
     type: 'warning',
     draggable: true,
   })
-    .then(() => {})
+    .then(async () => {
+      let a = await deleteProgram(row.id)
+      let result = a.data
+      console.log('删除result',result)
+    })
     .catch(() => {})
 }
-// const handleSizeChange = (val: number) => {
-//   console.log(`${val} items per page`)
-// }
-//
 const handleCurrentChange = (val: number) => {
   currentPage.value = val
   getList('',currentPage.value,pageSize.value)
 }
 const getList = async (search,page,pageSize)=>{
   let a = await getWorkList(search,page,pageSize)
-  console.log('getWorkList',a)
   let result = a.data
+  console.log(result.data)
   if (!result.success){
     setTimeout(() => {
       loading.value = false;
@@ -136,15 +138,18 @@ const getList = async (search,page,pageSize)=>{
     return
   }
   tableData.length = 0;
-  console.log(result)
   let data = result.data as { array: Array<WorkInfo>, count: number };
   tableData.push(...data.array)
   pageCount.value = Math.ceil(data.count / pageSize);
-  console.log('pageCount.value',pageCount.value)
   setTimeout(() => {
     loading.value = false;
   }, 1000);
 }
+const commonStore = useCommonStore();
+const { updateTableValue } = storeToRefs(commonStore);
+watch(() => updateTableValue.value, () => {
+  getList('',currentPage.value,pageSize.value);
+});
 onMounted(()=>{
   getList('',currentPage.value,pageSize.value)
   setTimeout(()=>{

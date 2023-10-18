@@ -29,6 +29,32 @@ export class workStage_service {
 
     }
 
+    async editInfo(editData: object): Promise<Array<editWorkInfo> | null> {
+        try {
+            const result = await this.mysql.update('work', editData)
+
+            // const insertSuccess = result.affectedRows === 1;
+            if (result.affectedRows !== 1) {
+                throw new Error('Method not implemented.')
+            }
+            return null
+        } catch (e) {
+            throw e
+        }
+
+    }
+
+    async deleteInfo(id: number): Promise<any> {
+        try {
+            const result = await this.mysql.delete('work', {
+                id:id
+            })
+            console.log('删除tableProgram时的result',result)
+        } catch (e) {
+            throw e
+        }
+    }
+
     async getList(search: string, page: number, pageSize: number): Promise<any> {
         let where = '';
         let whereParam = '';
@@ -45,7 +71,19 @@ export class workStage_service {
                             WHERE
                                 ${where}`
         let sqlForSearch = `SELECT 
-                           *
+
+                           title,
+                           id,
+                           school_code,
+                           school_name,
+                           xt,
+                           create_people,
+                           priority,
+                           process_people,
+                           program_type,
+                           status,
+                           remark,
+                           date_format( create_time, '%Y-%m-%d %T' ) AS create_time
                            FROM work 
                            WHERE
                             ${where}
@@ -68,6 +106,12 @@ export class workStage_service {
 
 export interface addWorkInfo {
     addData: object;
+}
+export interface editWorkInfo {
+   editData: object;
+}
+export interface deleteWorkInfo {
+    id: number;
 }
 
 export interface getWorkList {

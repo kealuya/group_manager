@@ -78,7 +78,7 @@
           </el-form-item>
         </el-col>
         <el-col>
-          <el-form-item label="创建时间" prop="create_date">
+          <el-form-item label="创建时间" prop="create_time">
             <el-date-picker
               v-model="ruleForm.create_time"
               type="datetime"
@@ -114,7 +114,10 @@ import {QuillEditor} from '@vueup/vue-quill'
 import { getSchoolCodeInfo, getSchoolInfo } from "@/api/schoolList";
 import { useUserStore } from "@/store/modules/user";
 import { userList } from "@/api/user";
-import { addProgram } from "@/api/workStage";
+import { addProgram, editProgram } from "@/api/workStage";
+import { storeToRefs } from "pinia";
+import { useCommonStore } from "@/store/modules/common";
+import { parseTime } from "@/utils";
 const radio1 = ref('紧急')
 const ruleFormRef = ref<FormInstance>()
 const dialogVisible = ref<boolean>(false)
@@ -133,9 +136,9 @@ const rules = reactive({
 //获取当前用户信息
 const UserStore = useUserStore()
 const userInfo = computed(() => UserStore.userInfo)
-console.log(userInfo.value)
 
 const ruleForm = reactive({
+  id:'',
   title:'',
   school_code: '',
   school_name:'',
@@ -163,7 +166,6 @@ function timestampToTime(date) {
   let s = date.getSeconds();
   s = s < 10 ? ("0" + s) : s;
   let dateTime = y + "-" + m + "-" + d + " " + h + ":" + M + ":" + s;
-  console.log(dateTime);
   return dateTime;
 }
 function close() {
@@ -175,18 +177,19 @@ function close() {
 
   })
 }
-
+const submitType = ref('add')
 const show = (item={})=>{
-  title.value = '新增用户'
-  if(item.username){
-    title.value = '编辑用户'
+  console.log('传到这了吗item',item['title'])
+  if(item['title']){
     Object.keys(item).forEach(key=>{
       ruleForm[key] = item[key]
     })
+    console.log('edit塞完的ruleForm',ruleForm)
+    submitType.value = 'edit'
   }
   dialogVisible.value = true
 }
-
+const commonStore = useCommonStore();
 const handleClose = async (done: () => void) => {
   if (!ruleForm.title){
     ElMessage({
@@ -198,22 +201,41 @@ const handleClose = async (done: () => void) => {
   await ruleFormRef.value.validate(async (valid, fields) => {
     if (valid) {
       dialogVisible.value = false
-      console.log('submit!', ruleForm)
-      let a = await addProgram(ruleForm)
-      console.log('aaaaaaaaaaaaaa',a.data)
-      let currentResult = a.data
-      if (!currentResult.success) {
-        ElMessage({
-          type: "error",
-          message: currentResult.msg
-        });
-        return
-      } else {
-        ElMessage({
-          type: "success",
-          message: "提交成功"
-        });
+      console.log('submitType.value!', submitType.value)
+      if (submitType.value === 'edit'){
+        let a = await editProgram(ruleForm)
+        let currentResult = a.data
+        if (!currentResult.success) {
+          ElMessage({
+            type: "error",
+            message: currentResult.msg
+          });
+          return
+        } else {
+          ElMessage({
+            type: "success",
+            message: "提交成功"
+          });
+        }
+      }else {
+        let a = await addProgram(ruleForm)
+        let currentResult = a.data
+        if (!currentResult.success) {
+          ElMessage({
+            type: "error",
+            message: currentResult.msg
+          });
+          return
+        } else {
+          ElMessage({
+            type: "success",
+            message: "提交成功"
+          });
+        }
       }
+
+
+      commonStore.updateTable();
     } else {
       console.log('error submit!', fields)
     }
@@ -225,7 +247,6 @@ const getProcessPeopleList = async ()=>{
   processPeopleOptions.value = []
   let a = await userList()
   let userListResult = a.data.data
-  console.log('a.data.data',a.data.data)
   userListResult.forEach(item=>{
     processPeopleOptions.value.push({
       label:item.name,
@@ -237,10 +258,8 @@ const getProcessPeopleList = async ()=>{
 
 //根据学校名称查找学校编码
 const searchCode = async(name)=>{
-  console.log(name)
   let codeInfo = await getSchoolCodeInfo(name)
   let codeInfoResult = codeInfo.data
-  console.log('aaaaaaaaaaaaaaaaaaaaa',codeInfoResult)
   if (!codeInfoResult.success) {
     ElNotification({
       message: codeInfoResult.msg,
@@ -265,7 +284,6 @@ const xtOptions = ref([])
 watch( ()=>ruleForm.school_code,async (a)=>{
   let schoolInfo = await getSchoolInfo(a)
   let searchInfoResult = schoolInfo.data.data
-  console.log('searchInfoResult[0]',searchInfoResult[0].xt)
   searchInfoResult[0].xt===null? xtOptions.value = []:''
   searchInfoResult.forEach(item=>{
     xtOptions.value.push({
@@ -273,7 +291,6 @@ watch( ()=>ruleForm.school_code,async (a)=>{
       value:item.xt
     })
   })
-  console.log('searchInfoResult',searchInfoResult)
 })
 defineExpose({
   show,

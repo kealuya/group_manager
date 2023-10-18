@@ -11,15 +11,18 @@ export const useCommonStore = defineStore({
         selectedSchoolCode: "",
         updateListValue: false,
         schoolListFirstCode: "",
-        schoolListFirstName: ""
+        schoolListFirstName: "",
+        updateTableValue: false,
     }),
     getters: {},
     // 可以同步 也可以异步
     actions: {
         updateList() {
             this.updateListValue = !this.updateListValue;
+        },
+        updateTable() {
+            this.updateTableValue = !this.updateTableValue;
         }
-
     },
     // 进行持久化存储
     persist: {

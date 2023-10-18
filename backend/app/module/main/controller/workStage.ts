@@ -17,6 +17,7 @@ export class workStageController {
     @Inject()
     workStageService: workStage_service
 
+    // 新建项目
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
         path: '/addInfo',
@@ -34,6 +35,50 @@ export class workStageController {
             return ng
         }
         ng.data = addWorkInfo!
+        return ng
+    }
+
+    //编辑项目
+    @HTTPMethod({
+        method: HTTPMethodEnum.POST,
+        path: '/editInfo',
+    })
+    async editInfo(@Context() _, @HTTPBody() body: EditInfoParam): Promise<any> {
+        let ng = helper.makeControllerResponse(null);
+        const { editData } = body;
+        let editWorkInfo
+        try {
+            editWorkInfo = await this.workStageService.editInfo(editData);
+
+        } catch (e) {
+            console.log(e)
+            ng.msg = '提交信息异常'
+            ng.success = false
+            return ng
+        }
+        ng.data = editWorkInfo!
+        return ng
+    }
+
+    //删除项目
+    @HTTPMethod({
+        method: HTTPMethodEnum.POST,
+        path: '/deleteInfo',
+    })
+    async deleteInfo(@Context() _, @HTTPBody() body: DeleteInfoParam): Promise<any> {
+        let ng = helper.makeControllerResponse(null);
+        const { id } = body;
+        let deleteWorkInfo
+        try {
+            deleteWorkInfo = await this.workStageService.deleteInfo(id);
+
+        } catch (e) {
+            console.log(e)
+            ng.msg = '提交信息异常'
+            ng.success = false
+            return ng
+        }
+        ng.data = deleteWorkInfo!
         return ng
     }
 
@@ -84,6 +129,12 @@ export class workStageController {
 
 export interface AddInfoParam {
     addData: object
+}
+export interface EditInfoParam {
+    editData: object
+}
+export interface DeleteInfoParam {
+    id: number
 }
 export interface workListParam {
     search:string;
