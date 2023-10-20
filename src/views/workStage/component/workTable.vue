@@ -3,8 +3,8 @@
     <div class="card-right-header">
       <el-button type="primary" @click="addProgram">+项目</el-button>
       <el-form :inline="true" :model="formInline" ref="ruleFormRef">
-        <el-form-item label="用户名" prop="username">
-          <el-input v-model="formInline.username" placeholder="请输入用户名" />
+        <el-form-item label="用户名" prop="searchValue">
+          <el-input v-model="formInline.searchValue" placeholder="请输入搜索内容" />
         </el-form-item>
         <el-form-item>
           <el-button type="primary" @click="onSubmit" :icon="Search">查询</el-button>
@@ -18,7 +18,7 @@
           v-loading="loading" :table-layout="tableLayout"
           :data="tableData" style="width: 100%;height: 100%" border>
           <el-table-column prop="title" min-width="120" label="问题简述" />
-          <el-table-column prop="school_name" label="学校" />
+          <el-table-column prop="school_name" min-width="100" label="学校" />
           <el-table-column prop="xt" label="系统" />
           <el-table-column prop="priority" label="优先级">
             <template #default="scope">
@@ -75,6 +75,7 @@ import { toRaw } from "@vue/reactivity";
 import { storeToRefs } from "pinia";
 
 const formInline = reactive({});
+const searchValue = ref<string>('')
 const ruleFormRef = ref<FormInstance>();
 const loading = ref(true);
 const currentPage = ref<number>(1);
@@ -89,13 +90,17 @@ const addProgram = () => {
 };
 const onSubmit = () => {
   loading.value = true;
+  getList(formInline['searchValue'], currentPage.value, pageSize.value)
   setTimeout(() => {
     loading.value = false;
   }, 1000);
 };
 
 const reset = (formEl: FormInstance | undefined) => {
+  formInline['searchValue'] = ''
   loading.value = true;
+
+  getList('', currentPage.value, pageSize.value)
   setTimeout(() => {
     loading.value = false;
   }, 1000);
@@ -138,6 +143,7 @@ const handleCurrentChange = (val: number) => {
   getList('',currentPage.value,pageSize.value)
 }
 const getList = async (search,page,pageSize)=>{
+  console.log('selectedSchoolName',selectedSchoolName)
   let a = await getWorkList(search,page,pageSize)
   let result = a.data
   console.log(result.data)
@@ -161,8 +167,11 @@ const getList = async (search,page,pageSize)=>{
 }
 const commonStore = useCommonStore();
 const { updateTableValue } = storeToRefs(commonStore);
+const { selectedSchoolName } = storeToRefs(commonStore);
+
 watch(() => updateTableValue.value, () => {
-  getList('',currentPage.value,pageSize.value);
+  formInline['searchValue'] = selectedSchoolName
+  onSubmit()
 });
 onMounted(()=>{
   getList('',currentPage.value,pageSize.value)

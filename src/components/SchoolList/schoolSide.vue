@@ -54,15 +54,13 @@ const chooseSchool = (code, name) => {
 
   commonStore.selectedSchoolCode = code;
   commonStore.selectedSchoolName = name;
-  // emit('getSchool',name)
+  commonStore.updateTable()
 };
 watch(() => updateListValue.value, () => {
   getList();
 });
 
 watch(() => inputForSearch.value, () => {
-
-  console.log(listDataCopy);
   if (inputForSearch.value == "") {
     listData.value = listDataCopy;
     return;

@@ -329,6 +329,7 @@ const { schoolListFirstCode } = storeToRefs(commonStore);
 const { schoolListFirstName } = storeToRefs(commonStore);
 const ruleForm = ref([]);
 const getInfo = async (selectedSchoolCode) => {
+  console.log('传出去的地方',selectedSchoolCode)
   let result = await getSchoolInfo(selectedSchoolCode.value);
   if (!result.data.success) {
     ElNotification({

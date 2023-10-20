@@ -16,6 +16,7 @@ export class workStage_service {
 
     async addInfo(addData: object): Promise<Array<addWorkInfo> | null> {
         try {
+            delete addData['id']
             const result = await this.mysql.insert('work', addData)
 
             // const insertSuccess = result.affectedRows === 1;
@@ -61,7 +62,7 @@ export class workStage_service {
         if (search == '' || search == null) {
             where = ' 1=1 '
         } else {
-            where = ' AND ( title like :where1 OR school_code like :where1 OR school_name like :where1 )';
+            where = ' title like :where1 OR xt like :where1 OR school_name like :where1';
             whereParam = search;
         }
 

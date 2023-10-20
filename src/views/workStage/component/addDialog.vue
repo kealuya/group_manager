@@ -64,7 +64,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="状态" required>
-            <el-switch v-model="ruleForm.status"  active-value="1" inactive-value="0"
+            <el-switch v-model="ruleForm.status"  :active-value="1" :inactive-value="0"
                        inline-prompt active-text="已处理" inactive-text="待处理"></el-switch>
           </el-form-item>
         </el-col>
@@ -277,12 +277,13 @@ const searchCode = async(name)=>{
     return
   }
   ruleForm.school_code = codeInfoResult.data[0].school_code
+  ruleForm.school_name = codeInfoResult.data[0].school_name
 }
-//xt 下拉optionList
-const xtOptions = ref([])
-watch( ()=>ruleForm.school_code,async (a)=>{
+const getXtList = async (a)=>{
+  xtOptions.value = []
   let schoolInfo = await getSchoolInfo(a)
   let searchInfoResult = schoolInfo.data.data
+  console.log('searchInfoResult',searchInfoResult[0])
   searchInfoResult[0].xt===null? xtOptions.value = []:''
   searchInfoResult.forEach(item=>{
     xtOptions.value.push({
@@ -290,6 +291,11 @@ watch( ()=>ruleForm.school_code,async (a)=>{
       value:item.xt
     })
   })
+}
+//xt 下拉optionList
+const xtOptions = ref([])
+watch( ()=>ruleForm.school_code,async (a)=>{
+  await getXtList(a)
 })
 defineExpose({
   show,
