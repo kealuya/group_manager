@@ -72,7 +72,7 @@
         <el-col :span="12">
           <el-form-item label="分类" prop="program_type" required>
             <el-radio-group v-model="ruleForm.program_type" size="small" >
-              <el-radio-button label="bug"  />
+              <el-radio-button label="bug"  />f
               <el-radio-button label="更新" />
               <el-radio-button label="定制" />
             </el-radio-group>
@@ -99,7 +99,7 @@
                   placeholder="请输入用户描述"/>
       </el-form-item>
     </el-form>
-    <QuillEditor content-type='html' @blur='editorBlur($event)' :content="ruleForm.content" theme="snow" :options="editorOption" />
+    <QuillEditor content-type='html' @textChange='editorBlur()' v-model:content="ruleForm.content" theme="snow" :options="editorOption" />
     <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -190,10 +190,9 @@ function close() {
   })
 }
 
-function editorBlur(val) {
-  console.log('111111',ruleForm['content'].value)
-  console.log(val)
-
+function editorBlur() {
+  console.log('111111',ruleForm.content)
+// https://vueup.github.io/vue-quill/api/events.html
 }
 
 
