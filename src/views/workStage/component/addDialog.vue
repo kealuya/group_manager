@@ -1,7 +1,8 @@
 <template>
-  <el-dialog @close="close" class="dialog-title-input" v-model="dialogVisible" width="50%" center>
+  <el-dialog @close="close" class="dialog-title-input" :close-on-click-modal="false"
+             v-model="dialogVisible" width="50%" center>
     <template #header>
-      <el-form-item label="标题">
+      <el-form-item label="问题简述">
         <el-input v-model="ruleForm.title" type="text"  placeholder="请输入项目标题" />
       </el-form-item>
     </template>
@@ -52,7 +53,7 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="处理人" prop="process_people">
-            <el-select v-model="ruleForm.process_people" @visible-change="getProcessPeopleList" class="m-2" placeholder="请选择处理人">
+            <el-select filterable v-model="ruleForm.process_people" @visible-change="getProcessPeopleList" class="m-2" placeholder="请选择处理人">
               <el-option
                 v-for="item in processPeopleOptions"
                 :key="item.value"
@@ -70,11 +71,12 @@
         </el-col>
         <el-col :span="12">
           <el-form-item label="分类" prop="program_type" required>
-            <el-select v-model="ruleForm.program_type" placeholder="请选择" style="width: 100%">
-              <el-option label="bug" value="bug" :key="0"></el-option>
-              <el-option label="更新" value="更新" :key="1"></el-option>
-              <el-option label="定制" value="定制" :key="2"></el-option>
-            </el-select>
+            <el-radio-group v-model="ruleForm.program_type" size="small" >
+              <el-radio-button label="bug"  />
+              <el-radio-button label="更新" />
+              <el-radio-button label="定制" />
+            </el-radio-group>
+
           </el-form-item>
         </el-col>
         <el-col>
@@ -97,7 +99,7 @@
                   placeholder="请输入用户描述"/>
       </el-form-item>
     </el-form>
-    <QuillEditor theme="snow" />
+    <QuillEditor content-type='html' v-model="ruleForm.content" theme="snow" :options="editorOption" />
     <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -137,6 +139,31 @@ const rules = reactive({
 const UserStore = useUserStore()
 const userInfo = computed(() => UserStore.userInfo)
 
+
+// 富文本编辑器配置
+let editorOption = {
+  modules: {
+    toolbar: [
+      ['bold', 'italic', 'underline', 'strike'], // 加粗 斜体 下划线 删除线
+      [{ color: [] }, { background: [] }], // 字体颜色、字体背景颜色
+      [{ align: [] }], // 对齐方式
+      [{ size: ['small', false, 'large', 'huge'] }], // 字体大小
+      [{ font: [] }], // 字体种类
+      [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题
+      [{ direction: 'ltl' }], // 文本方向
+      [{ direction: 'rtl' }], // 文本方向
+      [{ indent: '-1' }, { indent: '+1' }], // 缩进
+      [{ list: 'ordered' }, { list: 'bullet' }], // 有序、无序列表
+      [{ script: 'sub' }, { script: 'super' }], // 上标/下标
+      ['blockquote', 'code-block'], // 引用  代码块
+      ['clean'], // 清除文本格式
+      ['link', 'image', 'video'], // 链接、图片、视频
+    ],
+  },
+}
+
+
+
 const ruleForm = reactive({
   id:'',
   title:'',
@@ -149,25 +176,10 @@ const ruleForm = reactive({
   program_type:null,
   status:true,
   remark:null,
-  create_time:timestampToTime(new Date()),
+  create_time:parseTime(new Date(),"{y}-{m}-{d} {h}:{i}:{s}"),
 
 })
 
-function timestampToTime(date) {
-  let y = date.getFullYear();
-  let m = date.getMonth() + 1;
-  m = m < 10 ? ("0" + m) : m;
-  let d = date.getDate();
-  d = d < 10 ? ("0" + d) : d;
-  let h = date.getHours();
-  h = h < 10 ? ("0" + h) : h;
-  let M = date.getMinutes();
-  M = M < 10 ? ("0" + M) : M;
-  let s = date.getSeconds();
-  s = s < 10 ? ("0" + s) : s;
-  let dateTime = y + "-" + m + "-" + d + " " + h + ":" + M + ":" + s;
-  return dateTime;
-}
 function close() {
   ruleFormRef.value.resetFields()
   Object.keys(ruleForm).forEach(key=>{
@@ -284,7 +296,10 @@ const getXtList = async (a)=>{
   let schoolInfo = await getSchoolInfo(a)
   let searchInfoResult = schoolInfo.data.data
   console.log('searchInfoResult',searchInfoResult[0])
-  searchInfoResult[0].xt===null? xtOptions.value = []:''
+  if (searchInfoResult[0].xt===null){
+    xtOptions.value = []
+    return
+  }
   searchInfoResult.forEach(item=>{
     xtOptions.value.push({
       label:item.xt,

@@ -15,8 +15,8 @@
     <div class="footer">
       <div class="table-inner">
         <el-table empty-text="暂无,点击左上角按钮添加项目"
-          v-loading="loading" :table-layout="tableLayout"
-          :data="tableData" style="width: 100%;height: 100%" border>
+                  v-loading="loading" :table-layout="tableLayout"
+                  :data="tableData" style="width: 100%;height: 100%" border>
           <el-table-column prop="title" min-width="120" label="问题简述" />
           <el-table-column prop="school_name" min-width="100" label="学校" />
           <el-table-column prop="xt" label="系统" />
@@ -43,8 +43,8 @@
             </template>
           </el-table-column>
           <el-table-column prop="remark" :show-overflow-tooltip="true"
-                           label="备注" align="center"/>
-          <el-table-column prop="operator" label="操作" width="200"  align="center" fixed="right">
+                           label="备注" align="center" />
+          <el-table-column prop="operator" label="操作" width="200" align="center" fixed="right">
             <template #default="scope">
               <el-button type="primary" size="small" icon="Edit" @click="editHandler(scope.row)">
                 编辑
@@ -57,8 +57,8 @@
         </el-table>
       </div>
       <div style="height: 20px"></div>
-        <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage"
-                       :page-count="pageCount"  @current-change="handleCurrentChange" />
+      <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage"
+                     :page-count="pageCount" @current-change="handleCurrentChange" />
     </div>
     <AddDialog ref="addDialog" />
   </div>
@@ -67,7 +67,7 @@
 <script lang="ts" setup>
 import { onMounted, reactive, ref, watch } from "vue";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
-import AddDialog from './addDialog.vue'
+import AddDialog from "./addDialog.vue";
 import { deleteProgram, getWorkList } from "@/api/workStage";
 import ByteArray from "vue-qr/src/lib/gif.js/GIFEncoder";
 import { useCommonStore } from "@/store/modules/common";
@@ -75,111 +75,100 @@ import { toRaw } from "@vue/reactivity";
 import { storeToRefs } from "pinia";
 
 const formInline = reactive({});
-const searchValue = ref<string>('')
+const searchValue = ref<string>("");
 const ruleFormRef = ref<FormInstance>();
 const loading = ref(true);
 const currentPage = ref<number>(1);
-const pageSize = ref(10)
+const pageSize = ref(10);
 const pageCount = ref<number>(1);
 const headerData: WorkInfo[] = reactive([]);
 const tableData: WorkInfo[] = reactive([]);
-const tableLayout = ref('fixed')
-const addDialog = ref()
+const tableLayout = ref("fixed");
+const addDialog = ref();
 const addProgram = () => {
-  addDialog.value.show()
+  addDialog.value.show();
 };
 const onSubmit = () => {
   loading.value = true;
-  getList(formInline['searchValue'], currentPage.value, pageSize.value)
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
+  getList(formInline["searchValue"], currentPage.value, pageSize.value);
+  loading.value = false;
 };
 
 const reset = (formEl: FormInstance | undefined) => {
-  formInline['searchValue'] = ''
+  formInline["searchValue"] = "";
   loading.value = true;
-
-  getList('', currentPage.value, pageSize.value)
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
+  getList("", currentPage.value, pageSize.value);
+  loading.value = false;
 };
 const editHandler = (row) => {
-
-  addDialog.value.show(row)
-}
+  addDialog.value.show(row);
+};
 
 const del = (row) => {
-  ElMessageBox.confirm('你确定要删除当前项吗?', '温馨提示', {
-    confirmButtonText: '确定',
-    cancelButtonText: '取消',
-    type: 'warning',
-    draggable: true,
+  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+    confirmButtonText: "确定",
+    cancelButtonText: "取消",
+    type: "warning",
+    draggable: true
   })
     .then(async () => {
       loading.value = true;
-      let a = await deleteProgram(row.id)
-      let result = a.data
-      if (!result.success){
+      let a = await deleteProgram(row.id);
+      let result = a.data;
+      if (!result.success) {
         loading.value = false;
         ElMessage({
           type: "error",
           message: result.msg
         });
-        return
+        return;
       }
       loading.value = false;
       ElMessage({
         type: "success",
         message: "删除成功"
       });
-      await getList('', currentPage.value, pageSize.value)
+      await getList("", currentPage.value, pageSize.value);
     })
-    .catch(() => {})
-}
+    .catch(() => {
+    });
+};
 const handleCurrentChange = (val: number) => {
-  currentPage.value = val
-  getList('',currentPage.value,pageSize.value)
-}
-const getList = async (search,page,pageSize)=>{
-  console.log('selectedSchoolName',selectedSchoolName)
-  let a = await getWorkList(search,page,pageSize)
-  let result = a.data
-  console.log(result.data)
-  if (!result.success){
-    setTimeout(() => {
-      loading.value = false;
-    }, 1000);
+  currentPage.value = val;
+  getList("", currentPage.value, pageSize.value);
+};
+const getList = async (search, page, pageSize) => {
+  console.log("selectedSchoolName", selectedSchoolName);
+  let a = await getWorkList(search, page, pageSize);
+  let result = a.data;
+  console.log(result.data);
+  if (!result.success) {
+    loading.value = false;
     ElMessage({
       type: "error",
       message: result.msg
     });
-    return
+    return;
   }
   tableData.length = 0;
   let data = result.data as { array: Array<WorkInfo>, count: number };
-  tableData.push(...data.array)
+  tableData.push(...data.array);
   pageCount.value = Math.ceil(data.count / pageSize);
-  setTimeout(() => {
-    loading.value = false;
-  }, 1000);
-}
+  loading.value = false;
+};
 const commonStore = useCommonStore();
 const { updateTableValue } = storeToRefs(commonStore);
 const { selectedSchoolName } = storeToRefs(commonStore);
 
 watch(() => updateTableValue.value, () => {
-  formInline['searchValue'] = selectedSchoolName
-  onSubmit()
+  formInline["searchValue"] = selectedSchoolName;
+  onSubmit();
 });
-onMounted(()=>{
-  getList('',currentPage.value,pageSize.value)
-  setTimeout(()=>{
-    loading.value = false
-  },1000)
+onMounted(() => {
+  getList("", currentPage.value, pageSize.value);
+  loading.value = false;
 
-})
+});
 </script>
 
 <style scoped>

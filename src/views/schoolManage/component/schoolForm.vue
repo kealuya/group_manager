@@ -267,6 +267,7 @@ import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
 import { addSchoolInfo, deleteSchoolAll, deleteSchoolModule, editSchoolInfo, getSchoolInfo } from "@/api/schoolList";
 import { userList } from "@/api/user";
+import { parseTime } from "@/utils";
 // 页面设置部分
 const formSize = ref("default");
 
@@ -355,7 +356,7 @@ const userQuerySearch = async () => {
 const ruleFormAdd = ref({
   school_code: "",
   buildStage: "",
-  create_date: timestampToTime(new Date()),
+  create_date: parseTime(new Date(),''),
   fwsxy_end_date: timestampToTime(new Date()),
   fwsxy_start_date: timestampToTime(new Date()),
   fzr1: "",
