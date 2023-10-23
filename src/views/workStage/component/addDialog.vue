@@ -99,7 +99,7 @@
                   placeholder="请输入用户描述"/>
       </el-form-item>
     </el-form>
-    <QuillEditor content-type='html' v-model="ruleForm.content" theme="snow" :options="editorOption" />
+    <QuillEditor content-type='html' @blur='editorBlur($event)' :content="ruleForm.content" theme="snow" :options="editorOption" />
     <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -177,7 +177,7 @@ const ruleForm = reactive({
   status:true,
   remark:null,
   create_time:parseTime(new Date(),"{y}-{m}-{d} {h}:{i}:{s}"),
-
+  content:ref("")
 })
 
 function close() {
@@ -189,6 +189,14 @@ function close() {
 
   })
 }
+
+function editorBlur(val) {
+  console.log('111111',ruleForm['content'].value)
+  console.log(val)
+
+}
+
+
 const submitType = ref('add')
 const show = (item={})=>{
   if(item['title']){
