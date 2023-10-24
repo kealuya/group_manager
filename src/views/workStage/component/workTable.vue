@@ -16,7 +16,7 @@
       <div class="table-inner">
         <el-table empty-text="暂无,点击左上角按钮添加项目"
                   v-loading="loading" :table-layout="tableLayout"
-                  :data="tableData" style="width: 100%;height: 100%" border>
+                  :data="schoolWorkState.array " style="width: 100%;height: 100%" border>
           <el-table-column prop="title" min-width="120" label="问题简述" />
           <el-table-column prop="school_name" min-width="100" label="学校" />
           <el-table-column prop="xt" label="系统" />
@@ -58,21 +58,22 @@
       </div>
       <div style="height: 20px"></div>
       <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage"
-                     :page-count="pageCount" @current-change="handleCurrentChange" />
+                     :page-count="pageCount" />
+                     <!--  WARNING  以上事件不推荐使用（但由于兼容的原因仍然支持，在以后的版本中将会被删除）；如果要监听 current-page 和 page-size 的改变，使用 v-model 双向绑定是个更好的选择。-->
     </div>
-    <AddDialog ref="addDialog" />
+
   </div>
+  <AddDialog ref="addDialogRef" />
 </template>
 
 <script lang="ts" setup>
-import { onMounted, reactive, ref, watch } from "vue";
+import AddDialog from "@/views/workStage/component/addDialog.vue";
+import { onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
-import AddDialog from "./addDialog.vue";
 import { deleteProgram, getWorkList } from "@/api/workStage";
-import ByteArray from "vue-qr/src/lib/gif.js/GIFEncoder";
 import { useCommonStore } from "@/store/modules/common";
-import { toRaw } from "@vue/reactivity";
 import { storeToRefs } from "pinia";
+import { Search } from "@element-plus/icons-vue";
 
 const formInline = reactive({});
 const searchValue = ref<string>("");
@@ -84,9 +85,10 @@ const pageCount = ref<number>(1);
 const headerData: WorkInfo[] = reactive([]);
 const tableData: WorkInfo[] = reactive([]);
 const tableLayout = ref("fixed");
-const addDialog = ref();
+const addDialogRef = ref();
+const commonStore = useCommonStore();
 const addProgram = () => {
-  addDialog.value.show();
+  addDialogRef.value.show();
 };
 const onSubmit = () => {
   loading.value = true;
@@ -101,43 +103,59 @@ const reset = (formEl: FormInstance | undefined) => {
   loading.value = false;
 };
 const editHandler = (row) => {
-  addDialog.value.show(row);
+  addDialogRef.value.show(row);
 };
 
-const del = (row) => {
-  ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
-    confirmButtonText: "确定",
-    cancelButtonText: "取消",
-    type: "warning",
-    draggable: true
-  })
-    .then(async () => {
-      loading.value = true;
-      let a = await deleteProgram(row.id);
-      let result = a.data;
-      if (!result.success) {
-        loading.value = false;
-        ElMessage({
-          type: "error",
-          message: result.msg
-        });
-        return;
-      }
+const del = async (row) => {
+  try {
+    await ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
+      confirmButtonText: "确定",
+      cancelButtonText: "取消",
+      type: "warning",
+      draggable: true
+    });
+    loading.value = true;
+    let a = await deleteProgram(row.id);
+    let result = a.data;
+    if (!result.success) {
       loading.value = false;
       ElMessage({
-        type: "success",
-        message: "删除成功"
+        type: "error",
+        message: result.msg
       });
-      await getList("", currentPage.value, pageSize.value);
-    })
-    .catch(() => {
+      return;
+    }
+    loading.value = false;
+    ElMessage({
+      type: "success",
+      message: "删除成功"
     });
+    await getList("", currentPage.value, pageSize.value);
+
+  } catch (e) {
+    // cancel的场合
+  }
+
+
 };
 const handleCurrentChange = (val: number) => {
   currentPage.value = val;
   getList("", currentPage.value, pageSize.value);
 };
+
+// store调用，并更改页面数据的正确使用方案
+const { schoolWorkState } = storeToRefs(commonStore);
 const getList = async (search, page, pageSize) => {
+  let processResult = await commonStore.getSchoolWorkState(search, page, pageSize);
+  if (!processResult) {
+    loading.value = false;
+    return;
+  }
+  pageCount.value = Math.ceil(schoolWorkState.value.count / pageSize);
+  loading.value = false;
+};
+// 废弃考虑
+const getList_bak = async (search, page, pageSize) => {
   console.log("selectedSchoolName", selectedSchoolName);
   let a = await getWorkList(search, page, pageSize);
   let result = a.data;
@@ -156,7 +174,6 @@ const getList = async (search, page, pageSize) => {
   pageCount.value = Math.ceil(data.count / pageSize);
   loading.value = false;
 };
-const commonStore = useCommonStore();
 const { updateTableValue } = storeToRefs(commonStore);
 const { selectedSchoolName } = storeToRefs(commonStore);
 
@@ -164,6 +181,16 @@ watch(() => updateTableValue.value, () => {
   formInline["searchValue"] = selectedSchoolName;
   onSubmit();
 });
+
+
+watchEffect(
+  async () => {
+    loading.value = true;
+    await getList(formInline["searchValue"], currentPage.value, pageSize.value);
+    loading.value = false;
+  }
+);
+
 onMounted(() => {
   getList("", currentPage.value, pageSize.value);
   loading.value = false;

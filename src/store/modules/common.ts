@@ -1,4 +1,6 @@
 import { defineStore } from "pinia";
+import { getWorkList } from "@/api/workStage";
+import { ElMessage } from "element-plus";
 
 
 export const useCommonStore = defineStore({
@@ -13,6 +15,7 @@ export const useCommonStore = defineStore({
         schoolListFirstCode: "",
         schoolListFirstName: "",
         updateTableValue: false,
+        schoolWorkState: { array: [], count: 0 }
     }),
     getters: {},
     // 可以同步 也可以异步
@@ -22,6 +25,24 @@ export const useCommonStore = defineStore({
         },
         updateTable() {
             this.updateTableValue = !this.updateTableValue;
+        },
+        async getSchoolWorkState(search, page, pageSize): Promise<boolean> {
+            let workList = await getWorkList(search, page, pageSize);
+            let result = workList.data;
+            if (!result.success) {
+                ElMessage({
+                    type: "error",
+                    message: result.msg
+                });
+                return false;
+            }
+            if (result.data == null || result.data.length == 0) {
+                this.schoolWorkState = { array: [], count: 0 };
+                return true;
+            }
+
+            this.schoolWorkState = result.data as { array: Array<WorkInfo>, count: number };
+            return true;
         }
     },
     // 进行持久化存储
