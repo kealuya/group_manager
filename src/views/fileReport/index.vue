@@ -150,6 +150,30 @@
       <div style="height: 20px"></div>
       <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage" :page-count="pageCount" />
     </div>
+
+<!--ref用来获取上传文件列表，multipe多传，禁止自动上传-->
+    <el-upload
+      ref="uploadRef"
+      class="upload-demo"
+      multiple
+      :auto-upload="false"
+      v-model:file-list="fileList"
+    >
+      <template #trigger>
+        <el-button type="primary">select file</el-button>
+      </template>
+
+      <el-button class="ml-3" type="success" @click="submitUpload">
+        upload to server
+      </el-button>
+
+      <template #tip>
+        <div class="el-upload__tip">
+          jpg/png files with a size less than 500kb
+        </div>
+      </template>
+    </el-upload>
+
   </div>
   <UploadModal v-model="uploadModalDialogVisible" :mode="uploadModalMode" :item="selectFile"
                @updateSuccess="updateSuccess"></UploadModal>
@@ -163,7 +187,7 @@
 
 <script lang="ts" setup>
 
-
+import type { UploadInstance, UploadUserFile } from "element-plus";
 // @ts-ignore
 import { ArrowDown, Search } from "@element-plus/icons-vue";
 import { onMounted, reactive, ref, watchEffect } from "vue";
@@ -184,7 +208,7 @@ import "element-plus/es/components/notification/style/index";
 // import {UPLOAD_MODAL_MODE} from "~/enum";
 import { UPLOAD_MODAL_MODE } from "@/utils/common";
 import { useRoute } from "vue-router";
-import { callDocFileList, DocFileList } from "@/api/fileReport/doc";
+import { callDocFileList, DocFileList, uploadFile } from "@/api/fileReport/doc";
 import { downLoadFile, OBS_URL, timeChange } from "@/api/fileReport/common";
 import IconDownload from "@/assets/fileReport/download.png";
 import IconList from "@/assets/fileReport/list.png";
@@ -199,6 +223,20 @@ import IconRar from "@/assets/fileReport/icon-rar.png";
 import IconNone from "@/assets/fileReport/icon-none.png";
 import IconNewFile from "@/assets/fileReport/icon-new-file.png";
 import { makeArrayObjHumpToLine } from "@/utils";
+
+const fileList = ref<UploadUserFile[]>();
+
+const submitUpload = async () => {
+  // FormData模式可以同时上传数据与文件，一次性
+  let fd = new FormData();
+  fd.set("dd", "333");
+  // 统一获取，一次性上传，且可控，配合页面其他数据提交
+  fileList.value.map((file) => {
+    fd.append("files", file.raw);
+  });
+  let d = await uploadFile(fd);
+  console.log(d)
+};
 
 type  ParamObject = { [key: string]: string }
 

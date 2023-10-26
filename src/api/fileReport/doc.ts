@@ -22,4 +22,13 @@ export function callAuthorityDoc(file: DocFile) {
     return request.post("/file/updateAuthorityDoc", file);
 }
 
+export function uploadFile(data) {
+    return request.post("/file/uploadFile", data, {
+        headers: {
+            "Content-Type": "multipart/form-data"
+        }
+    //     务必修改 contenttype
+    });
+}
+
 
