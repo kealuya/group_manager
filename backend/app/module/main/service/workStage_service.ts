@@ -1,6 +1,10 @@
 import { AccessLevel, Inject, SingletonProto } from '@eggjs/tegg';
 import { EggMySQL } from 'egg-mysql';
-import { EggLogger } from 'egg';
+import { Context, EggLogger } from 'egg';
+
+// const Controller = require('egg').Controller;
+const fs = require('fs/promises');
+
 
 
 @SingletonProto({
@@ -29,6 +33,33 @@ export class workStage_service {
         }
 
     }
+
+    async upload(ctx:Context):Promise<any> {
+        // const { ctx } = this;
+        console.log(ctx.request.body);
+        console.log('got %d files', ctx.request.files.length);
+        for (const file of ctx.request.files) {
+            console.log('field: ' + file.field);
+            console.log('filename: ' + file.filename);
+            console.log('encoding: ' + file.encoding);
+            console.log('mime: ' + file.mime);
+            console.log('tmp filepath: ' + file.filepath);
+            let result;
+            try {
+                // 处理文件，比如上传到云端
+                result = await ctx.oss.put(
+                    'egg-multipart-test/' + file.filename,
+                    file.filepath,
+                );
+            } finally {
+                // 需要删除临时文件
+                await fs.unlink(file.filepath);
+            }
+            console.log(result);
+        }
+    }
+
+
 
     async editInfo(editData: object): Promise<Array<editWorkInfo> | null> {
         try {
@@ -84,7 +115,8 @@ export class workStage_service {
                            program_type,
                            status,
                            remark,
-                           date_format( create_time, '%Y-%m-%d %T' ) AS create_time
+                           date_format( create_time, '%Y-%m-%d %T' ) AS create_time,
+                           content
                            FROM work 
                            WHERE
                             ${where}

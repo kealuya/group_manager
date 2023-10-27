@@ -38,6 +38,27 @@ export class workStageController {
         return ng
     }
 
+    // 新建项目
+    @HTTPMethod({
+        method: HTTPMethodEnum.POST,
+        path: '/uploadFile',
+    })
+    async upload(@Context() _, @HTTPBody() body: UploadParam): Promise<any> {
+        let ng = helper.makeControllerResponse(null);
+        const {  } = body;
+        let uploadInfo
+        try {
+            // uploadInfo = await this.workStageService.upload();
+
+        } catch (e) {
+            ng.msg = '提交信息异常'
+            ng.success = false
+            return ng
+        }
+        ng.data = uploadInfo!
+        return ng
+    }
+
     //编辑项目
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
@@ -129,6 +150,9 @@ export class workStageController {
 
 export interface AddInfoParam {
     addData: object
+}
+export interface UploadParam {
+
 }
 export interface EditInfoParam {
     editData: object

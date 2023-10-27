@@ -79,7 +79,10 @@
 
           </el-form-item>
         </el-col>
-        <el-col>
+        <el-row>
+
+        </el-row>
+        <el-col :span="12">
           <el-form-item label="创建时间" prop="create_time">
             <el-date-picker
               v-model="ruleForm.create_time"
@@ -92,14 +95,43 @@
             />
           </el-form-item>
         </el-col>
+        <el-col :span="12">
+          <el-form-item label="备注" prop="remark" >
+            <el-input v-model="ruleForm.remark"
+                      placeholder="备注"/>
+          </el-form-item>
+        </el-col>
       </el-row>
-      <el-form-item label="备注" prop="remark" >
-        <el-input v-model="ruleForm.remark"
-                  type="textarea"
-                  placeholder="请输入用户描述"/>
+      <el-form-item prop="file" >
+        <el-upload
+          class="upload-demo"
+          v-model:file-list="ruleForm.fileList"
+          drag
+          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
+          multiple
+          :on-preview="handlePreview"
+          :on-remove="handleRemove"
+          :before-remove="beforeRemove"
+          :on-exceed="handleExceed"
+        >
+          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
+          <div class="el-upload__text">
+            Drop file here or <em>click to upload</em>
+          </div>
+          <template #tip>
+            <div class="el-upload__tip">
+              jpg/png files with a size less than 500kb
+            </div>
+          </template>
+        </el-upload>
+      </el-form-item>
+
+      <el-form-item prop="content" >
+      <QuillEditor content-type='html' @textChange='editorBlur' v-model:content="ruleForm.content" theme="snow" :options="editorOption" />
       </el-form-item>
     </el-form>
-    <QuillEditor content-type='html' @textChange='editorBlur()' v-model:content="ruleForm.content" theme="snow" :options="editorOption" />
+
+
     <template #footer>
         <span class="dialog-footer">
           <el-button @click="dialogVisible = false">取消</el-button>
@@ -114,6 +146,7 @@ import { ElMessageBox, ElMessage, FormInstance, ElNotification } from "element-p
 import { computed, reactive, ref, watch } from "vue";
 import {QuillEditor} from '@vueup/vue-quill'
 import { getSchoolCodeInfo, getSchoolInfo } from "@/api/schoolList";
+import type { UploadProps, UploadUserFile } from 'element-plus'
 import { useUserStore } from "@/store/modules/user";
 import { userList } from "@/api/user";
 import { addProgram, editProgram } from "@/api/workStage";
@@ -173,18 +206,47 @@ const ruleForm = reactive({
   create_people:userInfo.value.name,
   priority:'紧急',
   process_people:null,
-  program_type:null,
+  program_type:'bug',
   status:true,
   remark:null,
   create_time:parseTime(new Date(),"{y}-{m}-{d} {h}:{i}:{s}"),
-  content:ref("")
+  content:ref(""),
+  fileList:ref<UploadUserFile[]>([])
 })
+
+const handleRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
+  console.log(file, uploadFiles)
+}
+
+const handlePreview: UploadProps['onPreview'] = (uploadFile) => {
+  console.log(uploadFile)
+}
+
+const handleExceed: UploadProps['onExceed'] = (files, uploadFiles) => {
+  ElMessage.warning(
+    `The limit is 3, you selected ${files.length} files this time, add up to ${
+      files.length + uploadFiles.length
+    } totally`
+  )
+}
+
+const beforeRemove: UploadProps['beforeRemove'] = (uploadFile, uploadFiles) => {
+  return ElMessageBox.confirm(
+    `Cancel the transfer of ${uploadFile.name} ?`
+  ).then(
+    () => true,
+    () => false
+  )
+}
 
 function close() {
   ruleFormRef.value.resetFields()
   Object.keys(ruleForm).forEach(key=>{
     if(key==='priority') ruleForm[key] = '紧急'
     else if(key==='status') ruleForm[key] = true
+    else if(key==='create_people') ruleForm[key] = userInfo.value.name
+    else if(key==='program_type') ruleForm[key] = 'bug'
+    else if(key==='create_time') ruleForm[key] = parseTime(new Date(),"{y}-{m}-{d} {h}:{i}:{s}")
     else ruleForm[key] = null
 
   })
