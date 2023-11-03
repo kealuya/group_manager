@@ -4,6 +4,7 @@ import { Validator } from '../../../../typings';
 import { workStage_service } from '@/module/main/service/workStage_service';
 import helper from '../../../extend/helper';
 import { ControllerResponse } from '@/module/main/controller/index';
+import * as fs from "fs";
 
 @HTTPController({
     path: '/work',
@@ -38,24 +39,44 @@ export class workStageController {
         return ng
     }
 
-    // 新建项目
+    // 新建项目上传文件部分
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
         path: '/uploadFile',
     })
-    async upload(@Context() _, @HTTPBody() body: UploadParam): Promise<any> {
-        let ng = helper.makeControllerResponse(null);
-        const {  } = body;
-        let uploadInfo
-        try {
-            // uploadInfo = await this.workStageService.upload();
+    async upload(@Context() ctx, @HTTPBody() body: any): Promise<ControllerResponse> {
+        console.log('body',body)
+        console.log('got %d files', ctx.request.files.length);
 
-        } catch (e) {
-            ng.msg = '提交信息异常'
-            ng.success = false
-            return ng
+        const targetPath = `D:\\work_project\\program\\group_manager\\backend\\app`
+        for (const file of ctx.request.files){
+            console.log('field: ' + file.field);
+            console.log('filename: ' + file.filename);
+            console.log('encoding: ' + file.encoding);
+            console.log('mime: ' + file.mime);
+            console.log('tmp filepath: ' + file.filepath);
+
+            let result;
+            try {
+                const reader = fs.createReadStream(file.filepath);//读取文件，返回文件流
+                let filePath = targetPath + "/public/upload/" + `${new Date().getTime()}-${file.filename}`;
+                const upStream = fs.createWriteStream(filePath);// 创建可写流，传入路径
+                reader.pipe(upStream);//通过管道，完成存储
+                console.log('filePath',filePath)
+            }finally {
+                setTimeout(async () => {
+                    // 需要删除临时文件
+                    await fs.unlink(file.filepath, () => {
+                    });
+                }, 10);
+            }
+            console.log(result);
+
+
         }
-        ng.data = uploadInfo!
+
+
+        let ng = helper.makeControllerResponse(null);
         return ng
     }
 
@@ -150,9 +171,6 @@ export class workStageController {
 
 export interface AddInfoParam {
     addData: object
-}
-export interface UploadParam {
-
 }
 export interface EditInfoParam {
     editData: object

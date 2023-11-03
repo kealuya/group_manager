@@ -104,26 +104,53 @@
       </el-row>
       <el-form-item prop="file" >
         <el-upload
+          ref="uploadRef"
           class="upload-demo"
-          v-model:file-list="ruleForm.fileList"
-          drag
-          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"
           multiple
-          :on-preview="handlePreview"
-          :on-remove="handleRemove"
-          :before-remove="beforeRemove"
-          :on-exceed="handleExceed"
+          :auto-upload="false"
+          v-model:file-list="fileList"
         >
-          <el-icon class="el-icon--upload"><upload-filled /></el-icon>
-          <div class="el-upload__text">
-            Drop file here or <em>click to upload</em>
-          </div>
+          <template #trigger>
+            <el-button type="primary">select file</el-button>
+          </template>
+
+          <el-button class="ml-3" type="success" @click="submitUpload">
+            upload to server
+          </el-button>
+
           <template #tip>
             <div class="el-upload__tip">
               jpg/png files with a size less than 500kb
             </div>
           </template>
         </el-upload>
+<!--        <el-upload-->
+<!--          class="upload-demo"-->
+<!--          action="/work/uploadFile"-->
+<!--          method="post"-->
+<!--          headers="multipart/form-data"-->
+<!--          v-model:file-list="ruleForm.fileList"-->
+<!--          drag-->
+<!--          :auto-upload="false"-->
+<!--          multiple-->
+<!--          :on-success="successUpload"-->
+
+<!--        >-->
+<!--&lt;!&ndash;          action="https://run.mocky.io/v3/9d059bf9-4660-45f2-925d-ce80ad6c4d15"&ndash;&gt;-->
+<!--&lt;!&ndash;          :on-preview="handlePreview"&ndash;&gt;-->
+<!--&lt;!&ndash;          :on-remove="handleRemove"&ndash;&gt;-->
+<!--&lt;!&ndash;          :before-remove="beforeRemove"&ndash;&gt;-->
+<!--&lt;!&ndash;          :on-exceed="handleExceed"&ndash;&gt;-->
+<!--          <el-icon class="el-icon&#45;&#45;upload"><upload-filled /></el-icon>-->
+<!--          <div class="el-upload__text">-->
+<!--            Drop file here or <em>click to upload</em>-->
+<!--          </div>-->
+<!--          <template #tip>-->
+<!--            <div class="el-upload__tip">-->
+<!--              jpg/png files with a size less than 500kb-->
+<!--            </div>-->
+<!--          </template>-->
+<!--        </el-upload>-->
       </el-form-item>
 
       <el-form-item prop="content" >
@@ -149,7 +176,7 @@ import { getSchoolCodeInfo, getSchoolInfo } from "@/api/schoolList";
 import type { UploadProps, UploadUserFile } from 'element-plus'
 import { useUserStore } from "@/store/modules/user";
 import { userList } from "@/api/user";
-import { addProgram, editProgram } from "@/api/workStage";
+import { addProgram, editProgram,uploadFile } from "@/api/workStage";
 import { storeToRefs } from "pinia";
 import { useCommonStore } from "@/store/modules/common";
 import { parseTime } from "@/utils";
@@ -211,8 +238,24 @@ const ruleForm = reactive({
   remark:null,
   create_time:parseTime(new Date(),"{y}-{m}-{d} {h}:{i}:{s}"),
   content:ref(""),
-  fileList:ref<UploadUserFile[]>([])
+
 })
+const fileList = ref<UploadUserFile[]>();
+const submitUpload = async () => {
+  // FormData模式可以同时上传数据与文件，一次性
+  let fd = new FormData();
+  fd.set("dd", "333");
+  // let file = ruleForm.fileList
+  // 统一获取，一次性上传，且可控，配合页面其他数据提交
+  fileList.value.map((file) => {
+    fd.append("files", file.raw);
+  });
+  let d = await uploadFile(fd);
+  console.log(d)
+};
+const successUpload = (file)=>{
+  console.log('66666666666666666666666',file)
+}
 
 const handleRemove: UploadProps['onRemove'] = (file, uploadFiles) => {
   console.log(file, uploadFiles)

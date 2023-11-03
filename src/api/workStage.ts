@@ -38,3 +38,14 @@ export function getWorkList(search,page,pageSize) {
     }
   });
 }
+export function uploadFile(data) {
+  return request({
+    url: "/work/uploadFile",
+    method: "post",
+    headers: {
+      "Content-Type": "multipart/form-data"
+    },
+    data: data
+
+  });
+}
