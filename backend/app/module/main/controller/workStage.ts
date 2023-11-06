@@ -48,6 +48,8 @@ export class workStageController {
         console.log('body',body)
         console.log('got %d files', ctx.request.files.length);
 
+        let result
+        let fileNameArray :Array<string> = [];//返回给前台的filename数组
         const targetPath = `D:\\work_project\\program\\group_manager\\backend\\app`
         for (const file of ctx.request.files){
             console.log('field: ' + file.field);
@@ -55,14 +57,14 @@ export class workStageController {
             console.log('encoding: ' + file.encoding);
             console.log('mime: ' + file.mime);
             console.log('tmp filepath: ' + file.filepath);
-
-            let result;
             try {
                 const reader = fs.createReadStream(file.filepath);//读取文件，返回文件流
-                let filePath = targetPath + "/public/upload/" + `${new Date().getTime()}-${file.filename}`;
+                let path1 = `${new Date().getTime()}-${file.filename}`
+                let filePath = targetPath + "/public/upload/" + path1;
                 const upStream = fs.createWriteStream(filePath);// 创建可写流，传入路径
                 reader.pipe(upStream);//通过管道，完成存储
                 console.log('filePath',filePath)
+                fileNameArray.push(path1)
             }finally {
                 setTimeout(async () => {
                     // 需要删除临时文件
@@ -71,12 +73,9 @@ export class workStageController {
                 }, 10);
             }
             console.log(result);
-
-
         }
-
-
-        let ng = helper.makeControllerResponse(null);
+        let ng = helper.makeControllerResponse({ fileNameArray });
+        console.log('返回的路径',ng)
         return ng
     }
 

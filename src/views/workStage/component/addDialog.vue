@@ -114,9 +114,9 @@
             <el-button type="primary">select file</el-button>
           </template>
 
-          <el-button class="ml-3" type="success" @click="submitUpload">
-            upload to server
-          </el-button>
+<!--          <el-button class="ml-3" type="success" @click="submitUpload">-->
+<!--            upload to server-->
+<!--          </el-button>-->
 
           <template #tip>
             <div class="el-upload__tip">
@@ -238,6 +238,7 @@ const ruleForm = reactive({
   remark:null,
   create_time:parseTime(new Date(),"{y}-{m}-{d} {h}:{i}:{s}"),
   content:ref(""),
+  fileList:ref<UploadUserFile[]>()
 
 })
 const fileList = ref<UploadUserFile[]>();
@@ -252,6 +253,19 @@ const submitUpload = async () => {
   });
   let d = await uploadFile(fd);
   console.log(d)
+  let currentResult = d.data
+  if (!currentResult.success) {
+    ElMessage({
+      type: "error",
+      message: currentResult.msg
+    });
+    return
+  } else {
+    ElMessage({
+      type: "success",
+      message: "s"
+    });
+  }
 };
 const successUpload = (file)=>{
   console.log('66666666666666666666666',file)
@@ -323,40 +337,55 @@ const handleClose = async (done: () => void) => {
   }
   await ruleFormRef.value.validate(async (valid, fields) => {
     if (valid) {
-      dialogVisible.value = false
-      console.log('submitType.value!', submitType.value)
-      if (submitType.value === 'edit'){
-        let a = await editProgram(ruleForm)
-        let currentResult = a.data
-        if (!currentResult.success) {
-          ElMessage({
-            type: "error",
-            message: currentResult.msg
-          });
-          return
-        } else {
-          ElMessage({
-            type: "success",
-            message: "提交成功"
-          });
-        }
-      }else {
-        let a = await addProgram(ruleForm)
-        let currentResult = a.data
-        if (!currentResult.success) {
-          ElMessage({
-            type: "error",
-            message: currentResult.msg
-          });
-          return
-        } else {
-          ElMessage({
-            type: "success",
-            message: "提交成功"
-          });
-        }
+      // FormData模式可以同时上传数据与文件，一次性
+      let fd = new FormData();
+      fd.set("dd", "333");
+      // 统一获取，一次性上传，且可控，配合页面其他数据提交
+      fileList.value.map((file) => {
+        fd.append("files", file.raw);
+      });
+      let d = await uploadFile(fd);
+      let result = d.data
+      if (!result.success) {
+        ElMessage({
+          type: "error",
+          message: result.msg
+        });
+        return
       }
-
+        ruleForm.fileList = result.data.fileNameArray
+        if (submitType.value === 'edit'){
+          let a = await editProgram(ruleForm)
+          let currentResult = a.data
+          if (!currentResult.success) {
+            ElMessage({
+              type: "error",
+              message: currentResult.msg
+            });
+            return
+          } else {
+            ElMessage({
+              type: "success",
+              message: "提交成功"
+            });
+          }
+        }else {
+          let a = await addProgram(ruleForm)
+          let currentResult = a.data
+          if (!currentResult.success) {
+            ElMessage({
+              type: "error",
+              message: currentResult.msg
+            });
+            return
+          } else {
+            ElMessage({
+              type: "success",
+              message: "提交成功"
+            });
+          }
+        }
+        dialogVisible.value = false
 
       commonStore.updateTable();
     } else {

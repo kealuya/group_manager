@@ -19,6 +19,8 @@ export class workStage_service {
     async addInfo(addData: object): Promise<Array<addWorkInfo> | null> {
         try {
             delete addData['id']
+            console.log('addData333333333333333',addData)
+            addData['fileList'] = JSON.stringify(addData['fileList'])
             const result = await this.mysql.insert('work', addData)
 
             // const insertSuccess = result.affectedRows === 1;

@@ -13,7 +13,7 @@ export default (appInfo: EggAppInfo) => {
     // 上传必须追加file模式，并且扩展默认文件扩展名
     config.multipart = {
         mode: "file",
-        fileExtensions: ['.pdf']
+        fileExtensions: ['.pdf','.png','.jpg']
     };
 
 
