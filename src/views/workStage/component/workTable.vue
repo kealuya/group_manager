@@ -153,6 +153,7 @@ const getList = async (search, page, pageSize) => {
   }
   pageCount.value = Math.ceil(schoolWorkState.value.count / pageSize);
   loading.value = false;
+  console.log('schoolWorkState.array',schoolWorkState.value)
 };
 // 废弃考虑
 const getList_bak = async (search, page, pageSize) => {

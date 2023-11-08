@@ -90,7 +90,8 @@ export class workStage_service {
                            status,
                            remark,
                            date_format( create_time, '%Y-%m-%d %T' ) AS create_time,
-                           content
+                           content,
+                           fileList
                            FROM work 
                            WHERE
                             ${where}
