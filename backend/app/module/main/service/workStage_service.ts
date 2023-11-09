@@ -16,6 +16,7 @@ export class workStage_service {
     logger: EggLogger;
 
 
+
     async addInfo(addData: object): Promise<Array<addWorkInfo> | null> {
         try {
             delete addData['id']
@@ -95,6 +96,8 @@ export class workStage_service {
                            FROM work 
                            WHERE
                             ${where}
+                            ORDER BY
+                            create_time DESC
                              LIMIT :limit1,:limit2`
         const countObj = await this.mysql.query(sqlForCount, {
             where1: '%' + whereParam + '%',

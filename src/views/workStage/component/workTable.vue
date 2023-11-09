@@ -44,10 +44,13 @@
           </el-table-column>
           <el-table-column prop="remark" :show-overflow-tooltip="true"
                            label="备注" align="center" />
-          <el-table-column prop="operator" label="操作" width="200" align="center" fixed="right">
+          <el-table-column prop="operator" label="操作" width="180" align="center" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" icon="Edit" @click="editHandler(scope.row)">
+              <el-button type="primary" size="small" v-show="scope.row.status===0" icon="Edit" @click="editHandler(scope.row)">
                 编辑
+              </el-button>
+              <el-button type="success" size="small" v-show="scope.row.status===1"  icon="View" @click="editHandler(scope.row)">
+                详情
               </el-button>
               <el-button @click="del(scope.row)" type="danger" size="small" icon="Delete">
                 删除
@@ -70,42 +73,69 @@
 import AddDialog from "@/views/workStage/component/addDialog.vue";
 import { onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
-import { deleteProgram, getWorkList } from "@/api/workStage";
+import { deleteProgram } from "@/api/workStage";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
 import { Search } from "@element-plus/icons-vue";
 
-const formInline = reactive({});
-const searchValue = ref<string>("");
-const ruleFormRef = ref<FormInstance>();
+
+
+//table
 const loading = ref(true);
+const tableLayout = ref("fixed");
 const currentPage = ref<number>(1);
 const pageSize = ref(10);
 const pageCount = ref<number>(1);
-const headerData: WorkInfo[] = reactive([]);
 const tableData: WorkInfo[] = reactive([]);
-const tableLayout = ref("fixed");
-const addDialogRef = ref();
 const commonStore = useCommonStore();
+// store调用，并更改页面数据的正确使用方案
+const { schoolWorkState } = storeToRefs(commonStore);
+const getList = async (search, page, pageSize) => {
+  let processResult = await commonStore.getSchoolWorkState(search, page, pageSize);
+  if (!processResult) {
+    loading.value = false;
+    return;
+  }
+  pageCount.value = Math.ceil(schoolWorkState.value.count / pageSize);
+  loading.value = false;
+  console.log('schoolWorkState.array',schoolWorkState.value)
+};
+
+
+
+
+//添加项目
+const addDialogRef = ref();
 const addProgram = () => {
   addDialogRef.value.show();
 };
+
+
+//header搜索部分
+const formInline = reactive({});
+const searchValue = ref<string>("");
+const ruleFormRef = ref<FormInstance>();
 const onSubmit = () => {
   loading.value = true;
   getList(formInline["searchValue"], currentPage.value, pageSize.value);
   loading.value = false;
 };
-
 const reset = (formEl: FormInstance | undefined) => {
   formInline["searchValue"] = "";
   loading.value = true;
   getList("", currentPage.value, pageSize.value);
   loading.value = false;
 };
+
+
+
+
+//table功能部分
+//编辑
 const editHandler = (row) => {
   addDialogRef.value.show(row);
 };
-
+//删除
 const del = async (row) => {
   try {
     await ElMessageBox.confirm("你确定要删除当前项吗?", "温馨提示", {
@@ -138,46 +168,13 @@ const del = async (row) => {
 
 
 };
-const handleCurrentChange = (val: number) => {
-  currentPage.value = val;
-  getList("", currentPage.value, pageSize.value);
-};
 
-// store调用，并更改页面数据的正确使用方案
-const { schoolWorkState } = storeToRefs(commonStore);
-const getList = async (search, page, pageSize) => {
-  let processResult = await commonStore.getSchoolWorkState(search, page, pageSize);
-  if (!processResult) {
-    loading.value = false;
-    return;
-  }
-  pageCount.value = Math.ceil(schoolWorkState.value.count / pageSize);
-  loading.value = false;
-  console.log('schoolWorkState.array',schoolWorkState.value)
-};
-// 废弃考虑
-const getList_bak = async (search, page, pageSize) => {
-  console.log("selectedSchoolName", selectedSchoolName);
-  let a = await getWorkList(search, page, pageSize);
-  let result = a.data;
-  console.log(result.data);
-  if (!result.success) {
-    loading.value = false;
-    ElMessage({
-      type: "error",
-      message: result.msg
-    });
-    return;
-  }
-  tableData.length = 0;
-  let data = result.data as { array: Array<WorkInfo>, count: number };
-  tableData.push(...data.array);
-  pageCount.value = Math.ceil(data.count / pageSize);
-  loading.value = false;
-};
+
+
+
+//watch更新列表
 const { updateTableValue } = storeToRefs(commonStore);
 const { selectedSchoolName } = storeToRefs(commonStore);
-
 watch(() => updateTableValue.value, () => {
   formInline["searchValue"] = selectedSchoolName;
   onSubmit();

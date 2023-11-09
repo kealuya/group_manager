@@ -3,7 +3,8 @@
              v-model="dialogVisible" width="50%" style="height: 600px;overflow-y: scroll;position: relative" center>
     <template #header>
       <div>
-        <el-input v-model="ruleForm.title" type="text" placeholder="请输入问题简述" />
+        <el-input :disabled="ruleForm.status===1" v-model="ruleForm.title" type="text" placeholder="请输入问题简述" />
+
       </div>
     </template>
     <el-form
@@ -11,6 +12,7 @@
       :model="ruleForm"
       :rules="rules"
       label-width="100px"
+      :disabled="ruleForm.status===1"
     >
       <el-row>
         <el-col :span="12">
@@ -74,7 +76,6 @@
           <el-form-item label="分类" prop="program_type" required>
             <el-radio-group v-model="ruleForm.program_type" size="small">
               <el-radio-button label="bug" />
-              f
               <el-radio-button label="更新" />
               <el-radio-button label="定制" />
             </el-radio-group>
@@ -103,7 +104,7 @@
                       placeholder="备注" />
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-show="ruleForm.status===0">
           <el-form-item prop="file">
             <el-upload
               ref="uploadRef"
@@ -119,13 +120,9 @@
               <div class="el-upload__text">
                 Drop file here or <em>click to upload</em>
               </div>
-              <!--          <template #trigger>-->
-              <!--            <el-button type="primary">选择一个文件</el-button>-->
-              <!--          </template>-->
-
               <template #tip>
                 <div class="el-upload__tip">
-                  jpg/png files with a size less than 500kb
+                  pdf/png/jpg/jpeg/xlsx/txt/docx/xls/doc/zip files
                 </div>
               </template>
             </el-upload>
@@ -133,17 +130,18 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <div style="display: flex;align-items: center;justify-items: flex-start">
-            <div style="display: flex;flex-direction: column" v-for="item in downloadFileList" @click="download(item)">
-              <el-image style="width: 60px;" :src="displayIcon(item)"></el-image>
-              <div style="">{{ellipsisRow(item.slice(14))}}</div>
+          <h4>已上传文件列表</h4>
+          <van-row>
+            <div style="display: flex;align-items: center;justify-items: flex-start;margin-top: 10px;" v-for="item in downloadFileList" @click="download(item)">
+              <el-image style="width: 30px;padding-right: 10px" :src="displayIcon(item)"></el-image>
+              <div>{{item.slice(14)}}</div>
             </div>
-          </div>
+          </van-row>
         </el-col>
       </el-row>
       <el-row>
         <el-form-item prop="content">
-          <QuillEditor style="width: 100%;display: block" content-type="html" @textChange="editorBlur"
+          <QuillEditor style="width: 100%;" content-type="html" :readOnly="quillReadOnlyValue"
                        v-model:content="ruleForm.content" theme="snow" :options="editorOption" />
         </el-form-item>
       </el-row>
@@ -154,9 +152,9 @@
 
     </el-form>
 
-
+    <div style="height: 30px;"></div>
     <template #footer>
-      <div class="dialog-footer" >
+      <div class="dialog-footer" style="padding-top: 50px" v-show="ruleForm.status===0">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleClose(ruleFormRef)">确定</el-button>
       </div>
@@ -166,15 +164,14 @@
 </template>
 <script lang="ts" setup>
 import { UploadFilled } from "@element-plus/icons-vue";
-import { ElMessageBox, ElMessage, FormInstance, ElNotification } from "element-plus";
+import { ElMessage, FormInstance, ElNotification } from "element-plus";
 import { computed, reactive, ref, watch } from "vue";
 import { QuillEditor } from "@vueup/vue-quill";
 import { getSchoolCodeInfo, getSchoolInfo } from "@/api/schoolList";
-import type { UploadProps, UploadUserFile } from "element-plus";
+import type { UploadUserFile } from "element-plus";
 import { useUserStore } from "@/store/modules/user";
 import { userList } from "@/api/user";
 import { addProgram, editProgram, uploadFile } from "@/api/workStage";
-import { storeToRefs } from "pinia";
 import { useCommonStore } from "@/store/modules/common";
 import { parseTime } from "@/utils";
 import IconDoc from "@/assets/fileReport/icon-doc.png";
@@ -187,11 +184,30 @@ import IconRar from "@/assets/fileReport/icon-rar.png";
 import IconImage from "@/assets/fileReport/icon-image.png";
 import IconNone from "@/assets/fileReport/icon-none.png";
 
-const radio1 = ref("紧急");
-const ruleFormRef = ref<FormInstance>();
+
 const dialogVisible = ref<boolean>(false);
-const title = ref("新增用户");
-const input = ref("");
+
+//获取当前用户信息
+const UserStore = useUserStore();
+const userInfo = computed(() => UserStore.userInfo);
+
+const ruleFormRef = ref<FormInstance>();
+const ruleForm = reactive({
+  id: "",
+  title: "",
+  school_code: "",
+  school_name: "",
+  xt: "",
+  create_people: userInfo.value.name,
+  priority: "紧急",
+  process_people: null,
+  program_type: "bug",
+  status: true,
+  remark: null,
+  create_time: parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}"),
+  content: ref(""),
+  fileList: ref("")
+});
 const rules = reactive({
   title: [{ required: true, message: "请输入标题", trigger: "blur" }],
   school_name: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
@@ -202,33 +218,69 @@ const rules = reactive({
   program_type: [{ required: true, message: "请选择项目分类", trigger: "change" }],
   create_time: [{ type: "date", required: false, message: "请选择时间", trigger: "change" }]
 });
-//获取当前用户信息
-const UserStore = useUserStore();
-const userInfo = computed(() => UserStore.userInfo);
 
-
-// 富文本编辑器配置
-let editorOption = {
-  modules: {
-    toolbar: [
-      ["bold", "italic", "underline", "strike"], // 加粗 斜体 下划线 删除线
-      [{ color: [] }, { background: [] }], // 字体颜色、字体背景颜色
-      [{ align: [] }], // 对齐方式
-      [{ size: ["small", false, "large", "huge"] }], // 字体大小
-      [{ font: [] }], // 字体种类
-      [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题
-      [{ direction: "ltl" }], // 文本方向
-      [{ direction: "rtl" }], // 文本方向
-      [{ indent: "-1" }, { indent: "+1" }], // 缩进
-      [{ list: "ordered" }, { list: "bullet" }], // 有序、无序列表
-      [{ script: "sub" }, { script: "super" }], // 上标/下标
-      ["blockquote", "code-block"], // 引用  代码块
-      ["clean"], // 清除文本格式
-      ["link", "image", "video"] // 链接、图片、视频
-    ]
+//根据学校名称查找学校编码
+const searchCode = async (name) => {
+  let codeInfo = await getSchoolCodeInfo(name);
+  let codeInfoResult = codeInfo.data;
+  if (!codeInfoResult.success) {
+    ElNotification({
+      message: codeInfoResult.msg,
+      type: "warning",
+      duration: 3000
+    });
+    return;
+  } else if (codeInfoResult.data === null) {
+    ElNotification({
+      message: "无法查询到该学校，请重新输入",
+      type: "warning",
+      duration: 3000
+    });
+    ruleForm.school_code = "";
+    return;
   }
+  ruleForm.school_code = codeInfoResult.data[0].school_code;
+  ruleForm.school_name = codeInfoResult.data[0].school_name;
 };
 
+
+//xt 下拉optionList
+const xtOptions = ref([]);
+const getXtList = async (a) => {
+  xtOptions.value = [];
+  let schoolInfo = await getSchoolInfo(a);
+  let searchInfoResult = schoolInfo.data.data;
+  if (searchInfoResult[0].xt === null) {
+    xtOptions.value = [];
+    return;
+  }
+  searchInfoResult.forEach(item => {
+    xtOptions.value.push({
+      label: item.xt,
+      value: item.xt
+    });
+  });
+};
+//获取userList----处理人optionList
+const processPeopleOptions = ref([]);
+const getProcessPeopleList = async () => {
+  processPeopleOptions.value = [];
+  let a = await userList();
+  let userListResult = a.data.data;
+  userListResult.forEach(item => {
+    processPeopleOptions.value.push({
+      label: item.name,
+      value: item.code
+    });
+  });
+};
+
+//文件上传及下载部分
+const uploadFileList = ref<UploadUserFile[]>();
+const downloadFileList = reactive([]);
+const download = (item) => {
+  window.location.href = "http://127.0.0.1:7001/" + "public/upload/" + item;
+};
 const displayIcon = (type: string): any => {
   /*
    IconDoc
@@ -254,7 +306,6 @@ const displayIcon = (type: string): any => {
     case ".pptx":
       return IconPpt;
     case ".pdf":
-      console.log("看看到这美俄")
       return IconPdf;
     case ".txt":
       return IconTxt;
@@ -270,8 +321,33 @@ const displayIcon = (type: string): any => {
     default:
       return IconNone;
   }
-
 };
+
+// 富文本编辑器配置
+// https://vueup.github.io/vue-quill/api/events.html
+const quillReadOnlyValue = ref<boolean>(false);
+let editorOption = {
+  modules: {
+    toolbar: [
+      ["bold", "italic", "underline", "strike"], // 加粗 斜体 下划线 删除线
+      [{ color: [] }, { background: [] }], // 字体颜色、字体背景颜色
+      [{ align: [] }], // 对齐方式
+      [{ size: ["small", false, "large", "huge"] }], // 字体大小
+      [{ font: [] }], // 字体种类
+      [{ header: [1, 2, 3, 4, 5, 6, false] }], // 标题
+      [{ direction: "ltl" }], // 文本方向
+      [{ direction: "rtl" }], // 文本方向
+      [{ indent: "-1" }, { indent: "+1" }], // 缩进
+      [{ list: "ordered" }, { list: "bullet" }], // 有序、无序列表
+      [{ script: "sub" }, { script: "super" }], // 上标/下标
+      ["blockquote", "code-block"], // 引用  代码块
+      ["clean"], // 清除文本格式
+      ["link", "image", "video"] // 链接、图片、视频
+    ]
+  }
+};
+
+
 const ellipsisRow = (value)=>{
   if (!value) return ''
   if (value.length > 8) {
@@ -279,60 +355,28 @@ const ellipsisRow = (value)=>{
   }
   return value
 }
-const ruleForm = reactive({
-  id: "",
-  title: "",
-  school_code: "",
-  school_name: "",
-  xt: "",
-  create_people: userInfo.value.name,
-  priority: "紧急",
-  process_people: null,
-  program_type: "bug",
-  status: true,
-  remark: null,
-  create_time: parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}"),
-  content: ref(""),
-  fileList: ref("")
 
-});
-const uploadFileList = ref<UploadUserFile[]>();
-const downloadFileList = reactive([]);
 
-const download = (item) => {
-  window.location.href = "http://127.0.0.1:7001/" + "public/upload/" + item;
+//打开或关闭模态窗的初始化以及清空部分
+const submitType = ref("add");
+const show = (item = {}) => {
+  if (item["title"]) {
+    Object.keys(item).forEach(key => {
+      ruleForm[key] = item[key];
+      if (ruleForm[key]!==null && key === "fileList") {
+
+        let e = JSON.parse(ruleForm[key]);
+        downloadFileList.push(...e);
+      }
+    });
+    submitType.value = "edit";
+  }
+  dialogVisible.value = true;
 };
-const successUpload = (file) => {
-  console.log("66666666666666666666666", file);
-};
-
-const handleRemove: UploadProps["onRemove"] = (file, uploadFiles) => {
-  console.log(file, uploadFiles);
-};
-
-const handlePreview: UploadProps["onPreview"] = (uploadFile) => {
-  console.log(uploadFile);
-};
-
-const handleExceed: UploadProps["onExceed"] = (files, uploadFiles) => {
-  ElMessage.warning(
-    `The limit is 3, you selected ${files.length} files this time, add up to ${
-      files.length + uploadFiles.length
-    } totally`
-  );
-};
-
-const beforeRemove: UploadProps["beforeRemove"] = (uploadFile, uploadFiles) => {
-  return ElMessageBox.confirm(
-    `Cancel the transfer of ${uploadFile.name} ?`
-  ).then(
-    () => true,
-    () => false
-  );
-};
-
 function close() {
   ruleFormRef.value.resetFields();
+  uploadFileList.value =[];
+  downloadFileList.length=0
   Object.keys(ruleForm).forEach(key => {
     if (key === "priority") ruleForm[key] = "紧急";
     else if (key === "status") ruleForm[key] = true;
@@ -340,34 +384,12 @@ function close() {
     else if (key === "program_type") ruleForm[key] = "bug";
     else if (key === "create_time") ruleForm[key] = parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}");
     else ruleForm[key] = null;
-
   });
 }
 
-function editorBlur() {
-  console.log("111111", ruleForm.content);
-// https://vueup.github.io/vue-quill/api/events.html
-}
 
 
-const submitType = ref("add");
-const show = (item = {}) => {
-  if (item["title"]) {
-    Object.keys(item).forEach(key => {
-      ruleForm[key] = item[key];
-      if (key === "fileList" && ruleForm[key]) {
-        let e = JSON.parse(ruleForm[key]);
-        downloadFileList.push(...e);
-        console.log("ruleForm[key] ", ruleForm[key]);
-        console.log("downloadFileList", downloadFileList);
-      }
-
-    });
-    console.log("edit塞完的ruleForm", ruleForm);
-    submitType.value = "edit";
-  }
-  dialogVisible.value = true;
-};
+//提交
 const commonStore = useCommonStore();
 const handleClose = async (done: () => void) => {
   if (!ruleForm.title) {
@@ -435,62 +457,11 @@ const handleClose = async (done: () => void) => {
     }
   });
 };
-//获取userList----处理人optionList
-const processPeopleOptions = ref([]);
-const getProcessPeopleList = async () => {
-  processPeopleOptions.value = [];
-  let a = await userList();
-  let userListResult = a.data.data;
-  userListResult.forEach(item => {
-    processPeopleOptions.value.push({
-      label: item.name,
-      value: item.code
-    });
-  });
-};
 
 
-//根据学校名称查找学校编码
-const searchCode = async (name) => {
-  let codeInfo = await getSchoolCodeInfo(name);
-  let codeInfoResult = codeInfo.data;
-  if (!codeInfoResult.success) {
-    ElNotification({
-      message: codeInfoResult.msg,
-      type: "warning",
-      duration: 3000
-    });
-    return;
-  } else if (codeInfoResult.data === null) {
-    ElNotification({
-      message: "无法查询到该学校，请重新输入",
-      type: "warning",
-      duration: 3000
-    });
-    ruleForm.school_code = "";
-    return;
-  }
-  ruleForm.school_code = codeInfoResult.data[0].school_code;
-  ruleForm.school_name = codeInfoResult.data[0].school_name;
-};
-const getXtList = async (a) => {
-  xtOptions.value = [];
-  let schoolInfo = await getSchoolInfo(a);
-  let searchInfoResult = schoolInfo.data.data;
-  console.log("searchInfoResult", searchInfoResult[0]);
-  if (searchInfoResult[0].xt === null) {
-    xtOptions.value = [];
-    return;
-  }
-  searchInfoResult.forEach(item => {
-    xtOptions.value.push({
-      label: item.xt,
-      value: item.xt
-    });
-  });
-};
-//xt 下拉optionList
-const xtOptions = ref([]);
+
+
+
 watch(() => ruleForm.school_code, async (a) => {
   await getXtList(a);
 });
