@@ -129,7 +129,7 @@
 
           </el-form-item>
         </el-col>
-        <el-col :span="12">
+        <el-col :span="12" v-show="downloadFileList.length!==0">
           <h4>已上传文件列表</h4>
           <van-row>
             <div style="display: flex;align-items: center;justify-items: flex-start;margin-top: 10px;" v-for="item in downloadFileList" @click="download(item)">
