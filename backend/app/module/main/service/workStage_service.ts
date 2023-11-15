@@ -62,23 +62,31 @@ export class workStage_service {
         }
     }
 
-    async getList(search: string, page: number, pageSize: number): Promise<any> {
+    async getList(search: string, page: number, pageSize: number,owner:string): Promise<any> {
         let where = '';
         let whereParam = '';
-        if (search == '' || search == null) {
-            where = ' 1=1 '
-        } else {
-            where = ' title like :where1 OR xt like :where1 OR school_name like :where1';
+        let whereParam2 = '';
+        if (search==''||search==null){
+            if (owner==''||owner==null){
+                where = ' 1=1 '
+            }else {
+                where = 'process_people = :where2'
+            }
+            whereParam2 = owner
+        }else {
+            if (owner==''||owner==null){
+                where = '  title like :where1 OR xt like :where1 OR school_name like :where1 ';
+            }else {
+                where = ' (title like :where1 OR xt like :where1 OR school_name like :where1) AND process_people = :where2';
+            }
             whereParam = search;
         }
 
         let sqlForCount = `SELECT 
                             count(*) as count
                             FROM work 
-                            WHERE
-                                ${where}`
+                            WHERE ${where}`
         let sqlForSearch = `SELECT 
-
                            title,
                            id,
                            school_code,
@@ -101,14 +109,19 @@ export class workStage_service {
                              LIMIT :limit1,:limit2`
         const countObj = await this.mysql.query(sqlForCount, {
             where1: '%' + whereParam + '%',
+            where2: whereParam2 ,
         });
         const result = await this.mysql.query(sqlForSearch, {
             limit1: (page - 1) * pageSize,
             limit2: pageSize,
             where1: '%' + whereParam + '%',
+            where2: whereParam2 ,
+
         });
         if (result.length > 0) {
+            console.log('gggggggggggg',sqlForSearch)
             return { array: result, count: countObj[0].count };
+
         }
         return null
     }
@@ -129,4 +142,5 @@ export interface getWorkList {
     search: string;
     page: number;
     pageSize: number;
+    owner:string;
 }

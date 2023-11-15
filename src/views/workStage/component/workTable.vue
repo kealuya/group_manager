@@ -1,9 +1,9 @@
 <template>
   <div class="m-user-table">
     <div class="card-right-header">
-      <el-button type="primary" @click="addProgram">+项目</el-button>
+      <el-button type="primary" @click="addProgram()">+项目</el-button>
       <el-form :inline="true" :model="formInline" ref="ruleFormRef">
-        <el-form-item label="用户名" prop="searchValue">
+        <el-form-item label="搜索" prop="searchValue">
           <el-input v-model="formInline.searchValue" placeholder="请输入搜索内容" />
         </el-form-item>
         <el-form-item>
@@ -46,10 +46,10 @@
                            label="备注" align="center" />
           <el-table-column prop="operator" label="操作" width="180" align="center" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" v-show="scope.row.status===0" icon="Edit" @click="editHandler(scope.row)">
+              <el-button type="primary" size="small" v-show="scope.row.status===0&&userInfo.code===scope.row.process_people" icon="Edit" @click="editHandler(scope.row,'edit')">
                 编辑
               </el-button>
-              <el-button type="success" size="small" v-show="scope.row.status===1"  icon="View" @click="editHandler(scope.row)">
+              <el-button type="success" size="small" v-show="scope.row.status===1||(scope.row.status===0&&userInfo.code!==scope.row.process_people)"  icon="View" @click="editHandler(scope.row,'detail')">
                 详情
               </el-button>
               <el-button @click="del(scope.row)" type="danger" size="small" icon="Delete">
@@ -71,14 +71,17 @@
 
 <script lang="ts" setup>
 import AddDialog from "@/views/workStage/component/addDialog.vue";
-import { onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
 import { deleteProgram } from "@/api/workStage";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
 import { Search } from "@element-plus/icons-vue";
+import { useUserStore } from "@/store/modules/user";
 
-
+//获取当前用户信息
+const UserStore = useUserStore();
+const userInfo = computed(() => UserStore.userInfo);
 
 //table
 const loading = ref(true);
@@ -90,8 +93,9 @@ const tableData: WorkInfo[] = reactive([]);
 const commonStore = useCommonStore();
 // store调用，并更改页面数据的正确使用方案
 const { schoolWorkState } = storeToRefs(commonStore);
-const getList = async (search, page, pageSize) => {
-  let processResult = await commonStore.getSchoolWorkState(search, page, pageSize);
+const { selectedOwner } = storeToRefs(commonStore);
+const getList = async (search, page, pageSize,owner) => {
+  let processResult = await commonStore.getSchoolWorkState(search, page, pageSize,owner);
   if (!processResult) {
     loading.value = false;
     return;
@@ -105,8 +109,10 @@ const getList = async (search, page, pageSize) => {
 
 
 //添加项目
+const { clickStatus } = storeToRefs(commonStore);
 const addDialogRef = ref();
 const addProgram = () => {
+  clickStatus.value = 'add'
   addDialogRef.value.show();
 };
 
@@ -117,13 +123,13 @@ const searchValue = ref<string>("");
 const ruleFormRef = ref<FormInstance>();
 const onSubmit = () => {
   loading.value = true;
-  getList(formInline["searchValue"], currentPage.value, pageSize.value);
+  getList(formInline["searchValue"], currentPage.value, pageSize.value,selectedOwner.value);
   loading.value = false;
 };
 const reset = (formEl: FormInstance | undefined) => {
   formInline["searchValue"] = "";
   loading.value = true;
-  getList("", currentPage.value, pageSize.value);
+  getList("", currentPage.value, pageSize.value,selectedOwner.value);
   loading.value = false;
 };
 
@@ -132,7 +138,8 @@ const reset = (formEl: FormInstance | undefined) => {
 
 //table功能部分
 //编辑
-const editHandler = (row) => {
+const editHandler = (row,value) => {
+  clickStatus.value = value
   addDialogRef.value.show(row);
 };
 //删除
@@ -160,7 +167,7 @@ const del = async (row) => {
       type: "success",
       message: "删除成功"
     });
-    await getList("", currentPage.value, pageSize.value);
+    await getList("", currentPage.value, pageSize.value,selectedOwner.value);
 
   } catch (e) {
     // cancel的场合
@@ -176,6 +183,7 @@ const del = async (row) => {
 const { updateTableValue } = storeToRefs(commonStore);
 const { selectedSchoolName } = storeToRefs(commonStore);
 watch(() => updateTableValue.value, () => {
+  console.log("77777",selectedSchoolName)
   formInline["searchValue"] = selectedSchoolName;
   onSubmit();
 });
@@ -184,13 +192,14 @@ watch(() => updateTableValue.value, () => {
 watchEffect(
   async () => {
     loading.value = true;
-    await getList(formInline["searchValue"], currentPage.value, pageSize.value);
+    await getList(formInline["searchValue"], currentPage.value, pageSize.value,selectedOwner.value);
     loading.value = false;
   }
 );
 
 onMounted(() => {
-  getList("", currentPage.value, pageSize.value);
+  // formInline["searchValue"] = userInfo.value.code
+  getList(formInline["searchValue"], currentPage.value, pageSize.value,userInfo.value.code);
   loading.value = false;
 
 });

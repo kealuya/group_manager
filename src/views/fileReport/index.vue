@@ -377,6 +377,7 @@ const uploadModalMode = ref<String>();
 const fileUpdate = (type: UPLOAD_MODAL_MODE, item?: DocFile) => {
   if (type == UPLOAD_MODAL_MODE.NEW) {
     selectFile.value = { proId: projectId } as DocFile;
+    console.log('新建文档selectFile.value',selectFile.value)
     uploadModalMode.value = UPLOAD_MODAL_MODE.NEW;
   } else if (type == UPLOAD_MODAL_MODE.UPLOAD) {
     selectFile.value = { ...item!, "proId": projectId };

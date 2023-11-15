@@ -3,8 +3,7 @@
              v-model="dialogVisible" width="50%" style="height: 600px;overflow-y: scroll;position: relative" center>
     <template #header>
       <div>
-        <el-input :disabled="ruleForm.status===1" v-model="ruleForm.title" type="text" placeholder="请输入问题简述" />
-
+        <el-input :disabled="clickStatus==='detail'" v-model="ruleForm.title" type="text" placeholder="请输入问题简述" />
       </div>
     </template>
     <el-form
@@ -12,8 +11,10 @@
       :model="ruleForm"
       :rules="rules"
       label-width="100px"
-      :disabled="ruleForm.status===1"
+      :disabled="clickStatus==='detail'"
+
     >
+      <!--      ruleForm.process_people!==userInfo.code||ruleForm.status===1-->
       <el-row>
         <el-col :span="12">
           <el-form-item label="学校名称" prop="school_name">
@@ -104,8 +105,8 @@
                       placeholder="备注" />
           </el-form-item>
         </el-col>
-        <el-col :span="12" v-show="ruleForm.status===0">
-          <el-form-item prop="file">
+        <el-col :span="12" v-show="clickStatus!=='detail'">
+          <el-form-item prop="fileList">
             <el-upload
               ref="uploadRef"
               class="upload-demo"
@@ -141,20 +142,15 @@
       </el-row>
       <el-row>
         <el-form-item prop="content">
-          <QuillEditor style="width: 100%;" content-type="html" :readOnly="quillReadOnlyValue"
+          <QuillEditor style="width: 100%;max-height: 200px" content-type="html" :readOnly="quillReadOnlyValue"
                        v-model:content="ruleForm.content" theme="snow" :options="editorOption" />
         </el-form-item>
       </el-row>
-
-
-
-
-
     </el-form>
 
     <div style="height: 30px;"></div>
     <template #footer>
-      <div class="dialog-footer" style="padding-top: 50px" v-show="ruleForm.status===0">
+      <div class="dialog-footer" style="padding-top: 50px"  v-show="clickStatus!=='detail'">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleClose(ruleFormRef)">确定</el-button>
       </div>
@@ -165,7 +161,7 @@
 <script lang="ts" setup>
 import { UploadFilled } from "@element-plus/icons-vue";
 import { ElMessage, FormInstance, ElNotification } from "element-plus";
-import { computed, reactive, ref, watch } from "vue";
+import { computed, onMounted, reactive, ref, watch } from "vue";
 import { QuillEditor } from "@vueup/vue-quill";
 import { getSchoolCodeInfo, getSchoolInfo } from "@/api/schoolList";
 import type { UploadUserFile } from "element-plus";
@@ -183,6 +179,7 @@ import IconZip from "@/assets/fileReport/icon-zip.png";
 import IconRar from "@/assets/fileReport/icon-rar.png";
 import IconImage from "@/assets/fileReport/icon-image.png";
 import IconNone from "@/assets/fileReport/icon-none.png";
+import { storeToRefs } from "pinia";
 
 
 const dialogVisible = ref<boolean>(false);
@@ -202,7 +199,7 @@ const ruleForm = reactive({
   priority: "紧急",
   process_people: null,
   program_type: "bug",
-  status: true,
+  status: '0',
   remark: null,
   create_time: parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}"),
   content: ref(""),
@@ -348,49 +345,58 @@ let editorOption = {
 };
 
 
-const ellipsisRow = (value)=>{
-  if (!value) return ''
-  if (value.length > 8) {
-    return value.slice(0, 8) + '...'
-  }
-  return value
-}
-
 
 //打开或关闭模态窗的初始化以及清空部分
 const submitType = ref("add");
+const commonStore = useCommonStore();
+const { clickStatus } = storeToRefs(commonStore);
 const show = (item = {}) => {
   if (item["title"]) {
+    submitType.value = "edit";
     Object.keys(item).forEach(key => {
       ruleForm[key] = item[key];
       if (ruleForm[key]!==null && key === "fileList") {
-
         let e = JSON.parse(ruleForm[key]);
         downloadFileList.push(...e);
       }
     });
-    submitType.value = "edit";
+    dialogVisible.value = true;
+  }else {
+    submitType.value = "add";
+    dialogVisible.value = true;
   }
-  dialogVisible.value = true;
+
+
 };
+
 function close() {
   ruleFormRef.value.resetFields();
   uploadFileList.value =[];
   downloadFileList.length=0
   Object.keys(ruleForm).forEach(key => {
-    if (key === "priority") ruleForm[key] = "紧急";
-    else if (key === "status") ruleForm[key] = true;
-    else if (key === "create_people") ruleForm[key] = userInfo.value.name;
-    else if (key === "program_type") ruleForm[key] = "bug";
-    else if (key === "create_time") ruleForm[key] = parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}");
-    else ruleForm[key] = null;
+    switch (key) {
+      case "priority":
+        return ruleForm[key] = "紧急"
+      case "status":
+        return ruleForm[key] = '0'
+      case "create_people":
+        return ruleForm[key] = userInfo.value.name
+      case "program_type":
+        return ruleForm[key] = "bug"
+      case "create_time":
+        return ruleForm[key] = parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}")
+      case "content":
+        return ruleForm[key] = " "
+      default:
+        return ruleForm[key] = null
+    }
   });
 }
 
 
 
 //提交
-const commonStore = useCommonStore();
+
 const handleClose = async (done: () => void) => {
   if (!ruleForm.title) {
     ElMessage({
@@ -468,6 +474,7 @@ watch(() => ruleForm.school_code, async (a) => {
 defineExpose({
   show
 });
+
 
 </script>
 <style lang="scss" scoped>

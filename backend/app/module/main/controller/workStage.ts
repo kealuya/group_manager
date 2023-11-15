@@ -142,6 +142,10 @@ export class workStageController {
             pageSize:{
                 required: true,
                 type: "number"
+            },
+            owner:{
+                required:false,
+                type:"string"
             }
         }
         const result = this.validator.validate(rule,body)
@@ -151,10 +155,10 @@ export class workStageController {
             ng.data = result;
             return ng
         }
-        const { search,page,pageSize } = body;
+        const { search,page,pageSize,owner } = body;
         let workList
         try {
-            workList = await this.workStageService.getList(search,page,pageSize);
+            workList = await this.workStageService.getList(search,page,pageSize,owner);
         } catch (e) {
             console.log(e)
             ng.msg = '提交信息异常'
@@ -181,4 +185,5 @@ export interface workListParam {
     search:string;
     page:number;
     pageSize:number;
+    owner:string;
 }

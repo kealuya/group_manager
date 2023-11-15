@@ -13,48 +13,67 @@
         <el-checkbox class="checkbox" v-model="isOwner" label="本人负责" size="large" @change="isOwnerChange" />
       </div>
     </template>
-    <el-scrollbar height="80%" class="scrollbar">
+<!--    <el-scrollbar height="550px" class="scrollbar">-->
+    <div style="overflow-y: scroll;height: 570px;" >
       <div v-for="item in listData" :key="item.school_code" class="item"
            @click="chooseSchool(item.school_code,item.school_name)">
         {{ item.school_name }}
       </div>
-    </el-scrollbar>
+    </div>
+
+<!--    </el-scrollbar>-->
   </el-card>
 </template>
 
 <script lang="ts" setup>
 
-import { defineEmits, onMounted, ref, watch } from "vue";
+import { computed, defineEmits, onMounted, ref, watch } from "vue";
 import { getSchoolList1 } from "@/api/schoolList";
 import { useUserStore } from "@/store/modules/user";
 import { toRaw } from "@vue/reactivity";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
 
-const inputForSearch = ref("");
-const isOwner = ref(true);
+
+
+const inputForSearch = ref("");// input搜索框绑定值
+
+
 const listData = ref([]);
-let listDataCopy = [];
-const userStore = ref({});
-const emit = defineEmits(["getSchool"]);
+let listDataCopy = [];//暂存数组
 const commonStore = useCommonStore();
 const { updateListValue } = storeToRefs(commonStore);
-
 const getList = async () => {
+  // 获取个人信息
   const userStore = useUserStore();
   const userInfo = toRaw(userStore.userInfo);
+
   let e = await getSchoolList1(userInfo.code, isOwner.value);
   listData.value = e.data.data;
   listDataCopy = toRaw(listData.value);
+  //传递学校管理首个展示项
   commonStore.schoolListFirstCode = listData.value[0].school_code;
   commonStore.schoolListFirstName = listData.value[0].school_name;
 };
+//获取当前用户信息
+const UserStore = useUserStore();
+const userInfo = computed(() => UserStore.userInfo);
+const { selectedOwner } = storeToRefs(commonStore);
 
+const isOwner = ref(true);
+const isOwnerChange = () => {
+  inputForSearch.value = "";
+  commonStore.selectedSchoolCode = ''
+  commonStore.selectedSchoolName=''
+  selectedOwner.value = isOwner.value===true?userInfo.value.code:""
+  commonStore.updateTable();
+  getList();
+
+};
 const chooseSchool = (code, name) => {
-
   commonStore.selectedSchoolCode = code;
   commonStore.selectedSchoolName = name;
-  commonStore.updateTable()
+  commonStore.updateTable()//更新工作台table
 };
 watch(() => updateListValue.value, () => {
   getList();
@@ -67,7 +86,6 @@ watch(() => inputForSearch.value, () => {
   }
 
   const matchValueList = listDataCopy.find((value, index) => {
-    console.log(value);
     if (value.school_name.indexOf(inputForSearch.value) >= 0) {
       console.log(inputForSearch.value);
       return true;
@@ -84,10 +102,7 @@ watch(() => inputForSearch.value, () => {
 
 });
 
-const isOwnerChange = () => {
-  inputForSearch.value = "";
-  getList();
-};
+
 
 onMounted(() => {
   getList();

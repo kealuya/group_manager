@@ -11,23 +11,25 @@ export const useCommonStore = defineStore({
         // 当前选中高校
         selectedSchoolName: "",
         selectedSchoolCode: "",
+        selectedOwner:"",
         updateListValue: false,
         schoolListFirstCode: "",
         schoolListFirstName: "",
         updateTableValue: false,
+        clickStatus:'',
         schoolWorkState: { array: [], count: 0 }
     }),
     getters: {},
     // 可以同步 也可以异步
     actions: {
         updateList() {
-            this.updateListValue = !this.updateListValue;
+            this.updateListValue = !this.updateListValue;//更新左侧school list
         },
         updateTable() {
             this.updateTableValue = !this.updateTableValue;
         },
-        async getSchoolWorkState(search, page, pageSize): Promise<boolean> {
-            let workList = await getWorkList(search, page, pageSize);
+        async getSchoolWorkState(search, page, pageSize,owner): Promise<boolean> {
+            let workList = await getWorkList(search, page, pageSize,owner);
             let result = workList.data;
             if (!result.success) {
                 ElMessage({

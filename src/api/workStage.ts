@@ -27,14 +27,15 @@ export function deleteProgram(id) {
     }
   });
 }
-export function getWorkList(search,page,pageSize) {
+export function getWorkList(search,page,pageSize,owner) {
   return request({
     url: "/work/getList",
     method: "post",
     data: {
       search: search,
       page:page,
-      pageSize:pageSize
+      pageSize:pageSize,
+      owner:owner
     }
   });
 }

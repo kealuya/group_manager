@@ -29,17 +29,17 @@ export const asyncRoutes = [
     ...schoolManage,
     ...fileReport,
     ...systemSetting,
-    ...dataScreenRouter,
-    ...echartsRouter,
-    ...tableRouter,
-    ...formRouter,
-    ...othersRouter,
-    ...functionPageRouter,
-    ...chatRouter,
-    ...nestedRouter,
-    ...excelRouter,
-    ...externalLink,
-    ...systemRouter
+    // ...dataScreenRouter,
+    // ...echartsRouter,
+    // ...tableRouter,
+    // ...formRouter,
+    // ...othersRouter,
+    // ...functionPageRouter,
+    // ...chatRouter,
+    // ...nestedRouter,
+    // ...excelRouter,
+    // ...externalLink,
+    // ...systemRouter
 ];
 
 /**

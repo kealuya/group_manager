@@ -14,7 +14,7 @@
             <div class="avatar">
               <el-avatar :size="100" :src="AvatarLogo" />
             </div>
-            <div class="name">张琦</div>
+            <div class="name">{{userInfo.name}}</div>
             <div class="description"></div>
             <el-row class="number-row">
               <el-col :span="11">
@@ -31,8 +31,8 @@
               <div>工号：1634</div>
               <div>职业：前端</div>
               <div>公司：浩天教育</div>
-              <div>年龄：18</div>
-              <div>性别：女</div>
+              <div>年龄：28</div>
+              <div>性别：男</div>
               <div>邮箱：1135957121@qq.com</div>
               <div>微信：19550102670(欢迎加微信入群)</div>
               <div>技术栈：JavaScript、HTML、CSS、Vue、Node、React</div>
@@ -191,15 +191,20 @@
 </template>
 <script setup lang="ts">
 import { User } from "@element-plus/icons-vue";
-import { ref } from "vue";
+import { ref,computed } from "vue";
 import AvatarLogo from "@/assets/image/avatar.png";
 import weLogo from "@/assets/image/we.png";
 import CountTo from "@/components/CountTo/index.vue";
 import BarCharts from "@/views/echarts/simple/components/bar.vue";
-
+import { useUserStore } from "@/store/modules/user";
 const goTo = (url) => {
   window.open(url, "_blank");
 };
+
+
+//获取当前用户信息
+const UserStore = useUserStore();
+const userInfo = computed(() => UserStore.userInfo);
 </script>
 
 <style scoped lang="scss">
