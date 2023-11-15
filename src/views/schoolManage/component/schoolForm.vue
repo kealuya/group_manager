@@ -124,8 +124,9 @@
         <el-form-item label="备注" prop="remark">
           <el-input v-model="ruleFormAdd.remark" type="textarea" />
         </el-form-item>
-      </el-form>
-      <template #footer>
+
+
+        <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button @click="resetForm(ruleFormRefAdd)">重置</el-button>
@@ -133,7 +134,11 @@
           确认提交
         </el-button>
       </span>
-      </template>
+        </template>
+
+
+      </el-form>
+
     </el-dialog>
 
     <el-main class="form-body" v-loading="loading">
@@ -149,7 +154,7 @@
                 class="demo-ruleForm"
                 :size="formSize"
               >
-                <el-form-item label="主负责人" prop="fzr1">
+                <el-form-item label="主负责人" prop="fzr1" required>
                   <el-select v-model="item.fzr1" filterable placeholder="请选择主负责人">
                     <el-option
                       v-for="item in userOptions"
@@ -169,7 +174,7 @@
                     />
                   </el-select>
                 </el-form-item>
-                <el-form-item label="系统" prop="xt">
+                <el-form-item label="系统" prop="xt" required>
                   <el-input clearable v-model="item.xt" />
                 </el-form-item>
                 <el-form-item label="建设阶段" prop="buildStage">
@@ -270,48 +275,17 @@ const ruleFormRefAdd = ref<FormInstance>();
 const ruleFormRef = ref<FormInstance>();
 const rules = reactive({
   fzr1: [
-    { required: false, message: "请输入主负责人名称", trigger: "blur" },
+    { required: true, message: "请输入主负责人名称", trigger: "blur" },
     { min: 1, max: 5, message: "长度在 1 到 5 个字符", trigger: "blur" }
   ],
   school_name: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
   school_code: [{ required: true, message: "请输入学校编码", trigger: "blur" }],
   xt: [{ required: true, message: "请填写系统名称", trigger: "blur" }],
-  buildStage: [
-    {
-      required: false,
-      message: "请选择建设阶段",
-      trigger: "change"
-    }
-  ],
-  service: [{
-    required: false,
-    message: "请选择服务商",
-    trigger: "change"
-  }],
-  fwsxy_start_date: [
-    {
-      type: "date",
-      required: false,
-      message: "请选择时间",
-      trigger: "change"
-    }
-  ],
-  fwsxy_end_date: [
-    {
-      type: "date",
-      required: false,
-      message: "请选择时间",
-      trigger: "change"
-    }
-  ],
-  create_date: [
-    {
-      type: "date",
-      required: false,
-      message: "请选择时间",
-      trigger: "change"
-    }
-  ],
+  buildStage: [{ required: false, message: "请选择建设阶段", trigger: "change" }],
+  service: [{ required: false, message: "请选择服务商", trigger: "change" }],
+  fwsxy_start_date: [{ type: "date", required: false, message: "请选择时间", trigger: "change" }],
+  fwsxy_end_date: [{ type: "date", required: false, message: "请选择时间", trigger: "change" }],
+  create_date: [{ type: "date", required: false, message: "请选择时间", trigger: "change" }],
   remark: [{ required: false, message: "请填写备注", trigger: "blur" }]
 });
 
@@ -425,31 +399,32 @@ const addOne = async () => {
     service: "",
     xt: ""
   });
-  console.log("ruleForm.value", ruleForm.value);
 };
 //编辑已有数据提交
 const submitForm = async (formEl: FormInstance | undefined) => {
-  loading.value = true
-  if (!formEl) {
-    loading.value = false;
-    return;
-  } else {
-    let b = await editSchoolInfo(ruleForm.value, selectedSchoolCode.value);
-    console.log("bbbbbbbbbb", b);
-    if (b.data.success) {
-      ElMessage({
-        type: "success",
-        message: "提交成功"
-      });
 
-    } else {
-      ElMessage({
-        type: "error",
-        message: "提交失败"
-      });
+  if (!formEl) return;
+  await formEl.validate(async (valid,field)=>{
+    if (valid){
+      loading.value = true
+      let b = await editSchoolInfo(ruleForm.value, selectedSchoolCode.value);
+      if (b.data.success) {
+        ElMessage({
+          type: "success",
+          message: "提交成功"
+        });
+
+      } else {
+        ElMessage({
+          type: "error",
+          message: "提交失败"
+        });
+      }
+      loading.value = false
+    }else {
+      console.log('error submit!', field)
     }
-    loading.value = false
-  }
+  })
 };
 //重置
 const resetForm = (formEl: FormInstance | undefined) => {
