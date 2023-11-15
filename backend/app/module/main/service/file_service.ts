@@ -39,7 +39,7 @@ export class FileService {
         });
 
         if (resultForUpdateFile.affectedRows != 1) {
-            console.log("resultForUpdateFile.affectedRows!=1");
+            this.logger.error("resultForUpdateFile.affectedRows!=1");
             // 业务异常，通过throw传达给父类统一处理
             throw new Error("resultForUpdateFile.affectedRows!=1 ::" + JSON.stringify(docFile));
         }
@@ -133,7 +133,7 @@ export class FileService {
                     LEFT JOIN user u2 ON f.update_user_id = u2.code 
                 WHERE
                     doc.is_discard = 'false' 
-                    AND doc.is_release = 'true' 
+                    -- AND doc.is_release = 'true'  对外发布：自己能看到，别人看不到
                     ${where}
          `;
 
@@ -158,7 +158,7 @@ export class FileService {
                     LEFT JOIN user u2 ON f.update_user_id = u2.code 
                 WHERE
                     doc.is_discard = 'false' 
-                    AND doc.is_release = 'true' 
+                    -- AND doc.is_release = 'true'  对外发布：自己能看到，别人看不到
                     ${where}
                 ORDER BY
                     ${orderBy}
@@ -182,6 +182,29 @@ export class FileService {
         }
 
         return null;
+    }
+
+
+    async updateAuthorityDocHandler(docFile: DocFile): Promise<any> {
+
+        // file处理
+        const resultForUpdateAuthorityDoc = await this.mysql.update("doc", {
+            is_release: docFile.isRelease,
+            is_owner_edit: docFile.isOwnerEdit,
+            doc_name: docFile.docName
+        }, {
+            where: {
+                doc_id: docFile.docId
+            }
+        });
+
+        if (resultForUpdateAuthorityDoc.affectedRows != 1) {
+            this.logger.error("resultForUpdateAuthorityDoc.affectedRows!=1");
+            // 业务异常，通过throw传达给父类统一处理
+            throw new Error("resultForUpdateAuthorityDoc.affectedRows!=1 ::" + JSON.stringify(docFile));
+        }
+
+
     }
 }
 

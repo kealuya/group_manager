@@ -23,6 +23,10 @@ export class FileController {
     })
     async uploadFile(@Context() ctx, @HTTPBody() body: any): Promise<ControllerResponse> {
         // json数据获取
+
+        let fileNameArray: Array<string> = [];
+        fileNameArray.push("ddd");
+
         console.log(body);
         console.log("got %d files", ctx.request.files.length);
         // 修改实际路径
@@ -55,7 +59,7 @@ export class FileController {
             console.log(result);
         }
 
-        let cr = helper.makeControllerResponse(null);
+        let cr = helper.makeControllerResponse({ fileNameArray });
         // 业务错误处理
         return cr;
     }
@@ -82,7 +86,7 @@ export class FileController {
 
 
     /*
-      查询文件
+      文件更新
      */
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
@@ -107,7 +111,7 @@ export class FileController {
 
 
     /*
-      查询文件
+      文件新建
      */
     @HTTPMethod({
         method: HTTPMethodEnum.POST,
@@ -124,6 +128,32 @@ export class FileController {
         } catch (e) {
             cr.msg = "创建文档发生错误";
             cr.success = false;
+        }
+
+        // 业务错误处理
+        return cr;
+    }
+
+
+    /*
+      文件权限更新
+     */
+    @HTTPMethod({
+        method: HTTPMethodEnum.POST,
+        path: "/updateAuthorityDoc"
+    })
+    async updateAuthorityDoc(@Context() ctx, @HTTPBody() body: DocFile): Promise<ControllerResponse> {
+        console.log("用户:", ctx.session.userInfo);
+        this.logger.info(body);
+        console.log(body);
+        let cr = helper.makeControllerResponse(null);
+        // DocFile 处理
+        try {
+            await this.fileService.updateAuthorityDocHandler(body);
+        } catch (e) {
+            cr.msg = "更新文档权限发生错误";
+            cr.success = false;
+            this.logger.error("updateAuthorityDoc发生错误::", e, JSON.stringify(body));
         }
 
         // 业务错误处理

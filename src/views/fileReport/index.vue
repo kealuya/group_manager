@@ -151,13 +151,13 @@
       <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage" :page-count="pageCount" />
     </div>
 
-<!--ref用来获取上传文件列表，multipe多传，禁止自动上传-->
+    <!--ref用来获取上传文件列表，multipe多传，禁止自动上传-->
     <el-upload
       ref="uploadRef"
       class="upload-demo"
       multiple
       :auto-upload="false"
-      v-model:file-list="fileList"
+      v-model:file-list="uploadFileList"
     >
       <template #trigger>
         <el-button type="primary">select file</el-button>
@@ -187,7 +187,7 @@
 
 <script lang="ts" setup>
 
-import type { UploadInstance, UploadUserFile } from "element-plus";
+import type { UploadUserFile } from "element-plus";
 // @ts-ignore
 import { ArrowDown, Search } from "@element-plus/icons-vue";
 import { onMounted, reactive, ref, watchEffect } from "vue";
@@ -224,19 +224,26 @@ import IconNone from "@/assets/fileReport/icon-none.png";
 import IconNewFile from "@/assets/fileReport/icon-new-file.png";
 import { makeArrayObjHumpToLine } from "@/utils";
 
-const fileList = ref<UploadUserFile[]>();
+const uploadFileList = ref<UploadUserFile[]>();
+
+const downloadFileList = reactive([]);
+const moniFilelist = "[11,22]";
+let arrayFilelist = JSON.parse(moniFilelist);
+downloadFileList.push(...arrayFilelist);
+
 
 const submitUpload = async () => {
   // FormData模式可以同时上传数据与文件，一次性
   let fd = new FormData();
   fd.set("dd", "333");
   // 统一获取，一次性上传，且可控，配合页面其他数据提交
-  fileList.value.map((file) => {
+  uploadFileList.value.map((file) => {
     fd.append("files", file.raw);
   });
   let d = await uploadFile(fd);
-  console.log(d)
+  console.log(d);
 };
+
 
 type  ParamObject = { [key: string]: string }
 
@@ -404,7 +411,7 @@ const fileDiscard = (item: DocFile) => {
 };
 
 const authoritySuccess = () => {
-  console.log("权限");
+  console.log("权限更新成功");
   updateSuccess();
 };
 const authorityModalDialogVisible = ref(false);

@@ -26,7 +26,7 @@
         <div>修改文档名称</div>
         <div style="display: flex;align-items: center;justify-content: start">
           <div>文档名称：</div>
-          <el-input v-model="item.docName" size="small" style=";width: 450px" />
+          <el-input ref="docNameInputRef" v-model="item.docName" size="small" style=";width: 450px" />
         </div>
       </div>
 
@@ -41,7 +41,7 @@
 </template>
 
 <script lang="ts" setup>
-import { computed, WritableComputedRef } from "vue";
+import { computed, ref, WritableComputedRef } from "vue";
 import { callAuthorityDoc } from "@/api/fileReport/doc";
 import { ElMessage } from "element-plus";
 import { ElLoading, ElMessageBox } from "element-plus/es";
@@ -66,30 +66,42 @@ const isDialogShow: WritableComputedRef<boolean> = computed({
 // ==============================================================================
 
 
-const changeIt = () => {
-  const loadingFlg = ElLoading.service({
-    lock: true,
-    text: "正在上传",
-    background: "rgba(0, 0, 0, 0.7)"
-  });
+const docNameInputRef = ref(null);
+const changeIt = async () => {
+
   let myFile: DocFile = props.item;
 
-  callAuthorityDoc(myFile).then((res) => {
-    if (res.success) {
-      // 关闭加载
-      loadingFlg.close();
-      ElMessage.success("更新成功");
-      // 上传成功,考虑只是通知上一个页面刷新...
-      emit("authoritySuccess");
-      isDialogShow.value = false;
-    } else {
-      ElMessageBox.alert(res.msg, "提示", {
-        confirmButtonText: "好的",
-        callback: () => {
-        }
-      });
-    }
+  if (myFile.docName.trim() === "") {
+    ElMessage.warning("文档名称不能为空");
+    docNameInputRef.value.focus();
+    return;
+  }
+
+  const loadingFlg = ElLoading.service({
+    lock: true,
+    text: "权限更新",
+    background: "rgba(0, 0, 0, 0.7)"
   });
+
+
+  let response = await callAuthorityDoc(myFile);
+  const callAuthorityDocResp: BackendData<any> = response.data;
+  if (callAuthorityDocResp.success) {
+    // 关闭加载
+    loadingFlg.close();
+    ElMessage.success("更新文档权限成功");
+    // 上传成功,考虑只是通知上一个页面刷新...
+    emit("authoritySuccess");
+    isDialogShow.value = false;
+  } else {
+    await ElMessageBox.alert(callAuthorityDocResp.msg, "提示", {
+      confirmButtonText: "好的",
+      callback: () => {
+      }
+    });
+  }
+  // 关闭加载
+  loadingFlg.close();
 
 
 };
