@@ -46,10 +46,10 @@
                            label="备注" align="center" />
           <el-table-column prop="operator" label="操作" width="180" align="center" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" v-show="scope.row.status===0&&userInfo.code===scope.row.process_people" icon="Edit" @click="editHandler(scope.row,'edit')">
+              <el-button type="primary" size="small" v-show="scope.row.status===0&&(userInfo.code===scope.row.process_people||userInfo.name===scope.row.process_people)" icon="Edit" @click="editHandler(scope.row,'edit')">
                 编辑
               </el-button>
-              <el-button type="success" size="small" v-show="scope.row.status===1||(scope.row.status===0&&userInfo.code!==scope.row.process_people)"  icon="View" @click="editHandler(scope.row,'detail')">
+              <el-button type="success" size="small" v-show="scope.row.status===1||(userInfo.code!==scope.row.process_people&&userInfo.name!==scope.row.process_people)"  icon="View" @click="editHandler(scope.row,'detail')">
                 详情
               </el-button>
               <el-button @click="del(scope.row)" type="danger" size="small" icon="Delete">
@@ -102,7 +102,7 @@ const getList = async (search, page, pageSize,owner) => {
   }
   pageCount.value = Math.ceil(schoolWorkState.value.count / pageSize);
   loading.value = false;
-  console.log('schoolWorkState.array',schoolWorkState.value)
+
 };
 
 
@@ -124,6 +124,7 @@ const ruleFormRef = ref<FormInstance>();
 const onSubmit = () => {
   loading.value = true;
   getList(formInline["searchValue"], currentPage.value, pageSize.value,selectedOwner.value);
+  commonStore.updateTable();
   loading.value = false;
 };
 const reset = (formEl: FormInstance | undefined) => {
@@ -183,7 +184,6 @@ const del = async (row) => {
 const { updateTableValue } = storeToRefs(commonStore);
 const { selectedSchoolName } = storeToRefs(commonStore);
 watch(() => updateTableValue.value, () => {
-  console.log("77777",selectedSchoolName)
   formInline["searchValue"] = selectedSchoolName;
   onSubmit();
 });

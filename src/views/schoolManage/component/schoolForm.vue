@@ -69,7 +69,7 @@
           </el-select>
         </el-form-item>
         <el-form-item label="系统" prop="xt" required>
-          <el-input clearable v-model="ruleFormAdd.xt" />
+          <el-input clearable v-model="ruleFormAdd.xt" type="text" maxlength="10" show-word-limit />
         </el-form-item>
         <el-form-item label="建设阶段" prop="buildStage">
           <el-select v-model="ruleFormAdd.buildStage" placeholder="建设阶段">
@@ -93,10 +93,10 @@
               />
             </el-form-item>
           </el-col>
-          <el-col class="text-center" :span="2" >
+          <el-col class="text-center" :span="2">
             <span class="text-gray-500">-</span>
           </el-col>
-          <el-col :span="11" >
+          <el-col :span="11">
             <el-form-item prop="fwsxy_end_date">
               <el-date-picker
                 v-model="ruleFormAdd.fwsxy_end_date"
@@ -126,7 +126,11 @@
         </el-form-item>
 
 
-        <template #footer>
+
+
+
+      </el-form>
+      <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button @click="resetForm(ruleFormRefAdd)">重置</el-button>
@@ -134,11 +138,7 @@
           确认提交
         </el-button>
       </span>
-        </template>
-
-
-      </el-form>
-
+      </template>
     </el-dialog>
 
     <el-main class="form-body" v-loading="loading">
@@ -148,7 +148,7 @@
             <el-card>
               <el-form
                 ref="ruleFormRef"
-                :model="ruleForm"
+                :model="item"
                 :rules="rules"
                 label-width="100px"
                 class="demo-ruleForm"
@@ -175,7 +175,7 @@
                   </el-select>
                 </el-form-item>
                 <el-form-item label="系统" prop="xt" required>
-                  <el-input clearable v-model="item.xt" />
+                  <el-input clearable v-model="item.xt" type="text" maxlength="10" show-word-limit />
                 </el-form-item>
                 <el-form-item label="建设阶段" prop="buildStage">
                   <el-select v-model="item.buildStage" placeholder="建设阶段">
@@ -237,14 +237,13 @@
                   <el-button type="primary" @click="deleteItemBefore(item)">删除模块</el-button>
                 </el-form-item>
 
-              </el-form>
 
+              </el-form>
             </el-card>
           </el-col>
         </el-row>
       </el-scrollbar>
     </el-main>
-
 
     <el-footer>
       <el-form-item>
@@ -253,6 +252,7 @@
         <el-button @click="addOne">添加模块</el-button>
       </el-form-item>
     </el-footer>
+
 
   </div>
 </template>
@@ -299,8 +299,8 @@ const { schoolListFirstName } = storeToRefs(commonStore);
 const ruleForm = ref([]);
 const loading = ref(false);
 const getInfo = async (selectedSchoolCode) => {
-  loading.value = true
-  console.log('传出去的地方',selectedSchoolCode)
+  loading.value = true;
+  console.log("传出去的地方", selectedSchoolCode);
   let result = await getSchoolInfo(selectedSchoolCode.value);
   if (!result.data.success) {
     ElNotification({
@@ -310,7 +310,7 @@ const getInfo = async (selectedSchoolCode) => {
     });
     return;
   }
-  loading.value = false
+  loading.value = false;
   ruleForm.value = result.data.data;
   console.log("ruleForm.value", ruleForm.value);
 };
@@ -327,7 +327,7 @@ const userQuerySearch = async () => {
 const ruleFormAdd = ref({
   school_code: "",
   buildStage: "",
-  create_date: parseTime(new Date(),''),
+  create_date: parseTime(new Date(), ""),
   fwsxy_end_date: timestampToTime(new Date()),
   fwsxy_start_date: timestampToTime(new Date()),
   fzr1: "",
@@ -353,9 +353,9 @@ const addSchool = async (formEl: FormInstance | undefined) => {
 
   if (!formEl)
     return;
-  await formEl.validate( async (valid,field)=>{
-    if (valid){
-      loading.value = true
+  await formEl.validate(async (valid, field) => {
+    if (valid) {
+      loading.value = true;
       let a = await addSchoolInfo(ruleFormAdd.value);
       let result = a.data;
       console.log("result", a.data);
@@ -374,13 +374,13 @@ const addSchool = async (formEl: FormInstance | undefined) => {
       });
 
       commonStore.updateList();
-      loading.value = false
+      loading.value = false;
       dialogVisible.value = false;
       formEl.resetFields();
-    }else {
-      console.log('error submit!', field)
+    } else {
+      console.log("error submit!", field);
     }
-  })
+  });
 
 };
 
@@ -401,38 +401,41 @@ const addOne = async () => {
   });
 };
 //编辑已有数据提交
-const submitForm = async (formEl: FormInstance | undefined) => {
-
-  if (!formEl) return;
-  await formEl.validate(async (valid,field)=>{
-    if (valid){
-      loading.value = true
-      let b = await editSchoolInfo(ruleForm.value, selectedSchoolCode.value);
-      if (b.data.success) {
-        ElMessage({
-          type: "success",
-          message: "提交成功"
-        });
-
-      } else {
-        ElMessage({
-          type: "error",
-          message: "提交失败"
-        });
-      }
-      loading.value = false
-    }else {
-      console.log('error submit!', field)
+const submitForm = async () => {
+  try {
+    loading.value = true;
+    let item: any = ruleFormRef.value;
+    for (let i = 0; i < item.length; i++) {
+      await ruleFormRef.value[i].validate();
     }
-  })
+    let b = await editSchoolInfo(ruleForm.value, selectedSchoolCode.value);
+    if (b.data.success) {
+      ElMessage({
+        type: "success",
+        message: "提交成功"
+      });
+
+    } else {
+      ElMessage({
+        type: "error",
+        message: "提交失败"
+      });
+    }
+    loading.value = false;
+  } catch (e) {
+    console.log(e);
+    console.log("编辑学校模块填写有误");
+    loading.value = false;
+    return;
+  }
 };
 //重置
 const resetForm = (formEl: FormInstance | undefined) => {
-  loading.value = true
+  loading.value = true;
   console.log("formEl", formEl);
   if (!formEl) return;
   formEl.resetFields();
-  loading.value = false
+  loading.value = false;
 };
 
 //操作后刷新
@@ -476,7 +479,7 @@ const deleteItemBefore = async (item) => {
   }
 };
 const deleteItem = (item) => {
-  loading.value = true
+  loading.value = true;
   ElMessageBox.confirm("您确定删除" + selectedSchoolName.value + "的该模块吗")
     .then(async () => {
       let a = await deleteSchoolModule(item.school_code, item.id);
@@ -486,14 +489,14 @@ const deleteItem = (item) => {
         message: "删除成功"
       });
       await getInfo(selectedSchoolCode);
-      loading.value = false
+      loading.value = false;
     })
     .catch(() => {
       ElMessage({
         type: "success",
         message: "删除失败"
       });
-      loading.value = false
+      loading.value = false;
     });
 };
 

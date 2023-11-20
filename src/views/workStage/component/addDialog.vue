@@ -14,7 +14,6 @@
       :disabled="clickStatus==='detail'"
 
     >
-      <!--      ruleForm.process_people!==userInfo.code||ruleForm.status===1-->
       <el-row>
         <el-col :span="12">
           <el-form-item label="学校名称" prop="school_name">
@@ -27,7 +26,7 @@
           </el-form-item>
         </el-col>
         <el-col :span="12">
-          <el-form-item label="系统" prop="xt">
+          <el-form-item label="系统" prop="xt" required>
             <el-select v-model="ruleForm.xt" class="m-2" placeholder="请选择系统名称">
               <el-option
                 v-for="item in xtOptions"
@@ -62,7 +61,7 @@
                 v-for="item in processPeopleOptions"
                 :key="item.value"
                 :label="item.label"
-                :value="item.value"
+                :value="item.label"
               />
             </el-select>
           </el-form-item>
@@ -113,7 +112,9 @@
               multiple
               drag
               :auto-upload="false"
+              :on-change="beforeUpload"
               v-model:file-list="uploadFileList"
+              :on-progress="importSubmit"
             >
               <el-icon class="el-icon--upload">
                 <UploadFilled />
@@ -133,9 +134,10 @@
         <el-col :span="12" v-show="downloadFileList.length!==0">
           <h4>已上传文件列表</h4>
           <van-row>
-            <div style="display: flex;align-items: center;justify-items: flex-start;margin-top: 10px;" v-for="item in downloadFileList" @click="download(item)">
+            <div style="display: flex;align-items: center;justify-items: flex-start;margin-top: 10px;"
+                 v-for="item in downloadFileList" @click="download(item)">
               <el-image style="width: 30px;padding-right: 10px" :src="displayIcon(item)"></el-image>
-              <div>{{item.slice(14)}}</div>
+              <div>{{ item.slice(14) }}</div>
             </div>
           </van-row>
         </el-col>
@@ -150,7 +152,7 @@
 
     <div style="height: 30px;"></div>
     <template #footer>
-      <div class="dialog-footer" style="padding-top: 50px"  v-show="clickStatus!=='detail'">
+      <div class="dialog-footer" style="padding-top: 50px" v-show="clickStatus!=='detail'">
         <el-button @click="dialogVisible = false">取消</el-button>
         <el-button type="primary" @click="handleClose(ruleFormRef)">确定</el-button>
       </div>
@@ -160,6 +162,7 @@
 </template>
 <script lang="ts" setup>
 import { UploadFilled } from "@element-plus/icons-vue";
+import type { UploadProps } from "element-plus";
 import { ElMessage, FormInstance, ElNotification } from "element-plus";
 import { computed, onMounted, reactive, ref, watch } from "vue";
 import { QuillEditor } from "@vueup/vue-quill";
@@ -197,9 +200,9 @@ const ruleForm = reactive({
   xt: "",
   create_people: userInfo.value.name,
   priority: "紧急",
-  process_people: null,
+  process_people: userInfo.value.name,
   program_type: "bug",
-  status: '0',
+  status: "0",
   remark: null,
   create_time: parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}"),
   content: ref(""),
@@ -209,7 +212,7 @@ const rules = reactive({
   title: [{ required: true, message: "请输入标题", trigger: "blur" }],
   school_name: [{ required: true, message: "请输入学校名称", trigger: "blur" }],
   school_code: [{ required: true, message: "请先填写学校名称", trigger: "blur" }],
-  xt: [{ required: false, message: "请选择系统", trigger: "blur" }],
+  xt: [{ required: true, message: "请选择系统", trigger: "blur" }],
   create_people: [{ required: true, message: "请输入", trigger: "blur" }],
   process_people: [{ required: true, message: "请选择处理人", trigger: "change" }],
   program_type: [{ required: true, message: "请选择项目分类", trigger: "change" }],
@@ -274,10 +277,29 @@ const getProcessPeopleList = async () => {
 
 //文件上传及下载部分
 const uploadFileList = ref<UploadUserFile[]>();
+const uploadRef = ref<FormInstance>();
+
 const downloadFileList = reactive([]);
 const download = (item) => {
-  window.location.href = "http://127.0.0.1:7001/" + "public/upload/" + item;
+  // window.location.href = "http://127.0.0.1:7001/" + "public/upload/" + item;
+  window.open("http://127.0.0.1:7001/" + "public/upload/" + item);
 };
+const beforeUpload: UploadProps["beforeUpload"] = (rawFile) => {
+  console.log("4444444444444444444444", rawFile);
+
+  // if (rawFile.type !== 'pdf/png/jpg/jpeg/xlsx/txt/docx/xls/doc/zip') {
+  //   ElMessage.error('请根据提示选择相应格式的文件!')
+  //   return false
+  // } else
+  let rfr: any = uploadRef.value;
+  if (rawFile.size / 1024 / 1024 > 2) {
+    rfr.handleRemove(rawFile);
+    ElMessage.error("文件大小不得超过2MB!");
+    return false;
+  }
+  return true;
+};
+
 const displayIcon = (type: string): any => {
   /*
    IconDoc
@@ -291,7 +313,7 @@ const displayIcon = (type: string): any => {
    IconRar
    IconNone
    */
-  let r = type.substring(type.lastIndexOf('.'))
+  let r = type.substring(type.lastIndexOf("."));
   switch (r) {
     case ".docx":
     case ".doc":
@@ -345,7 +367,6 @@ let editorOption = {
 };
 
 
-
 //打开或关闭模态窗的初始化以及清空部分
 const submitType = ref("add");
 const commonStore = useCommonStore();
@@ -355,13 +376,13 @@ const show = (item = {}) => {
     submitType.value = "edit";
     Object.keys(item).forEach(key => {
       ruleForm[key] = item[key];
-      if (ruleForm[key]!==null && key === "fileList") {
+      if (ruleForm[key] !== null && key === "fileList") {
         let e = JSON.parse(ruleForm[key]);
         downloadFileList.push(...e);
       }
     });
     dialogVisible.value = true;
-  }else {
+  } else {
     submitType.value = "add";
     dialogVisible.value = true;
   }
@@ -369,30 +390,58 @@ const show = (item = {}) => {
 
 };
 
+function abortUpload() {
+  console.log("取消");
+  this.$refs.uploadRef.abort(); // 调用 abort 方法中止上传
+}
+
+function importSubmit(e, file, fileList) {
+  // 解析上传的文件
+  // let file = this.uploadFiles[0]
+  let reader = new FileReader();
+  // abort none 中断读取
+  // readAsBinaryString file 将文件读取为二进制码，通常我们将它传送到后端，后端可以通过这段字符串存储文件
+  // readAsDataURL file 将文件读取为 DataURL，一段以 data: 开头的字符串，这段字符串的实质就是 Data URL，Data URL是一种将小文件直接嵌入文档的方案。这里的小文件通常是指图像与 html 等格式的文件
+  // readAsText file, [encoding] 将文件读取为文本，读取的结果即是这个文本文件中的内容
+  reader.readAsText(file.raw);
+  // onabort 中断时触发
+  // onerror 出错时触发
+  // onload 文件读取成功完成时触发
+  // onloadend 读取完成触发，无论成功或失败
+  // onloadstart 读取开始时触发
+  // onprogress 读取中
+  reader.onabort = (e) => {
+    // 读取文件内容
+    console.log("看看进来没");
+    const fileString = e.target.result;
+    // 接下来可对文件内容进行处理
+  };
+}
+
+
 function close() {
   ruleFormRef.value.resetFields();
-  uploadFileList.value =[];
-  downloadFileList.length=0
+  uploadFileList.value = [];
+  downloadFileList.length = 0;
   Object.keys(ruleForm).forEach(key => {
     switch (key) {
       case "priority":
-        return ruleForm[key] = "紧急"
+        return ruleForm[key] = "紧急";
       case "status":
-        return ruleForm[key] = '0'
+        return ruleForm[key] = "0";
       case "create_people":
-        return ruleForm[key] = userInfo.value.name
+        return ruleForm[key] = userInfo.value.name;
       case "program_type":
-        return ruleForm[key] = "bug"
+        return ruleForm[key] = "bug";
       case "create_time":
-        return ruleForm[key] = parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}")
+        return ruleForm[key] = parseTime(new Date(), "{y}-{m}-{d} {h}:{i}:{s}");
       case "content":
-        return ruleForm[key] = " "
+        return ruleForm[key] = " ";
       default:
-        return ruleForm[key] = null
+        return ruleForm[key] = null;
     }
   });
 }
-
 
 
 //提交
@@ -407,23 +456,25 @@ const handleClose = async (done: () => void) => {
   }
   await ruleFormRef.value.validate(async (valid, fields) => {
     if (valid) {
-      // FormData模式可以同时上传数据与文件，一次性
-      let fd = new FormData();
-      fd.set("dd", "333");
-      // 统一获取，一次性上传，且可控，配合页面其他数据提交
-      uploadFileList.value.map((file) => {
-        fd.append("files", file.raw);
-      });
-      let d = await uploadFile(fd);
-      let result = d.data;
-      if (!result.success) {
-        ElMessage({
-          type: "error",
-          message: result.msg
+      if (uploadFileList.value) {
+        // FormData模式可以同时上传数据与文件，一次性
+        let fd = new FormData();
+        fd.set("dd", "333");
+        // 统一获取，一次性上传，且可控，配合页面其他数据提交
+        uploadFileList.value.map((file) => {
+          fd.append("files", file.raw);
         });
-        return;
+        let d = await uploadFile(fd);
+        let result = d.data;
+        if (!result.success) {
+          ElMessage({
+            type: "error",
+            message: result.msg
+          });
+          return;
+        }
+        ruleForm.fileList = result.data.fileNameArray;
       }
-      ruleForm.fileList = result.data.fileNameArray;
       if (submitType.value === "edit") {
         let a = await editProgram(ruleForm);
         let currentResult = a.data;
@@ -456,16 +507,13 @@ const handleClose = async (done: () => void) => {
         }
       }
       dialogVisible.value = false;
-
-      commonStore.updateTable();
+      commonStore.selectedSchoolName = "";
+      // commonStore.updateTable();
     } else {
       console.log("error submit!", fields);
     }
   });
 };
-
-
-
 
 
 watch(() => ruleForm.school_code, async (a) => {
