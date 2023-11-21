@@ -13,27 +13,26 @@
         <el-checkbox class="checkbox" v-model="isOwner" label="本人负责" size="large" @change="isOwnerChange" />
       </div>
     </template>
-<!--    <el-scrollbar height="550px" class="scrollbar">-->
-    <div style="overflow-y: scroll;height: 570px;" >
+    <!--    <el-scrollbar height="550px" class="scrollbar">-->
+    <div style="overflow-y: scroll;height: 570px;">
       <div v-for="item in listData" :key="item.school_code" class="item"
            @click="chooseSchool(item.school_code,item.school_name)">
         {{ item.school_name }}
       </div>
     </div>
 
-<!--    </el-scrollbar>-->
+    <!--    </el-scrollbar>-->
   </el-card>
 </template>
 
 <script lang="ts" setup>
 
-import { computed, defineEmits, onMounted, ref, watch } from "vue";
+import { computed, onMounted, ref, watch } from "vue";
 import { getSchoolList1 } from "@/api/schoolList";
 import { useUserStore } from "@/store/modules/user";
 import { toRaw } from "@vue/reactivity";
 import { useCommonStore } from "@/store/modules/common";
 import { storeToRefs } from "pinia";
-
 
 
 const inputForSearch = ref("");// input搜索框绑定值
@@ -59,21 +58,19 @@ const getList = async () => {
 const UserStore = useUserStore();
 const userInfo = computed(() => UserStore.userInfo);
 const { selectedOwner } = storeToRefs(commonStore);
+// 保证页面刷新时可以维持住状态，不然就会出现：选择所有学校的场合的时候，刷新，然后本人负责是勾选的，但是页面显示所有学校的bug
+const { isOwner } = storeToRefs(commonStore);
 
-const isOwner = ref(true);
 const isOwnerChange = () => {
   inputForSearch.value = "";
-  commonStore.selectedSchoolCode = ''
-  commonStore.selectedSchoolName=''
-  selectedOwner.value = isOwner.value===true?userInfo.value.code:""
-  commonStore.updateTable();
+  commonStore.updateSelectedSchool("", "");
+  selectedOwner.value = isOwner.value === true ? userInfo.value.code : "";
+  // commonStore.updateTable();
   getList();
 
 };
 const chooseSchool = (code, name) => {
-  commonStore.selectedSchoolCode = code;
-  commonStore.selectedSchoolName = name;
-  commonStore.updateTable()//更新工作台table
+  commonStore.updateSelectedSchool(name, code);
 };
 watch(() => updateListValue.value, () => {
   getList();
@@ -101,7 +98,6 @@ watch(() => inputForSearch.value, () => {
   listData.value.push(matchValueList);
 
 });
-
 
 
 onMounted(() => {

@@ -133,13 +133,11 @@
         </el-col>
         <el-col :span="12" v-show="downloadFileList.length!==0">
           <h4>已上传文件列表</h4>
-          <van-row>
             <div style="display: flex;align-items: center;justify-items: flex-start;margin-top: 10px;"
                  v-for="item in downloadFileList" @click="download(item)">
               <el-image style="width: 30px;padding-right: 10px" :src="displayIcon(item)"></el-image>
               <div>{{ item.slice(14) }}</div>
             </div>
-          </van-row>
         </el-col>
       </el-row>
       <el-row>

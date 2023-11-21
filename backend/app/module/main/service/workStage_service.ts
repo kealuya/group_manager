@@ -71,13 +71,14 @@ export class workStage_service {
                 where = ' 1=1 '
             }else {
                 where = 'process_people = :where2'
+                whereParam2 = owner
             }
-            whereParam2 = owner
         }else {
             if (owner==''||owner==null){
                 where = '  title like :where1 OR xt like :where1 OR school_name like :where1 ';
             }else {
                 where = ' (title like :where1 OR xt like :where1 OR school_name like :where1) AND process_people = :where2';
+                whereParam2 = owner
             }
             whereParam = search;
         }
@@ -119,7 +120,6 @@ export class workStage_service {
 
         });
         if (result.length > 0) {
-            console.log('gggggggggggg',sqlForSearch)
             return { array: result, count: countObj[0].count };
 
         }

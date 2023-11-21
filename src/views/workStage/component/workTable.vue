@@ -46,10 +46,14 @@
                            label="备注" align="center" />
           <el-table-column prop="operator" label="操作" width="180" align="center" fixed="right">
             <template #default="scope">
-              <el-button type="primary" size="small" v-show="scope.row.status===0&&(userInfo.code===scope.row.process_people||userInfo.name===scope.row.process_people)" icon="Edit" @click="editHandler(scope.row,'edit')">
+              <el-button type="primary" size="small"
+                         v-show="scope.row.status===0&&(userInfo.code===scope.row.process_people||userInfo.name===scope.row.process_people)"
+                         icon="Edit" @click="editHandler(scope.row,'edit')">
                 编辑
               </el-button>
-              <el-button type="success" size="small" v-show="scope.row.status===1||(userInfo.code!==scope.row.process_people&&userInfo.name!==scope.row.process_people)"  icon="View" @click="editHandler(scope.row,'detail')">
+              <el-button type="success" size="small"
+                         v-show="scope.row.status===1||(userInfo.code!==scope.row.process_people&&userInfo.name!==scope.row.process_people)"
+                         icon="View" @click="editHandler(scope.row,'detail')">
                 详情
               </el-button>
               <el-button @click="del(scope.row)" type="danger" size="small" icon="Delete">
@@ -62,7 +66,7 @@
       <div style="height: 20px"></div>
       <el-pagination background layout="prev, pager, next" v-model:currentPage="currentPage"
                      :page-count="pageCount" />
-                     <!--  WARNING  以上事件不推荐使用（但由于兼容的原因仍然支持，在以后的版本中将会被删除）；如果要监听 current-page 和 page-size 的改变，使用 v-model 双向绑定是个更好的选择。-->
+      <!--  WARNING  以上事件不推荐使用（但由于兼容的原因仍然支持，在以后的版本中将会被删除）；如果要监听 current-page 和 page-size 的改变，使用 v-model 双向绑定是个更好的选择。-->
     </div>
 
   </div>
@@ -71,7 +75,7 @@
 
 <script lang="ts" setup>
 import AddDialog from "@/views/workStage/component/addDialog.vue";
-import { computed, onMounted, reactive, ref, watch, watchEffect } from "vue";
+import { computed, reactive, ref, watchEffect } from "vue";
 import { ElMessage, ElMessageBox, FormInstance } from "element-plus";
 import { deleteProgram } from "@/api/workStage";
 import { useCommonStore } from "@/store/modules/common";
@@ -94,8 +98,8 @@ const commonStore = useCommonStore();
 // store调用，并更改页面数据的正确使用方案
 const { schoolWorkState } = storeToRefs(commonStore);
 const { selectedOwner } = storeToRefs(commonStore);
-const getList = async (search, page, pageSize,owner) => {
-  let processResult = await commonStore.getSchoolWorkState(search, page, pageSize,owner);
+const getList = async (search, page, pageSize, owner) => {
+  let processResult = await commonStore.getSchoolWorkState(search, page, pageSize, owner);
   if (!processResult) {
     loading.value = false;
     return;
@@ -106,13 +110,11 @@ const getList = async (search, page, pageSize,owner) => {
 };
 
 
-
-
 //添加项目
 const { clickStatus } = storeToRefs(commonStore);
 const addDialogRef = ref();
 const addProgram = () => {
-  clickStatus.value = 'add'
+  clickStatus.value = "add";
   addDialogRef.value.show();
 };
 
@@ -123,24 +125,22 @@ const searchValue = ref<string>("");
 const ruleFormRef = ref<FormInstance>();
 const onSubmit = () => {
   loading.value = true;
-  getList(formInline["searchValue"], currentPage.value, pageSize.value,selectedOwner.value);
-  commonStore.updateTable();
+  getList(formInline["searchValue"], currentPage.value, pageSize.value, selectedOwner.value);
+  // commonStore.updateTable();
   loading.value = false;
 };
 const reset = (formEl: FormInstance | undefined) => {
   formInline["searchValue"] = "";
   loading.value = true;
-  getList("", currentPage.value, pageSize.value,selectedOwner.value);
+  getList("", currentPage.value, pageSize.value, selectedOwner.value);
   loading.value = false;
 };
 
 
-
-
 //table功能部分
 //编辑
-const editHandler = (row,value) => {
-  clickStatus.value = value
+const editHandler = (row, value) => {
+  clickStatus.value = value;
   addDialogRef.value.show(row);
 };
 //删除
@@ -168,7 +168,7 @@ const del = async (row) => {
       type: "success",
       message: "删除成功"
     });
-    await getList("", currentPage.value, pageSize.value,selectedOwner.value);
+    await getList("", currentPage.value, pageSize.value, selectedOwner.value);
 
   } catch (e) {
     // cancel的场合
@@ -178,31 +178,36 @@ const del = async (row) => {
 };
 
 
-
-
 //watch更新列表
-const { updateTableValue } = storeToRefs(commonStore);
-const { selectedSchoolName } = storeToRefs(commonStore);
-watch(() => updateTableValue.value, () => {
-  formInline["searchValue"] = selectedSchoolName;
-  onSubmit();
-});
-
+// const { updateTableValue } = storeToRefs(commonStore);
+// const { selectedSchoolName } = storeToRefs(commonStore);
+// watch(() => updateTableValue.value, () => {
+//   formInline["searchValue"] = selectedSchoolName;
+//   onSubmit();
+// });
+//
 
 watchEffect(
   async () => {
     loading.value = true;
-    await getList(formInline["searchValue"], currentPage.value, pageSize.value,selectedOwner.value);
+
+    await getList(formInline["searchValue"], currentPage.value, pageSize.value, selectedOwner.value);
     loading.value = false;
+  }, {
+    //https://cn.vuejs.org/api/reactivity-core.html#watcheffect
+    // 默认情况下，侦听器将在组件渲染之前执行。设置 flush: 'post' 将会使侦听器延迟到组件渲染之后再执行
+    // 解决页面初始化时 getList调用2次的问题
+    flush: "post"
   }
 );
 
-onMounted(() => {
-  // formInline["searchValue"] = userInfo.value.code
-  getList(formInline["searchValue"], currentPage.value, pageSize.value,userInfo.value.code);
-  loading.value = false;
+const { selectedSchoolName } = storeToRefs(commonStore);
+watchEffect(
+  async () => {
+    formInline["searchValue"] = selectedSchoolName;
+  }
+);
 
-});
 </script>
 
 <style scoped>
